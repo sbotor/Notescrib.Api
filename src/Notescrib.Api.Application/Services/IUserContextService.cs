@@ -1,8 +1,8 @@
 ﻿namespace Notescrib.Api.Application.Services;
 
-internal interface IUserContextService
+public interface IUserContextService
 {
     string? UserId { get; }
-    string? Username { get; }
+    string? Email { get; }
     bool IsAuthenticated { get; }
 }

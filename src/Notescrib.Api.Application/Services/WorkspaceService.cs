@@ -14,7 +14,6 @@ internal class WorkspaceService : IWorkspaceService
     private const string FolderNotFoundMsg = "Folder with path '{0}' not found.";
 
     private readonly IWorkspaceRepository _repository;
-    private readonly INoteService _noteService;
     private readonly IPermissionService _permissionService;
     private readonly IUserContextService _userContextService;
     private readonly IWorkspaceMapper _mapper;
@@ -23,14 +22,12 @@ internal class WorkspaceService : IWorkspaceService
 
     public WorkspaceService(
         IWorkspaceRepository repository,
-        INoteService noteService,
         IPermissionService permissionService,
         IUserContextService userContextService,
         IWorkspaceMapper mapper,
         ILogger<WorkspaceService> logger)
     {
         _repository = repository;
-        _noteService = noteService;
         _permissionService = permissionService;
         _userContextService = userContextService;
         _mapper = mapper;
@@ -77,7 +74,7 @@ internal class WorkspaceService : IWorkspaceService
             return ApiResponse<WorkspaceResponse>.Forbidden();
         }
 
-        var response = _mapper.MapToResponse(workspace, await _noteService.GetNoteDetailsAsync(workspace.Id!));
+        var response = _mapper.MapToResponse(workspace, null);
         return ApiResponse<WorkspaceResponse>.Success(response);
     }
 
@@ -107,7 +104,7 @@ internal class WorkspaceService : IWorkspaceService
             var updated = await _repository.UpdateWorkspaceAsync(
                 _mapper.MapToEntity(request, _userContextService.UserId, workspace));
 
-            var response = _mapper.MapToResponse(workspace, await _noteService.GetNoteDetailsAsync(workspace.Id!));
+            var response = _mapper.MapToResponse(workspace, null);
             return ApiResponse<WorkspaceResponse>.Success(response);
         }
         catch (Exception e)

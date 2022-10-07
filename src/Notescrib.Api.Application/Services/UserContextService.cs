@@ -13,10 +13,10 @@ internal class UserContextService : IUserContextService
     }
 
     public string? UserId => GetClaim(ClaimTypes.NameIdentifier);
-    public string? Username => GetClaim(ClaimTypes.Name);
+    public string? Email => GetClaim(ClaimTypes.Email);
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
 
     private string? GetClaim(string claimType)
         => _httpContextAccessor.HttpContext?.User?.Claims
-        ?.FirstOrDefault(c => c.Type == claimType)?.Value;
+            ?.FirstOrDefault(c => c.Type == claimType)?.Value;
 }

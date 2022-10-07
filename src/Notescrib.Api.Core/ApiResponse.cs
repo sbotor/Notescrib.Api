@@ -7,7 +7,7 @@ public class ApiResponse<TResponse, TError>
     public TResponse? Response { get; set; }
     public TError? Error { get; set; }
     public bool IsSuccessful { get; set; }
-    public HttpStatusCode StatusCode { get; set; }
+    public HttpStatusCode? StatusCode { get; set; }
 }
 
 public class ApiResponse<TResponse> : ApiResponse<TResponse, string>
