@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Notescrib.Api.Application.Configuration;
 
-namespace Notescrib.Api.Application.Services;
+namespace Notescrib.Api.Application.Services.Auth;
 
 internal class JwtProvider : IJwtProvider
 {

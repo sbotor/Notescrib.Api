@@ -21,6 +21,7 @@ internal class WorkspaceMapper : IWorkspaceMapper
             Id = workspace.Id ?? string.Empty,
             Name = workspace.Name,
             SharingDetails = workspace.SharingDetails,
+            OwnerId = workspace.OwnerId,
             Folders = workspace.Folders.Select(f => new FolderDetails
             {
                 Name = f.Name,

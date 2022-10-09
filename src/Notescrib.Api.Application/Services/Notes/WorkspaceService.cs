@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Notescrib.Api.Application.Contracts.Workspace;
 using Notescrib.Api.Application.Mappers;
@@ -6,7 +6,7 @@ using Notescrib.Api.Application.Repositories;
 using Notescrib.Api.Core;
 using Notescrib.Api.Core.Entities;
 
-namespace Notescrib.Api.Application.Services;
+namespace Notescrib.Api.Application.Services.Notes;
 
 internal class WorkspaceService : IWorkspaceService
 {
@@ -34,7 +34,7 @@ internal class WorkspaceService : IWorkspaceService
         _logger = logger;
     }
 
-    public async Task<ApiResponse<WorkspaceResponse>> AddWorkspace(WorkspaceRequest request)
+    public async Task<ApiResponse<WorkspaceResponse>> AddWorkspaceAsync(WorkspaceRequest request)
     {
         if (string.IsNullOrEmpty(request.Name) || request.Name.Length < 4)
         {
@@ -43,12 +43,14 @@ internal class WorkspaceService : IWorkspaceService
 
         try
         {
-            var workspace = _mapper.MapToEntity(request, _userContextService.UserId);
-
-            var added = await _repository.AddWorkspaceAsync(new Workspace
+            var ownerId = _userContextService.UserId;
+            if (ownerId == null)
             {
-                Name = request.Name
-            });
+                return ApiResponse<WorkspaceResponse>.Failure("No user context found.");
+            }
+
+            var workspace = _mapper.MapToEntity(request, ownerId);
+            var added = await _repository.AddWorkspaceAsync(workspace);
 
             return ApiResponse<WorkspaceResponse>.Success(_mapper.MapToResponse(added));
         }
@@ -78,6 +80,20 @@ internal class WorkspaceService : IWorkspaceService
         return ApiResponse<WorkspaceResponse>.Success(response);
     }
 
+    public async Task<ApiResponse<IReadOnlyCollection<WorkspaceResponse>>> ListUserWorkspacesAsync()
+    {
+        var ownerId = _userContextService.UserId;
+        if (ownerId == null)
+        {
+            return ApiResponse<IReadOnlyCollection<WorkspaceResponse>>.Failure();
+        }
+
+        var result = await _repository.GetUserWorkspaces(ownerId);
+        var response = result.Select(x => _mapper.MapToResponse(x)).ToList();
+
+        return ApiResponse<IReadOnlyCollection<WorkspaceResponse>>.Success(response);
+    }
+
     public async Task<ApiResponse<WorkspaceResponse>> UpdateWorkspace(string id, WorkspaceRequest request)
     {
         if (string.IsNullOrEmpty(request.Name) || request.Name.Length < 4)
@@ -101,8 +117,8 @@ internal class WorkspaceService : IWorkspaceService
                 return ApiResponse<WorkspaceResponse>.Forbidden();
             }
 
-            var updated = await _repository.UpdateWorkspaceAsync(
-                _mapper.MapToEntity(request, _userContextService.UserId, workspace));
+            workspace = _mapper.MapToEntity(request, workspace.OwnerId, workspace);
+            await _repository.UpdateWorkspaceAsync(workspace);
 
             var response = _mapper.MapToResponse(workspace, null);
             return ApiResponse<WorkspaceResponse>.Success(response);
@@ -114,21 +130,31 @@ internal class WorkspaceService : IWorkspaceService
         }
     }
 
-    public async Task<ApiResponse<string>> AddFolderAsync(string parentPath, string folderName)
+    public async Task<ApiResponse<string>> AddFolderAsync(FolderRequest request)
     {
+        if (string.IsNullOrEmpty(request.ParentPath))
+        {
+            return ApiResponse<string>.Failure("Invalid parent path.");
+        }
+
+        if (string.IsNullOrEmpty(request.Name))
+        {
+            return ApiResponse<string>.Failure("Invalid folder name.");
+        }
+
         var folder = new FolderPath
         {
-            ParentPath = parentPath,
-            Name = folderName
+            ParentPath = request.ParentPath,
+            Name = request.Name
         };
 
         var workspace = await _repository.GetWorkspaceByIdAsync(folder.WorkspaceId);
         if (workspace == null)
         {
-            return ApiResponse<string>.Failure(string.Format(WorkspaceNotFoundMsg, folder.WorkspaceId), HttpStatusCode.NotFound);
+            return ApiResponse<string>.NotFound(string.Format(WorkspaceNotFoundMsg, folder.WorkspaceId));
         }
 
-        if (_permissionService.CanEdit(workspace.OwnerId))
+        if (!_permissionService.CanEdit(workspace.OwnerId))
         {
             return ApiResponse<string>.Forbidden();
         }
@@ -140,13 +166,13 @@ internal class WorkspaceService : IWorkspaceService
 
         if (!workspace.Folders.Any(x => x.AbsolutePath == folder.ParentPath))
         {
-            return ApiResponse<string>.Failure(string.Format(FolderNotFoundMsg, folder.ParentPath), HttpStatusCode.NotFound);
+            return ApiResponse<string>.NotFound(string.Format(FolderNotFoundMsg, folder.ParentPath));
         }
 
         workspace.Folders.Add(folder);
-        workspace = await _repository.UpdateWorkspaceAsync(workspace);
+        await _repository.UpdateWorkspaceAsync(workspace);
 
-        folder = workspace.Folders.First(x => x.Name == folderName);
+        folder = workspace.Folders.First(x => x.Name == folder.Name);
         return ApiResponse<string>.Success(folder.AbsolutePath);
     }
 

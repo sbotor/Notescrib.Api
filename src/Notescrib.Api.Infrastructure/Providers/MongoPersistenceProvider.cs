@@ -33,14 +33,14 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
         return found != null;
     }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity)
+    public async Task UpdateAsync(TEntity entity)
     {
         if (string.IsNullOrEmpty(entity.Id))
         {
             throw new InvalidOperationException("Cannot update an entity with an empty Id.");
         }
 
-        return await Collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
+        await Collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
     }
 
     public async Task<TEntity?> FindByIdAsync(string id)

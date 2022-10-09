@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Api.Application.Contracts.User;
-using Notescrib.Api.Application.Services;
+using Notescrib.Api.Application.Services.Auth;
 
 namespace Notescrib.Api.Controllers;
 

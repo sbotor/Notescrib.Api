@@ -20,7 +20,7 @@ internal class NoteRepository
     public async Task<Note?> GetNoteByIdAsync(string noteId)
         => await _persistenceProvider.FindByIdAsync(noteId);
 
-    public async Task<Note> UpdateNoteAsync(Note note)
+    public async Task UpdateNoteAsync(Note note)
         => await _persistenceProvider.UpdateAsync(note);
 
     public async Task<bool> DeleteNoteAsync(string noteId)

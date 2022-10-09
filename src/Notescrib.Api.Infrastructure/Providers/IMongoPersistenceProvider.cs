@@ -11,5 +11,5 @@ internal interface IMongoPersistenceProvider<TEntity> where TEntity : IdEntityBa
     Task<bool> DeleteAsync(string id);
     Task<bool> ExistsAsync(string id);
     Task<TEntity?> FindByIdAsync(string id);
-    Task<TEntity> UpdateAsync(TEntity entity);
+    Task UpdateAsync(TEntity entity);
 }

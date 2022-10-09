@@ -6,6 +6,7 @@ public interface IWorkspaceRepository
 {
     Task<Workspace> AddWorkspaceAsync(Workspace workspace);
     Task<bool> DeleteWorkspaceAsync(string workspaceId);
+    Task<ICollection<Workspace>> GetUserWorkspaces(string ownerId);
     Task<Workspace?> GetWorkspaceByIdAsync(string workspaceId);
-    Task<Workspace> UpdateWorkspaceAsync(Workspace workspace);
+    Task UpdateWorkspaceAsync(Workspace workspace);
 }

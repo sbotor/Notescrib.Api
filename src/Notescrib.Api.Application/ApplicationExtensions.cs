@@ -1,9 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Configuration;
 using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Application.Mappers;
 using Notescrib.Api.Application.Services;
+using Notescrib.Api.Application.Services.Auth;
+using Notescrib.Api.Application.Services.Notes;
+
+[assembly: InternalsVisibleTo("Notescrib.Api.Application.Tests")]
 
 namespace Notescrib.Api.Application;
 
@@ -20,7 +25,7 @@ public static class ApplicationExtensions
             .AddScoped<IWorkspaceMapper, WorkspaceMapper>();
 
         services
-            .AddScoped<IPermissionService, MockPermissionService>()
+            .AddScoped<IPermissionService, PermissionService>()
             .AddScoped<IUserContextService, UserContextService>();
 
         services

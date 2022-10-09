@@ -15,11 +15,12 @@ public static class SwaggerExtensions
         {
             c.AddSecurityDefinition(JwtSchemeName, new OpenApiSecurityScheme
             {
-                Type = SecuritySchemeType.ApiKey,
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
                 In = ParameterLocation.Header,
                 Name = HeaderNames.Authorization,
+                Scheme = "Bearer",
                 Description = "JWT Bearer scheme.",
-                Scheme = "Bearer"
             });
 
             c.AddSecurityRequirement(new OpenApiSecurityRequirement

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Notescrib.Api.Application.Contracts.User;
 using Notescrib.Api.Core;
 
-namespace Notescrib.Api.Application.Services;
+namespace Notescrib.Api.Application.Services.Auth;
 
 internal class AuthService : IAuthService
 {

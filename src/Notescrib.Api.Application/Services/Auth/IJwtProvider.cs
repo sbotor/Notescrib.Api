@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Api.Application.Services;
+﻿namespace Notescrib.Api.Application.Services.Auth;
 
 internal interface IJwtProvider
 {
