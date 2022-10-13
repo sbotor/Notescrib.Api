@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Services;
+﻿using Notescrib.Api.Application.Common.Services;
 
 namespace Notescrib.Api.Application.Tests;
 

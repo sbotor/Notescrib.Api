@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Api.Core.Entities;
 
-public class Note : IdEntityBase<string>
+public class Note : EntityIdBase
 {
     public string Name { get; set; } = string.Empty;
     public string FullParentPath { get; set; } = string.Empty;

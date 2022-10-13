@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Api.Application.Contracts.Workspace;
-using Notescrib.Api.Application.Services.Notes;
+using Notescrib.Api.Application.Workspaces.Queries;
+using Notescrib.Api.Contracts.Workspaces;
 
 namespace Notescrib.Api.Controllers;
 
@@ -9,30 +10,19 @@ namespace Notescrib.Api.Controllers;
 [Authorize]
 public class WorkspacesController : ApiControllerBase
 {
-    private readonly IWorkspaceService _workspaceService;
-
-    public WorkspacesController(IWorkspaceService workspaceService)
+    public WorkspacesController(ISender mediator) : base(mediator)
     {
-        _workspaceService = workspaceService;
     }
 
-    [HttpGet()]
+    [HttpGet]
     public async Task<IActionResult> ListWorkspaces()
-        => GetResult(await _workspaceService.ListUserWorkspacesAsync());
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetWorkspaceById(string id)
-        => GetResult(await _workspaceService.GetWorkspaceByIdAsync(id));
+        => await GetResponseAsync(new GetUserWorkspaces.Query());
 
     [HttpPost]
-    public async Task<IActionResult> AddWorkspace(WorkspaceRequest request)
-        => GetResult(await _workspaceService.AddWorkspaceAsync(request));
+    public async Task<IActionResult> AddWorkspace(AddWorkspaceRequest request)
+        => await GetResponseAsync(request.ToCommand());
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> EditWorkspace(string id, WorkspaceRequest request)
-        => GetResult(await _workspaceService.UpdateWorkspace(id, request));
-
-    [HttpPost("folder")]
-    public async Task<IActionResult> AddFolder(FolderRequest request)
-        => GetResult(await _workspaceService.AddFolderAsync(request));
+    public async Task<IActionResult> UpdateWorkspace(string id, UpdateWorkspaceRequest request)
+        => await GetResponseAsync(request.ToCommand(id));
 }

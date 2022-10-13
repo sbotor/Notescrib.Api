@@ -3,9 +3,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Notescrib.Api.Application.Contracts.Workspace;
 using Notescrib.Api.Application.Mappers;
-using Notescrib.Api.Application.Repositories;
 using Notescrib.Api.Application.Services;
 using Notescrib.Api.Application.Services.Notes;
+using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
 

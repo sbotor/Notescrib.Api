@@ -1,12 +1,11 @@
 ﻿using Notescrib.Api.Application.Contracts.User;
-using Notescrib.Api.Core;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Services;
 
 public interface IUserService
 {
-    Task<ApiResponse<UserDetails>> AddUserAsync(CreateUserRequest request);
-    Task<ApiResponse<bool>> CheckEmailAsync(string email);
-    Task<ApiResponse<UserDetails>> GetUserByEmailAsync(string email);
-    Task<ApiResponse<UserDetails>> VerifyCredentialsAsync(LoginRequest request);
+    Task<Result<UserDetails>> AddUserAsync(CreateUserRequest request);
+    Task<Result<bool>> CheckEmailAsync(string email);
+    Task<Result<UserDetails>> GetUserByEmailAsync(string email);
 }

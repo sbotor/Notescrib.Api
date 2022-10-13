@@ -1,6 +1,7 @@
 ﻿using Notescrib.Api.Application;
 using Notescrib.Api.Extensions;
 using Notescrib.Api.Infrastructure;
+using Notescrib.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseMiddleware<ErrorHandlingMiddleware>();
 }
 
 app.UseHttpsRedirection();

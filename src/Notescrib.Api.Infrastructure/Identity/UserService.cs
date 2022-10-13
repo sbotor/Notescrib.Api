@@ -2,9 +2,10 @@
 using DnsClient.Internal;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Notescrib.Api.Application.Common.Services;
 using Notescrib.Api.Application.Contracts.User;
 using Notescrib.Api.Application.Services;
-using Notescrib.Api.Core;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.Identity;
 
@@ -21,18 +22,18 @@ internal class UserService : IUserService
         _logger = logger;
     }
 
-    public async Task<ApiResponse<UserDetails>> AddUserAsync(CreateUserRequest request)
+    public async Task<Result<UserDetails>> AddUserAsync(CreateUserRequest request)
     {
         if (request.Password != request.PasswordConfirmation)
         {
-            return ApiResponse<UserDetails>.Failure("Passwords do not match.");
+            return Result<UserDetails>.Failure("Passwords do not match.");
         }
 
         try
         {
             if (!await CheckEmailInternal(request.Email))
             {
-                return ApiResponse<UserDetails>.Failure("This email is taken.");
+                return Result<UserDetails>.Failure("This email is taken.");
             }
 
             var user = new IdentityUser
@@ -57,81 +58,33 @@ internal class UserService : IUserService
         catch (Exception e)
         {
             _logger.LogError(e, "Exception when adding a new user.");
-            return ApiResponse<UserDetails>.Failure(statusCode: HttpStatusCode.InternalServerError);
+            return Result<UserDetails>.Failure(statusCode: HttpStatusCode.InternalServerError);
         }
     }
 
-    public async Task<ApiResponse<bool>> CheckEmailAsync(string email)
-        => ApiResponse<bool>.Success(await CheckEmailInternal(email));
+    public async Task<Result<bool>> CheckEmailAsync(string email)
+        => Result<bool>.Success(await CheckEmailInternal(email));
 
-    public async Task<ApiResponse<UserDetails>> GetUserByEmailAsync(string email)
+    public async Task<Result<UserDetails>> GetUserByEmailAsync(string email)
     {
         if (!email.Equals(_userContextService.Email, StringComparison.InvariantCultureIgnoreCase))
         {
-            return ApiResponse<UserDetails>.Forbidden();
+            return Result<UserDetails>.Forbidden();
         }
 
         var user = await _userManager.FindByEmailAsync(email);
 
         return user == null
-            ? ApiResponse<UserDetails>.NotFound()
-            : ApiResponse<UserDetails>.Success(new UserDetails
+            ? Result<UserDetails>.NotFound()
+            : Result<UserDetails>.Success(new UserDetails
             {
                 Id = user.Id,
                 Email = user.Email
             });
     }
 
-    public async Task<ApiResponse<UserDetails>> VerifyCredentialsAsync(LoginRequest request)
-    {
-        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
-        {
-            return ApiResponse<UserDetails>.Failure("Invalid login details.");
-        }
 
-        try
-        {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-            {
-                return ApiResponse<UserDetails>.NotFound();
-            }
 
-            if (!user.EmailConfirmed)
-            {
-                return ApiResponse<UserDetails>.Failure("User does not have a confirmed email.");
-            }
-
-            var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            if (result == PasswordVerificationResult.Failed)
-            {
-                return ApiResponse<UserDetails>.Forbidden();
-            }
-
-            if (result == PasswordVerificationResult.SuccessRehashNeeded)
-            {
-                await _userManager.ChangePasswordAsync(user, user.PasswordHash, request.Password);
-            }
-
-            return ApiResponse<UserDetails>.Success(new UserDetails
-            {
-                Id = user.Id,
-                Email = user.Email
-            });
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Problem verifying user credentials.");
-            return ApiResponse<UserDetails>.Failure(statusCode: HttpStatusCode.InternalServerError);
-        }
-    }
-
-    private async Task<bool> CheckEmailInternal(string email)
-    {
-        var foundUser = await _userManager.FindByEmailAsync(email);
-        return foundUser == null;
-    }
-
-    private static ApiResponse<TResponse> GetIdentityErrors<TResponse>(IdentityResult result)
-        => ApiResponse<TResponse>.Failure(string.Join('\n', result.Errors.Select(e => e.Description)));
+    private static Result<TResponse> GetIdentityErrors<TResponse>(IdentityResult result)
+        => Result<TResponse>.Failure(string.Join('\n', result.Errors.Select(e => e.Description)));
 }

@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Api.Core.Entities;
 
-public class Workspace : IdEntityBase<string>
+public class Workspace : EntityIdBase
 {
     public string Name { get; set; } = string.Empty;
     public ICollection<FolderPath> Folders { get; set; } = new List<FolderPath>();

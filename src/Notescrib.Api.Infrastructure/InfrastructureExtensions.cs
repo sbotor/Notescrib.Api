@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Extensions;
-using Notescrib.Api.Application.Repositories;
 using Notescrib.Api.Application.Services;
+using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.Identity;
-using Notescrib.Api.Infrastructure.Repositories;
-using Notescrib.Api.Infrastructure.Services;
+using Notescrib.Api.Infrastructure.MongoDb;
+using Notescrib.Api.Infrastructure.MongoDb.Providers;
+using Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
 namespace Notescrib.Api.Infrastructure;
 
@@ -45,8 +47,8 @@ public static class InfrastructureExtensions
 
         services.AddIdentityCore<IdentityUser>(options => ConfigureIdentityOptions(options))
             .AddEntityFrameworkStores<UserDbContext>();
-        //.AddClaimsPrincipalFactory<ClaimsPrincipalFactory>(); // TODO: See if it works without it.
 
+        services.AddScoped<IAuthService, IdentityAuthService>();
         services.AddScoped<IUserService, UserService>();
 
         return services;
