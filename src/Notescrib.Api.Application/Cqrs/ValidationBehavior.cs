@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Core;
 using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
@@ -23,19 +24,7 @@ internal class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequ
             return await next.Invoke();
         }
 
-        var context = new ValidationContext<TRequest>(request);
-
-        var errors = _validators.Select(validator => validator.Validate(context))
-            .SelectMany(x => x.Errors)
-            .GroupBy(
-                x => x.PropertyName,
-                x => x.ErrorMessage,
-                (propName, messages) => new ValidationError
-                {
-                    Key = propName,
-                    Messages = messages.Distinct().ToList()
-                })
-            .ToList();
+        var errors = await _validators.ValidateAsync(request);
 
         if (!errors.Any())
         {

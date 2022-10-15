@@ -1,17 +1,18 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Notescrib.Api.Infrastructure.Identity.Models;
 
 namespace Notescrib.Api.Infrastructure.Identity;
 
-internal class ClaimsPrincipalFactory : UserClaimsPrincipalFactory<IdentityUser>
+internal class ClaimsPrincipalFactory : UserClaimsPrincipalFactory<UserData>
 {
-    public ClaimsPrincipalFactory(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor)
+    public ClaimsPrincipalFactory(UserManager<UserData> userManager, IOptions<IdentityOptions> optionsAccessor)
         : base(userManager, optionsAccessor)
     {
     }
 
-    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
+    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(UserData user)
     {
         var identity = await base.GenerateClaimsAsync(user);
 

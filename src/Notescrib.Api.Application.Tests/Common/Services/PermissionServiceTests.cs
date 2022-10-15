@@ -2,7 +2,7 @@
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
 
-namespace Notescrib.Api.Application.Tests.Services;
+namespace Notescrib.Api.Application.Tests.Common.Services;
 
 public class PermissionServiceTests
 {

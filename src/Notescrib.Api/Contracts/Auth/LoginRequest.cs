@@ -1,6 +1,6 @@
 ﻿using Notescrib.Api.Application.Auth.Queries;
 
-namespace Notescrib.Api.Application.Contracts.User;
+namespace Notescrib.Api.Contracts.Auth;
 
 public class LoginRequest
 {

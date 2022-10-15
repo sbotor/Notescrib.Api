@@ -35,7 +35,7 @@ public static class AddWorkspace
             var workspace = _mapper.MapToEntity(request, ownerId);
             var added = await _repository.AddWorkspaceAsync(workspace);
 
-            return Result<WorkspaceResponse>.Success(_mapper.MapToResponse(added));
+            return Result<WorkspaceResponse>.Created(_mapper.MapToResponse(added));
         }
     }
 }

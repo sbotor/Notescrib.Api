@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Notes.Contracts;
+﻿using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Contracts;
 using Notescrib.Api.Core.Entities;
 

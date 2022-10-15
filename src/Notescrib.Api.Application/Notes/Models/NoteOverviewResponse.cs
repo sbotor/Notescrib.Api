@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Api.Application.Notes.Contracts;
+﻿namespace Notescrib.Api.Application.Notes.Models;
 
 public class NoteOverviewResponse
 {

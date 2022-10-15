@@ -5,8 +5,8 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
+using Notescrib.Api.Application.Common.Configuration;
 using Notescrib.Api.Application.Common.Services;
-using Notescrib.Api.Application.Configuration;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Extensions;
 
@@ -33,6 +33,8 @@ public static class ApplicationExtensions
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddValidatorsFromAssembly(ThisAssembly, includeInternalTypes: true);
+
+        services.AddAutoMapper(ThisAssembly);
 
         return services;
     }

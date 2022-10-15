@@ -1,30 +1,29 @@
 ﻿using System.Net;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Api.Application.Contracts.User;
-using Notescrib.Api.Application.Services;
+using Notescrib.Api.Application.Users.Models;
+using Notescrib.Api.Attributes;
+using Notescrib.Api.Contracts.Users;
 
 namespace Notescrib.Api.Controllers;
 
-[Route("api/[controller]")]
+[ControllerRoute]
 [Authorize]
 public class UsersController : ApiControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UsersController(IUserService userService)
+    public UsersController(ISender mediator) : base(mediator)
     {
-        _userService = userService;
     }
 
-    [HttpGet("{email}")]
-    [ProducesResponseType(typeof(UserDetails), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetUserByEmail(string email)
-        => GetResult(await _userService.GetUserByEmailAsync(email));
+    //[HttpGet("{email}")]
+    //[ProducesResponseType(typeof(UserDetails), (int)HttpStatusCode.OK)]
+    //public async Task<IActionResult> GetUserByEmail(string email)
+    //    => GetResult(await _userService.GetUserByEmailAsync(email));
 
     [HttpPost]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(UserDetails), (int)HttpStatusCode.OK)]
+    [ApiResponse(typeof(UserDetails), HttpStatusCode.Created)]
     public async Task<IActionResult> AddUser(CreateUserRequest request)
-        => GetResult(await _userService.AddUserAsync(request));
+        => await GetResponseAsync(request.ToCommand());
 }

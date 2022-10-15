@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Notes.Contracts;
+﻿using Notescrib.Api.Application.Notes.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Contracts;
 

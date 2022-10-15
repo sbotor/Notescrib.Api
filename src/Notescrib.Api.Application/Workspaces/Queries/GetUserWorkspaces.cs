@@ -1,7 +1,7 @@
 ﻿using Notescrib.Api.Application.Common.Services;
 using Notescrib.Api.Application.Cqrs;
-using Notescrib.Api.Application.Mappers;
 using Notescrib.Api.Application.Workspaces.Contracts;
+using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
@@ -14,13 +14,13 @@ public static class GetUserWorkspaces
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IUserContextService _userContextService;
-        private readonly IWorkspaceMapper _mapper;
+        private readonly WorkspaceMapper _mapper;
 
-        public Handler(IWorkspaceRepository repository, IUserContextService userContextService, IWorkspaceMapper mapper)
+        public Handler(IWorkspaceRepository repository, IUserContextService userContextService)
         {
             _repository = repository;
             _userContextService = userContextService;
-            _mapper = mapper;
+            _mapper = new();
         }
 
         public async Task<Result<IReadOnlyCollection<WorkspaceResponse>>> Handle(Query request, CancellationToken cancellationToken)

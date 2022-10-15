@@ -1,30 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.Net;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Core.Exceptions;
 
 public class RequestValidationException : AppException
 {
-    public IEnumerable<ValidationError> Errors { get; }
+    private const string ErrorMsg = "Validation errors occured.";
 
-    public RequestValidationException(IEnumerable<ValidationError> errors)
-    {
-        Errors = errors;
-    }
-
-    public RequestValidationException(string key, params string[] messages)
-    {
-        Errors = new List<ValidationError>()
-        {
-            new ValidationError(key, messages)
-        };
-    }
-
-    public RequestValidationException(string? message = null)
-        : this("Error", string.IsNullOrEmpty(message) ? Array.Empty<string>() : new[] { message })
+    public RequestValidationException(IEnumerable<ErrorItem> errors)
+        : base(ErrorMsg, errors, HttpStatusCode.BadRequest)
     {
     }
-
-    public override string SerializeErrors()
-        => JsonSerializer.Serialize(Errors);
 }

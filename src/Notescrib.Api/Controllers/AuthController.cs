@@ -3,11 +3,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Api.Application.Auth.Contracts;
-using Notescrib.Api.Application.Contracts.User;
+using Notescrib.Api.Attributes;
+using Notescrib.Api.Contracts.Auth;
 
 namespace Notescrib.Api.Controllers;
 
-[Route("api/[controller]")]
+[ControllerRoute]
 public class AuthController : ApiControllerBase
 {
     public AuthController(ISender mediator) : base(mediator)

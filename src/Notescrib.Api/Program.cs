@@ -1,11 +1,18 @@
-﻿using Notescrib.Api.Application;
+﻿using System.Text.Json.Serialization;
+using Notescrib.Api.Application;
 using Notescrib.Api.Extensions;
 using Notescrib.Api.Infrastructure;
 using Notescrib.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        var converters = options.JsonSerializerOptions.Converters;
+
+        converters.Add(new JsonStringEnumConverter());
+    });
 
 if (builder.Environment.IsDevelopment())
 {

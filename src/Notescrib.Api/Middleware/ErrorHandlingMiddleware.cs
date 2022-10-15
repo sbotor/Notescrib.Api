@@ -1,6 +1,6 @@
 ﻿using System.Net;
-using Microsoft.AspNetCore.Diagnostics;
 using Notescrib.Api.Core.Exceptions;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Middleware;
 
@@ -19,29 +19,31 @@ public class ErrorHandlingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var feature = context.Features.Get<IExceptionHandlerFeature>();
-
-        if (feature == null)
+        try
         {
             await _next.Invoke(context);
-            return;
         }
-
-        var exception = feature.Error;
-        _logger.LogError(exception, DefaultMsg);
-
-        if (exception is RequestValidationException validationException)
+        catch (Exception e)
         {
-            await SerializeError(context, validationException.SerializeErrors(), HttpStatusCode.BadRequest);
-            return;
-        }
+            _logger.LogError(e, DefaultMsg);
 
-        await SerializeError(context);
+            await HandleException(e, context);
+        }
     }
 
-    private static async Task SerializeError(HttpContext context, object? content = null, HttpStatusCode code = HttpStatusCode.InternalServerError)
+    private static async Task HandleException(Exception exception, HttpContext context)
     {
-        context.Response.StatusCode = (int)code;
-        await context.Response.WriteAsJsonAsync(content ?? DefaultMsg);
+        if (exception is AppException appException)
+        {
+            await SerializeError(context, appException.ToErrorModel(), appException.StatusCode);
+        }
+
+        await SerializeError(context, new ErrorModel(exception));
+    }
+
+    private static async Task SerializeError(HttpContext context, ErrorModel error, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+    {
+        context.Response.StatusCode = (int)statusCode;
+        await context.Response.WriteAsJsonAsync(error);
     }
 }

@@ -4,9 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Extensions;
-using Notescrib.Api.Application.Services;
+using Notescrib.Api.Application.Users;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.Identity;
+using Notescrib.Api.Infrastructure.Identity.Models;
 using Notescrib.Api.Infrastructure.MongoDb;
 using Notescrib.Api.Infrastructure.MongoDb.Providers;
 using Notescrib.Api.Infrastructure.MongoDb.Repositories;
@@ -24,7 +25,9 @@ public static class InfrastructureExtensions
         services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
         services.AddScoped(typeof(IMongoPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
 
-        services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+        services
+            .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
+            .AddScoped<IUserRepository, UserRepository>();
 
         services.AddIdentity(config);
 
@@ -45,11 +48,10 @@ public static class InfrastructureExtensions
             options.UseSqlServer(config.GetConnectionString(UserDbName));
         });
 
-        services.AddIdentityCore<IdentityUser>(options => ConfigureIdentityOptions(options))
+        services.AddIdentityCore<UserData>(options => ConfigureIdentityOptions(options))
             .AddEntityFrameworkStores<UserDbContext>();
 
-        services.AddScoped<IAuthService, IdentityAuthService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

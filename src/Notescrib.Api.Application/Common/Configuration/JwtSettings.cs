@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Api.Application.Configuration;
+﻿namespace Notescrib.Api.Application.Common.Configuration;
 
 public class JwtSettings
 {

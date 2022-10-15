@@ -28,7 +28,7 @@ public static class UpdateWorkspace
             var workspace = await _repository.GetWorkspaceByIdAsync(request.Id);
             if (workspace == null)
             {
-                return Result.Failure();
+                return Result.NotFound();
             }
 
             if (!_permissionService.CanEdit(workspace.OwnerId))

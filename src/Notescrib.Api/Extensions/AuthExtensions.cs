@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Notescrib.Api.Application.Configuration;
+using Notescrib.Api.Application.Common.Configuration;
 
 namespace Notescrib.Api.Extensions;
 

@@ -31,7 +31,7 @@ public static class Authenticate
             if (!verifyResult.IsSuccessful || verifyResult.Response == null)
             {
                 _logger.LogWarning("Failed login with email {email}.", request.Email);
-                return Result<TokenResponse>.Failure(verifyResult.Error, verifyResult.StatusCode ?? HttpStatusCode.BadRequest);
+                return Result<TokenResponse>.Failure(verifyResult.Error?.ErrorMessage, verifyResult.StatusCode ?? HttpStatusCode.BadRequest);
             }
 
             var token = _jwtProvider.GenerateToken(verifyResult.Response.Id, verifyResult.Response.Email);

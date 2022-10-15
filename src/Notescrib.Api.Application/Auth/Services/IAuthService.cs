@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Contracts.User;
+﻿using Notescrib.Api.Application.Users.Models;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Auth.Services;
