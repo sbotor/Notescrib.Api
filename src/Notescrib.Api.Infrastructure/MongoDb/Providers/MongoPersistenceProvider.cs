@@ -1,6 +1,10 @@
-﻿using MongoDB.Bson;
+﻿using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Extensions;
+using Notescrib.Api.Core.Helpers;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
@@ -47,6 +51,20 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
     {
         var result = await Collection.FindAsync(d => d.Id == id);
         return result.SingleOrDefault();
+    }
+
+    public async Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, int pageNumber, int pageSize)
+    {
+        var options = new FindOptions<TEntity>
+        {
+            Skip = PagingHelpers.CalculateSkipCount(pageNumber, pageSize),
+            Limit = pageSize
+        };
+
+        var result = await Collection.FindAsync(filter, options);
+        var data = await result.ToListAsync();
+
+        return data.ToPagedList(pageNumber, pageSize);
     }
 
     public async Task<bool> ExistsAsync(string id)

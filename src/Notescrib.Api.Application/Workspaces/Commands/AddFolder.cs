@@ -8,9 +8,9 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
-internal static class AddFolder
+public static class AddFolder
 {
-    public record Command(string ParentPath, string Name) : ICommand<Result<FolderResponse>>;
+    public record Command(string WorkspaceId, string ParentPath, string Name) : ICommand<Result<FolderResponse>>;
 
     internal class Handler : ICommandHandler<Command, Result<FolderResponse>>
     {
@@ -30,7 +30,8 @@ internal static class AddFolder
             var folder = new FolderPath
             {
                 ParentPath = request.ParentPath,
-                Name = request.Name
+                Name = request.Name,
+                WorkspaceId = request.WorkspaceId
             };
 
             var workspace = await _repository.GetWorkspaceByIdAsync(folder.WorkspaceId);

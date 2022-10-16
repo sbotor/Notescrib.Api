@@ -1,4 +1,6 @@
-﻿namespace Notescrib.Api.Core.Models;
+﻿using Notescrib.Api.Core.Helpers;
+
+namespace Notescrib.Api.Core.Models;
 
 public class PagedList<T>
 {
@@ -17,7 +19,7 @@ public class PagedList<T>
         TotalCount = totalCount;
         PageSize = pageSize;
 
-        TotalPageCount = (totalCount + pageSize - 1) / pageSize;
+        TotalPageCount = PagingHelpers.CalculatePageCount(totalCount, pageSize);
     }
 
     public PagedList<TOut> Map<TOut>(Func<T, TOut> mappingFunction)

@@ -2,15 +2,16 @@
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Contracts;
 using Notescrib.Api.Application.Workspaces.Mappers;
+using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
 
 public static class GetUserWorkspaces
 {
-    public record Query : IQuery<Result<IReadOnlyCollection<WorkspaceResponse>>>;
+    public record Query(IPaging Paging) : IQuery<Result<PagedList<WorkspaceResponse>>>, IPagingRequest;
 
-    internal class Handler : IQueryHandler<Query, Result<IReadOnlyCollection<WorkspaceResponse>>>
+    internal class Handler : IQueryHandler<Query, Result<PagedList<WorkspaceResponse>>>
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IUserContextService _userContextService;
@@ -23,18 +24,18 @@ public static class GetUserWorkspaces
             _mapper = new();
         }
 
-        public async Task<Result<IReadOnlyCollection<WorkspaceResponse>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<PagedList<WorkspaceResponse>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var ownerId = _userContextService.UserId;
             if (ownerId == null)
             {
-                return Result<IReadOnlyCollection<WorkspaceResponse>>.Failure();
+                return Result<PagedList<WorkspaceResponse>>.Failure();
             }
 
-            var result = await _repository.GetUserWorkspaces(ownerId);
-            var response = result.Select(x => _mapper.MapToResponse(x)).ToList();
+            var result = await _repository.GetUserWorkspacesAsync(ownerId, request.Paging.PageNumber, request.Paging.PageSize);
+            var response = result.Map(x => _mapper.MapToResponse(x));
 
-            return Result<IReadOnlyCollection<WorkspaceResponse>>.Success(response);
+            return Result<PagedList<WorkspaceResponse>>.Success(response);
         }
     }
 }

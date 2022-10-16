@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Common.Configuration;
 using Notescrib.Api.Application.Common.Services;
-using Notescrib.Api.Application.Cqrs;
+using Notescrib.Api.Application.Cqrs.Behaviors;
 using Notescrib.Api.Application.Extensions;
 
 [assembly: InternalsVisibleTo("Notescrib.Api.Application.Tests")]
@@ -30,6 +30,7 @@ public static class ApplicationExtensions
             .AddScoped<IJwtProvider, JwtProvider>();
 
         services.AddMediatR(ThisAssembly);
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddValidatorsFromAssembly(ThisAssembly, includeInternalTypes: true);

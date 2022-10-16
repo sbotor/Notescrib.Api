@@ -10,7 +10,8 @@ internal class FolderMapper
         => new()
         {
             Name = folder.Name,
-            Path = folder.AbsolutePath,
+            AbsolutePath = folder.AbsolutePath,
+            WorkspaceId = folder.WorkspaceId,
             IsRoot = folder.IsRoot,
             Notes = notes.ToList()
         };

@@ -56,6 +56,11 @@ public abstract class ApiControllerBase : ControllerBase
     private async Task ValidateRequestOrThrow<TRequest>(TRequest request)
     {
         var validators = HttpContext.RequestServices.GetServices<IValidator<TRequest>>();
+        if (!validators.Any())
+        {
+            return;
+        }
+
         var errors = await validators.ValidateAsync(request);
 
         if (errors.Any())

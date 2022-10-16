@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,19 @@ public static class InfrastructureExtensions
         services.AddIdentity(config);
 
         return services;
+    }
+
+    public static IApplicationBuilder MigrateDatabase(this IApplicationBuilder builder)
+    {
+        using var scope = builder.ApplicationServices.CreateScope();
+        using var context = scope.ServiceProvider.GetService<UserDbContext>();
+        
+        if (context != null)
+        {
+            context.Database.Migrate();
+        }
+
+        return builder;
     }
 
     private static IServiceCollection Configure(this IServiceCollection services, IConfiguration config)

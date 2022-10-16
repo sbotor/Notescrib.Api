@@ -1,7 +1,7 @@
 ﻿using Notescrib.Api.Core.Entities;
-using MongoDB.Driver;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.MongoDb.Providers;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
@@ -26,9 +26,6 @@ internal class WorkspaceRepository : IWorkspaceRepository
     public async Task UpdateWorkspaceAsync(Workspace workspace)
         => await _workspaces.UpdateAsync(workspace);
 
-    public async Task<ICollection<Workspace>> GetUserWorkspaces(string ownerId)
-    {
-        var result = await _workspaces.Collection.FindAsync(x => x.OwnerId == ownerId);
-        return await result.ToListAsync();
-    }
+    public async Task<PagedList<Workspace>> GetUserWorkspacesAsync(string ownerId, int pageNumber, int pageSize)
+        => await _workspaces.FindPagedAsync(x => x.OwnerId == ownerId, pageNumber, pageSize);
 }

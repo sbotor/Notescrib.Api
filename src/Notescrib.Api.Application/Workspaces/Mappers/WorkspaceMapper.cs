@@ -36,7 +36,7 @@ internal class WorkspaceMapper
              {
                  Name = f.Name,
                  IsRoot = f.IsRoot,
-                 Path = f.AbsolutePath,
+                 AbsolutePath = f.AbsolutePath,
              })
             .ToList()
          };

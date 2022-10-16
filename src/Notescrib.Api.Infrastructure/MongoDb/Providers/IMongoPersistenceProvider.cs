@@ -1,5 +1,7 @@
-﻿using MongoDB.Driver;
+﻿using System.Linq.Expressions;
+using MongoDB.Driver;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
@@ -11,5 +13,6 @@ internal interface IMongoPersistenceProvider<TEntity> where TEntity : EntityIdBa
     Task<bool> DeleteAsync(string id);
     Task<bool> ExistsAsync(string id);
     Task<TEntity?> FindByIdAsync(string id);
+    Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, int pageNumber, int pageSize);
     Task UpdateAsync(TEntity entity);
 }
