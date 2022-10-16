@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Api.Application.Workspaces.Contracts;
+using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Attributes;
 using Notescrib.Api.Contracts.Workspaces;
 using Notescrib.Api.Core.Models;

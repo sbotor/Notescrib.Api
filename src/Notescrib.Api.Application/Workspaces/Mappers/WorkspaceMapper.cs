@@ -1,5 +1,6 @@
 ﻿using Notescrib.Api.Application.Workspaces.Commands;
 using Notescrib.Api.Application.Workspaces.Contracts;
+using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;

@@ -1,6 +1,6 @@
 ﻿using Notescrib.Api.Core.Entities;
 
-namespace Notescrib.Api.Application.Workspaces.Contracts;
+namespace Notescrib.Api.Application.Workspaces.Models;
 
 public class WorkspaceResponse
 {

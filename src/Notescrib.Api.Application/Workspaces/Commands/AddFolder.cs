@@ -1,8 +1,8 @@
 ﻿using Notescrib.Api.Application.Common.Services;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Notes.Models;
-using Notescrib.Api.Application.Workspaces.Contracts;
 using Notescrib.Api.Application.Workspaces.Mappers;
+using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 

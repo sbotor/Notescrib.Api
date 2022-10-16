@@ -2,7 +2,7 @@
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Models;
 
-namespace Notescrib.Api.Application.Cqrs.Validators;
+namespace Notescrib.Api.Application.Common.Validators;
 
 internal class PagingValidator : AbstractValidator<IPaging>
 {

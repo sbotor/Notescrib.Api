@@ -1,6 +1,6 @@
 ﻿using Notescrib.Api.Application.Notes.Models;
 
-namespace Notescrib.Api.Application.Workspaces.Contracts;
+namespace Notescrib.Api.Application.Workspaces.Models;
 
 public class FolderResponse
 {
