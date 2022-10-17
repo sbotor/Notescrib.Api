@@ -37,7 +37,7 @@ public class PermissionServiceTests
         _userContextService.UserId = userId;
         var sharingDetails = new SharingDetails
         {
-            Visibility = Visibility.Private
+            Visibility = VisibilityLevel.Private
         };
 
         var result = _sut.CanView(ownerId, sharingDetails);
@@ -54,7 +54,7 @@ public class PermissionServiceTests
         _userContextService.UserId = userId;
         var sharingDetails = new SharingDetails
         {
-            Visibility = Visibility.Hidden,
+            Visibility = VisibilityLevel.Hidden,
             AllowedUserIds = allowedIds.ToList()
         };
 
@@ -72,7 +72,7 @@ public class PermissionServiceTests
         _userContextService.UserId = userId;
         var sharingDetails = new SharingDetails
         {
-            Visibility = Visibility.Public,
+            Visibility = VisibilityLevel.Public,
         };
 
         var result = _sut.CanView(ownerId, sharingDetails);

@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api", "Notescrib.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FE08D0DA-02CA-4819-841B-D8812CBF9B4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Api.Application.Tests", "Notescrib.Api.Application.Tests\Notescrib.Api.Application.Tests.csproj", "{D0AB3CB4-32F3-4166-927B-E3C7F962B4FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api.Application.Tests", "Notescrib.Api.Application.Tests\Notescrib.Api.Application.Tests.csproj", "{D0AB3CB4-32F3-4166-927B-E3C7F962B4FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

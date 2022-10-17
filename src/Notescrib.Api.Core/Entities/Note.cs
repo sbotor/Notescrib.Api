@@ -1,10 +1,13 @@
-﻿namespace Notescrib.Api.Core.Entities;
+﻿using Notescrib.Api.Core.Contracts;
 
-public class Note : EntityIdBase
+namespace Notescrib.Api.Core.Entities;
+
+public class Note : EntityIdBase, IWorkspacePath
 {
     public string Name { get; set; } = string.Empty;
-    public string FullParentPath { get; set; } = string.Empty;
+    public string? ParentPath { get; set; }
+    public string WorkspaceId { get; set; } = string.Empty;
     public NoteSection? RootSection { get; set; }
     public ICollection<string> Labels { get; set; } = new List<string>();
-    public string UserId { get; set; } = string.Empty;
+    public string OwnerId { get; set; } = string.Empty;
 }

@@ -4,15 +4,16 @@ using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 
-internal class FolderMapper
+internal class FolderMapper : IFolderMapper
 {
-    public FolderResponse MapToResponse(FolderPath folder, IEnumerable<NoteOverviewResponse> notes)
+    public FolderDetails MapToResponse(Folder folder, IEnumerable<NoteOverview> notes)
         => new()
         {
             Name = folder.Name,
-            AbsolutePath = folder.AbsolutePath,
+            ParentPath = folder.AbsolutePath,
             WorkspaceId = folder.WorkspaceId,
             IsRoot = folder.IsRoot,
-            Notes = notes.ToList()
+            Notes = notes.ToList(),
+            SharingDetails = folder.SharingDetails
         };
 }

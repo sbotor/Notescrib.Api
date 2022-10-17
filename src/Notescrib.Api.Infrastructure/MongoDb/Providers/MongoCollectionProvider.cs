@@ -26,11 +26,8 @@ internal class MongoCollectionProvider : IMongoCollectionProvider
 
     public IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class
     {
-        if (!_collectionMap.TryGetValue(typeof(TDocument), out var collectionName))
-        {
-            throw new InvalidOperationException($"No collection name for type {typeof(TDocument).Name}.");
-        }
-
-        return _database.GetCollection<TDocument>(collectionName);
+        return !_collectionMap.TryGetValue(typeof(TDocument), out var collectionName)
+            ? throw new InvalidOperationException($"No collection name for type {typeof(TDocument).Name}.")
+            : _database.GetCollection<TDocument>(collectionName);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Api.Core.Enums;
 
-public enum Visibility
+public enum VisibilityLevel
 {
     Private,
     Hidden,

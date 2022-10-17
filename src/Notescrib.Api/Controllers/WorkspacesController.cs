@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Api.Application.Workspaces.Models;
+using Notescrib.Api.Application.Workspaces.Queries;
 using Notescrib.Api.Attributes;
 using Notescrib.Api.Contracts.Workspaces;
 using Notescrib.Api.Core.Models;
@@ -18,12 +19,12 @@ public class WorkspacesController : ApiControllerBase
     }
 
     [HttpGet]
-    [ApiResponse(typeof(PagedList<WorkspaceResponse>))]
+    [ApiResponse(typeof(PagedList<WorkspaceDetails>))]
     public async Task<IActionResult> ListWorkspaces([FromQuery] GetUserWorkspacesRequest request)
         => await GetResponseAsync(request.ToQuery());
 
     [HttpPost]
-    [ApiResponse(typeof(WorkspaceResponse), HttpStatusCode.Created)]
+    [ApiResponse(typeof(WorkspaceDetails), HttpStatusCode.Created)]
     public async Task<IActionResult> AddWorkspace(AddWorkspaceRequest request)
         => await GetResponseAsync(request.ToCommand());
 
@@ -31,6 +32,12 @@ public class WorkspacesController : ApiControllerBase
     [ApiResponse(typeof(void))]
     public async Task<IActionResult> UpdateWorkspace(string id, UpdateWorkspaceRequest request)
         => await GetResponseAsync(request.ToCommand(id));
+
+    [HttpGet("{id}")]
+    [ApiResponse(typeof(WorkspaceDetails))]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetWorkspaceById(string id)
+        => await GetResponseAsync(new GetWorkspaceById.Query(id));
 
     [HttpPost("{id}/folders")]
     [ApiResponse(typeof(void))]

@@ -1,7 +1,9 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Enums;
 using Notescrib.Api.Core.Extensions;
 using Notescrib.Api.Core.Helpers;
 using Notescrib.Api.Core.Models;
@@ -53,18 +55,29 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
         return result.SingleOrDefault();
     }
 
-    public async Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, int pageNumber, int pageSize)
+    public async Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
         var options = new FindOptions<TEntity>
         {
-            Skip = PagingHelpers.CalculateSkipCount(pageNumber, pageSize),
-            Limit = pageSize
+            Skip = PagingHelpers.CalculateSkipCount(paging.PageNumber, paging.PageSize),
+            Limit = paging.PageSize
         };
+
+        if (sorting != null && string.IsNullOrEmpty(sorting.OrderBy))
+        {
+            var fieldDefinition = new StringFieldDefinition<TEntity>(sorting.OrderBy);
+
+            var sortDefinition = sorting.Direction == SortingDirection.Ascending
+                ? Builders<TEntity>.Sort.Ascending(fieldDefinition)
+                : Builders<TEntity>.Sort.Descending(fieldDefinition);
+
+            options.Sort = sortDefinition;
+        }
 
         var result = await Collection.FindAsync(filter, options);
         var data = await result.ToListAsync();
 
-        return data.ToPagedList(pageNumber, pageSize);
+        return data.ToPagedList(paging);
     }
 
     public async Task<bool> ExistsAsync(string id)

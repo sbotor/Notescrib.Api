@@ -1,4 +1,5 @@
-﻿using Notescrib.Api.Core.Helpers;
+﻿using Notescrib.Api.Core.Contracts;
+using Notescrib.Api.Core.Helpers;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Core.Extensions;
@@ -14,4 +15,7 @@ public static class EnumerableExtensions
 
         return new(data, totalCount, pageNumber, pageSize);
     }
+
+    public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, IPaging paging)
+        => source.ToPagedList<T>(paging.PageNumber, paging.PageSize);
 }

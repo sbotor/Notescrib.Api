@@ -30,9 +30,6 @@ public class AppException : Exception
     public Result<TResponse> ToResult<TResponse>()
         => Result<TResponse>.Failure(Serialize(), StatusCode);
 
-    public Result ToResult()
-        => Result.Failure(Serialize(), StatusCode);
-
     public ErrorModel ToErrorModel()
         => new(Message, Errors);
 

@@ -10,10 +10,6 @@ public class Paging : IPaging
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = DefaultPageSize;
 
-    public Paging()
-    {
-    }
-
     public Paging(int? pageNumber = null, int? pageSize = null)
     {
         PageNumber = pageNumber ?? 1;

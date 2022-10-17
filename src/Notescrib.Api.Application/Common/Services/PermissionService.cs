@@ -15,8 +15,20 @@ internal class PermissionService : IPermissionService
     public bool CanEdit(string ownerId) => _userContextService.UserId == ownerId;
 
     public bool CanView(string ownerId, SharingDetails sharingDetails)
-        => _userContextService.UserId == ownerId
-            || sharingDetails.Visibility == Visibility.Public
-            || sharingDetails.Visibility == Visibility.Hidden
-                && sharingDetails.AllowedUserIds.Contains(_userContextService.UserId ?? string.Empty);
+    {
+        var userId = _userContextService.UserId;
+        if (sharingDetails.Visibility == VisibilityLevel.Public
+            || userId == ownerId)
+        {
+            return true;
+        }
+
+        if (sharingDetails.Visibility == VisibilityLevel.Hidden)
+        {
+            return userId != null
+                    && sharingDetails.AllowedUserIds.Contains(userId);
+        }
+
+        return false;
+    }
 }

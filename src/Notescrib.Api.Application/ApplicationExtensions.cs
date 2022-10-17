@@ -9,6 +9,7 @@ using Notescrib.Api.Application.Common.Configuration;
 using Notescrib.Api.Application.Common.Services;
 using Notescrib.Api.Application.Cqrs.Behaviors;
 using Notescrib.Api.Application.Extensions;
+using Notescrib.Api.Application.Workspaces.Mappers;
 
 [assembly: InternalsVisibleTo("Notescrib.Api.Application.Tests")]
 
@@ -20,22 +21,55 @@ public static class ApplicationExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-        services.ConfigureSettings<JwtSettings>(config);
+        services.Configure(config);
 
         services.AddHttpContextAccessor();
 
+        services
+            .AddGeneralServices()
+            .AddMediatR()
+            .AddMappers();
+
+        services.AddValidatorsFromAssembly(ThisAssembly, includeInternalTypes: true);
+
+        return services;
+    }
+
+    private static IServiceCollection Configure(this IServiceCollection services, IConfiguration config)
+    {
+        services.ConfigureSettings<JwtSettings>(config);
+
+        return services;
+    }
+
+    private static IServiceCollection AddGeneralServices(this IServiceCollection services)
+    {
         services
             .AddScoped<IPermissionService, PermissionService>()
             .AddScoped<IUserContextService, UserContextService>()
             .AddScoped<IJwtProvider, JwtProvider>();
 
-        services.AddMediatR(ThisAssembly);
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        return services;
+    }
 
-        services.AddValidatorsFromAssembly(ThisAssembly, includeInternalTypes: true);
-
+    private static IServiceCollection AddMappers(this IServiceCollection services)
+    {
         services.AddAutoMapper(ThisAssembly);
+
+        services
+            .AddSingleton<IWorkspaceMapper, WorkspaceMapper>()
+            .AddSingleton<IFolderMapper, FolderMapper>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddMediatR(this IServiceCollection services)
+    {
+        services.AddMediatR(ThisAssembly);
+        
+        services
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>))
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
     }

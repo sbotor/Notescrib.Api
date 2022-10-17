@@ -3,8 +3,10 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Contracts.Workspaces;
 
-public class GetUserWorkspacesRequest : PagingApiRequest
+public class GetUserWorkspacesRequest : PagingSortingApiRequest
 {
     public GetUserWorkspaces.Query ToQuery()
-        => new(new Paging(PageNumber, PageSize));
+        => new(
+            new Paging(PageNumber, PageSize),
+            new Sorting(OrderBy, Direction));
 }

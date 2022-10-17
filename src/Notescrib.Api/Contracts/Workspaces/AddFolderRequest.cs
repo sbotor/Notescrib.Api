@@ -4,9 +4,9 @@ namespace Notescrib.Api.Contracts.Workspaces;
 
 public class AddFolderRequest
 {
-    public string Name { get; set; } = string.Empty;
-    public string ParentFolderPath { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
+    public string? ParentPath { get; set; }
 
     public AddFolder.Command ToCommand(string workspaceId)
-        => new(workspaceId, ParentFolderPath, Name);
+        => new(workspaceId, ParentPath, Name);
 }

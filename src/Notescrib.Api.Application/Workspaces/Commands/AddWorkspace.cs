@@ -9,33 +9,33 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddWorkspace
 {
-    public record Command(string Name, SharingDetails SharingDetails) : ICommand<Result<WorkspaceResponse>>;
+    public record Command(string Name, SharingDetails SharingDetails) : ICommand<Result<WorkspaceDetails>>;
 
-    internal class Handler : ICommandHandler<Command, Result<WorkspaceResponse>>
+    internal class Handler : ICommandHandler<Command, Result<WorkspaceDetails>>
     {
         private readonly IUserContextService _userContextService;
         private readonly IWorkspaceRepository _repository;
-        private readonly WorkspaceMapper _mapper;
+        private readonly IWorkspaceMapper _mapper;
 
-        public Handler(IUserContextService userContextService, IWorkspaceRepository repository)
+        public Handler(IUserContextService userContextService, IWorkspaceRepository repository, IWorkspaceMapper mapper)
         {
             _userContextService = userContextService;
             _repository = repository;
-            _mapper = new();
+            _mapper = mapper;
         }
 
-        public async Task<Result<WorkspaceResponse>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<WorkspaceDetails>> Handle(Command request, CancellationToken cancellationToken)
         {
             var ownerId = _userContextService.UserId;
             if (ownerId == null)
             {
-                return Result<WorkspaceResponse>.Failure("No user context found.");
+                return Result<WorkspaceDetails>.Failure("No user context found.");
             }
 
             var workspace = _mapper.MapToEntity(request, ownerId);
             var added = await _repository.AddWorkspaceAsync(workspace);
 
-            return Result<WorkspaceResponse>.Created(_mapper.MapToResponse(added));
+            return Result<WorkspaceDetails>.Created(_mapper.MapToResponse(added));
         }
     }
 }

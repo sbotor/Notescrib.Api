@@ -10,24 +10,24 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddFolder
 {
-    public record Command(string WorkspaceId, string ParentPath, string Name) : ICommand<Result<FolderResponse>>;
+    public record Command(string WorkspaceId, string? ParentPath, string Name) : ICommand<Result<FolderDetails>>;
 
-    internal class Handler : ICommandHandler<Command, Result<FolderResponse>>
+    internal class Handler : ICommandHandler<Command, Result<FolderDetails>>
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IPermissionService _permissionService;
-        private readonly FolderMapper _mapper;
+        private readonly IFolderMapper _mapper;
 
-        public Handler(IWorkspaceRepository repository, IPermissionService permissionService)
+        public Handler(IWorkspaceRepository repository, IPermissionService permissionService, IFolderMapper mapper)
         {
-            _mapper = new();
+            _mapper = mapper;
             _repository = repository;
             _permissionService = permissionService;
         }
 
-        public async Task<Result<FolderResponse>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<FolderDetails>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = new FolderPath
+            var folder = new Folder
             {
                 ParentPath = request.ParentPath,
                 Name = request.Name,
@@ -37,29 +37,29 @@ public static class AddFolder
             var workspace = await _repository.GetWorkspaceByIdAsync(folder.WorkspaceId);
             if (workspace == null)
             {
-                return Result<FolderResponse>.NotFound($"Workspace with ID '{folder.WorkspaceId}' not found.");
+                return Result<FolderDetails>.NotFound($"Workspace with ID '{folder.WorkspaceId}' not found.");
             }
 
             if (!_permissionService.CanEdit(workspace.OwnerId))
             {
-                return Result<FolderResponse>.Forbidden();
+                return Result<FolderDetails>.Forbidden();
             }
 
             if (workspace.Folders.Any(x => x.Name == folder.Name))
             {
-                return Result<FolderResponse>.Failure($"A folder with name '{folder.Name}' already exists.");
+                return Result<FolderDetails>.Failure($"A folder with name '{folder.Name}' already exists.");
             }
 
             if (!workspace.Folders.Any(x => x.AbsolutePath == folder.ParentPath))
             {
-                return Result<FolderResponse>.NotFound($"Folder with path '{folder.ParentPath}' not found.");
+                return Result<FolderDetails>.NotFound($"Folder with path '{folder.ParentPath}' not found.");
             }
 
             workspace.Folders.Add(folder);
             await _repository.UpdateWorkspaceAsync(workspace);
 
             folder = workspace.Folders.First(x => x.Name == folder.Name);
-            return Result<FolderResponse>.Success(_mapper.MapToResponse(folder, Enumerable.Empty<NoteOverviewResponse>()));
+            return Result<FolderDetails>.Success(_mapper.MapToResponse(folder, Enumerable.Empty<NoteOverview>()));
         }
     }
 }
