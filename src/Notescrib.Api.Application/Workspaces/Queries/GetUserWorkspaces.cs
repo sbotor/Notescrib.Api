@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Common.Services;
+﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;

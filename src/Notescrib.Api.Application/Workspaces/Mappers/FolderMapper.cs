@@ -1,19 +1,18 @@
-﻿using Notescrib.Api.Application.Notes.Models;
+﻿using AutoMapper;
+using Notescrib.Api.Application.Common.Mappers;
+using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 
-internal class FolderMapper : IFolderMapper
+internal class FolderMapper : MapperBase, IFolderMapper
 {
     public FolderDetails MapToResponse(Folder folder, IEnumerable<NoteOverview> notes)
-        => new()
-        {
-            Name = folder.Name,
-            ParentPath = folder.AbsolutePath,
-            WorkspaceId = folder.WorkspaceId,
-            IsRoot = folder.IsRoot,
-            Notes = notes.ToList(),
-            SharingDetails = folder.SharingDetails
-        };
+    {
+        var details = InternalMapper.Map<FolderDetails>(folder);
+        details.Notes = notes.ToList();
+
+        return details;
+    }
 }

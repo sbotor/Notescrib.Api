@@ -14,7 +14,7 @@ namespace Notescrib.Api.Controllers;
 [Authorize]
 public class WorkspacesController : ApiControllerBase
 {
-    public WorkspacesController(ISender mediator) : base(mediator)
+    public WorkspacesController(IMediator mediator) : base(mediator)
     {
     }
 

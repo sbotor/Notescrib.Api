@@ -1,4 +1,4 @@
-﻿using Notescrib.Api.Application.Common.Services;
+﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Mappers;
@@ -40,7 +40,7 @@ public static class AddFolder
                 return Result<FolderDetails>.NotFound($"Workspace with ID '{folder.WorkspaceId}' not found.");
             }
 
-            if (!_permissionService.CanEdit(workspace.OwnerId))
+            if (!_permissionService.CanEdit(workspace))
             {
                 return Result<FolderDetails>.Forbidden();
             }

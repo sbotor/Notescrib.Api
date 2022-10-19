@@ -2,7 +2,7 @@
 
 namespace Notescrib.Api.Core.Entities;
 
-public class Folder : IWorkspacePath, IShareable
+public class Folder : IWorkspacePath, IShareable, ICreatedTimestamp, IUpdatedTimestamp
 {
     public const string Separator = "/";
 
@@ -17,4 +17,7 @@ public class Folder : IWorkspacePath, IShareable
 
     public string[] Segments => AbsolutePath.Split(Separator);
     public bool IsRoot => string.IsNullOrWhiteSpace(ParentPath);
+
+    public DateTime Created { get; set; }
+    public DateTime Updated { get; set; }
 }

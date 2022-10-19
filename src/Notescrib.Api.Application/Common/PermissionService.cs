@@ -1,7 +1,8 @@
-﻿using Notescrib.Api.Core.Entities;
+﻿using Notescrib.Api.Core.Contracts;
+using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
 
-namespace Notescrib.Api.Application.Common.Services;
+namespace Notescrib.Api.Application.Common;
 
 internal class PermissionService : IPermissionService
 {
@@ -13,6 +14,7 @@ internal class PermissionService : IPermissionService
     }
 
     public bool CanEdit(string ownerId) => _userContextService.UserId == ownerId;
+    public bool CanEdit(IOwnable item) => CanEdit(item.OwnerId);
 
     public bool CanView(string ownerId, SharingDetails sharingDetails)
     {
@@ -31,4 +33,7 @@ internal class PermissionService : IPermissionService
 
         return false;
     }
+
+    public bool CanView(string ownerId, IShareable item) => CanView(ownerId, item.SharingDetails);
+    public bool CanView(IOwnableShareable item) => CanView(item.OwnerId, item.SharingDetails);
 }

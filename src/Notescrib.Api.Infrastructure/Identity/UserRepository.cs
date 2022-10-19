@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Notescrib.Api.Application.Users;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
@@ -10,10 +11,12 @@ namespace Notescrib.Api.Infrastructure.Identity;
 internal class UserRepository : IUserRepository
 {
     private readonly UserManager<UserData> _userManager;
+    private readonly IMapper _mapper;
 
-    public UserRepository(UserManager<UserData> userManager)
+    public UserRepository(UserManager<UserData> userManager, IMapper mapper)
     {
         _userManager = userManager;
+        _mapper = mapper;
     }
 
     public async Task<User> AddUserAsync(User user, string password)
@@ -23,13 +26,9 @@ internal class UserRepository : IUserRepository
             throw new BadRequestException("User with this email already exists.");
         }
 
-        var identityUser = new UserData
-        {
-            Email = user.Email,
-            UserName = user.Email,
-            IsActive = user.IsActive,
-            EmailConfirmed = true // TODO: Email confirmation
-        };
+        var identityUser = _mapper.Map<UserData>(user);
+
+        identityUser.EmailConfirmed = true; // TODO: Email confirmation
 
         var result = await _userManager.CreateAsync(identityUser);
         if (!result.Succeeded)
@@ -56,11 +55,7 @@ internal class UserRepository : IUserRepository
 
         return user == null
             ? null
-            : new User
-            {
-                Email = user.Email,
-                Id = user.Id
-            };
+            : _mapper.Map<User>(user);
     }
 
     private static IEnumerable<ErrorItem> GetIdentityErrors(IdentityResult result)

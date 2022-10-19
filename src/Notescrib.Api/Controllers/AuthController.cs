@@ -11,7 +11,7 @@ namespace Notescrib.Api.Controllers;
 [ControllerRoute]
 public class AuthController : ApiControllerBase
 {
-    public AuthController(ISender mediator) : base(mediator)
+    public AuthController(IMediator mediator) : base(mediator)
     {
     }
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
+using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Application.Users;
 using Notescrib.Api.Application.Workspaces;
@@ -11,7 +12,6 @@ using Notescrib.Api.Infrastructure.Identity;
 using Notescrib.Api.Infrastructure.Identity.Models;
 using Notescrib.Api.Infrastructure.MongoDb;
 using Notescrib.Api.Infrastructure.MongoDb.Providers;
-using Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
 namespace Notescrib.Api.Infrastructure;
 
@@ -24,13 +24,11 @@ public static class InfrastructureExtensions
         services.Configure(config);
 
         services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
-        services.AddScoped(typeof(IMongoPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
-
-        services
-            .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
-            .AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped(typeof(IPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
 
         services.AddIdentity(config);
+
+        services.AddAutoMapper(typeof(MappingProfile));
 
         return services;
     }
@@ -65,7 +63,9 @@ public static class InfrastructureExtensions
         services.AddIdentityCore<UserData>(options => ConfigureIdentityOptions(options))
             .AddEntityFrameworkStores<UserDbContext>();
 
-        services.AddScoped<IAuthService, AuthService>();
+        services
+            .AddScoped<IAuthService, AuthService>()
+            .AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

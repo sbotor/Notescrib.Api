@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
@@ -10,14 +11,16 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
-internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEntity>
+internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
     where TEntity : EntityIdBase<string>
 {
-    public IMongoCollection<TEntity> Collection { get; }
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IMongoCollection<TEntity> _collection;
 
-    public MongoPersistenceProvider(IMongoCollectionProvider collectionProvider)
+    public MongoPersistenceProvider(IMongoCollectionProvider collectionProvider, IDateTimeProvider dateTimeProvider)
     {
-        Collection = collectionProvider.GetCollection<TEntity>();
+        _collection = collectionProvider.GetCollection<TEntity>();
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)
@@ -27,15 +30,25 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             throw new InvalidOperationException("Cannot add an entity with an existing Id.");
         }
 
+        if (entity is ICreatedTimestamp created)
+        {
+            created.Created = _dateTimeProvider.UtcNow;
+        }
+
+        if (entity is IUpdatedTimestamp updated)
+        {
+            updated.Updated = _dateTimeProvider.UtcNow;
+        }
+
         entity.Id = ObjectId.GenerateNewId().ToString();
-        await Collection.InsertOneAsync(entity);
+        await _collection.InsertOneAsync(entity);
 
         return entity;
     }
 
     public async Task<bool> DeleteAsync(string id)
     {
-        var found = await Collection.FindOneAndDeleteAsync(d => d.Id == id);
+        var found = await _collection.FindOneAndDeleteAsync(d => d.Id == id);
         return found != null;
     }
 
@@ -46,12 +59,17 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             throw new InvalidOperationException("Cannot update an entity with an empty Id.");
         }
 
-        await Collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
+        if (entity is IUpdatedTimestamp updated)
+        {
+            updated.Updated = _dateTimeProvider.UtcNow;
+        }
+
+        await _collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
     }
 
     public async Task<TEntity?> FindByIdAsync(string id)
     {
-        var result = await Collection.FindAsync(d => d.Id == id);
+        var result = await _collection.FindAsync(d => d.Id == id);
         return result.SingleOrDefault();
     }
 
@@ -74,7 +92,7 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             options.Sort = sortDefinition;
         }
 
-        var result = await Collection.FindAsync(filter, options);
+        var result = await _collection.FindAsync(filter, options);
         var data = await result.ToListAsync();
 
         return data.ToPagedList(paging);

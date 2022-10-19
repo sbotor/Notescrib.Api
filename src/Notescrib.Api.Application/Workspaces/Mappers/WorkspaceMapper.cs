@@ -1,47 +1,48 @@
-﻿using Notescrib.Api.Application.Common.Services;
+﻿using AutoMapper;
+using Notescrib.Api.Application.Common.Mappers;
 using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Commands;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
-using Notescrib.Api.Core.Enums;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 
-internal class WorkspaceMapper : IWorkspaceMapper
+internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
 {
+    private readonly IFolderMapper _folderMapper;
+
+    public WorkspaceMapper(IFolderMapper folderMapper)
+    {
+        _folderMapper = folderMapper;
+    }
+
     public Workspace MapToEntity(AddWorkspace.Command command, string ownerId)
-        => new()
-        {
-            Name = command.Name,
-            SharingDetails = command.SharingDetails,
-            OwnerId = ownerId,
-        };
+    {
+        var workspace = InternalMapper.Map<Workspace>(command);
+        workspace.OwnerId = ownerId;
+
+        return workspace;
+    }
 
     public Workspace MapToEntity(UpdateWorkspace.Command command, Workspace old)
-        => new()
-        {
-            Name = command.Name,
-            SharingDetails = command.SharingDetails,
+    {
+        var workspace = InternalMapper.Map<Workspace>(command);
 
-            Id = old.Id,
-            OwnerId = old.OwnerId,
-            Folders = old.Folders,
-        };
+        workspace.Id = old.Id;
+        workspace.OwnerId = old.OwnerId;
+        workspace.Folders = old.Folders;
+
+        return workspace;
+    }
 
     public WorkspaceDetails MapToResponse(Workspace workspace, IEnumerable<NoteOverview>? notes = null)
-         => new()
-         {
-             Id = workspace.Id ?? string.Empty,
-             Name = workspace.Name,
-             SharingDetails = workspace.SharingDetails,
-             OwnerId = workspace.OwnerId,
-             Folders = workspace.Folders.Select(f => new FolderDetails
-             {
-                 Name = f.Name,
-                 IsRoot = f.IsRoot,
-                 ParentPath = f.AbsolutePath,
-                 Notes = notes?.ToList() ?? new List<NoteOverview>()
-             })
-            .ToList()
-         };        
+    {
+        var details = InternalMapper.Map<WorkspaceDetails>(workspace);
+
+        details.Folders = workspace.Folders
+            .Select(f => _folderMapper.MapToResponse(f, notes ?? Enumerable.Empty<NoteOverview>()))
+            .ToList();
+
+        return details;
+    }
 }

@@ -5,10 +5,12 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
+using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Common.Configuration;
-using Notescrib.Api.Application.Common.Services;
 using Notescrib.Api.Application.Cqrs.Behaviors;
 using Notescrib.Api.Application.Extensions;
+using Notescrib.Api.Application.Notes;
+using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Application.Workspaces.Mappers;
 
 [assembly: InternalsVisibleTo("Notescrib.Api.Application.Tests")]
@@ -49,6 +51,12 @@ public static class ApplicationExtensions
             .AddScoped<IUserContextService, UserContextService>()
             .AddScoped<IJwtProvider, JwtProvider>();
 
+        services
+            .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
+            .AddScoped<INoteRepository, NoteRepository>();
+
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
         return services;
     }
 
@@ -57,19 +65,19 @@ public static class ApplicationExtensions
         services.AddAutoMapper(ThisAssembly);
 
         services
-            .AddSingleton<IWorkspaceMapper, WorkspaceMapper>()
-            .AddSingleton<IFolderMapper, FolderMapper>();
+            .AddScoped<IFolderMapper, FolderMapper>()
+            .AddScoped<IWorkspaceMapper, WorkspaceMapper>();
 
         return services;
     }
 
     private static IServiceCollection AddMediatR(this IServiceCollection services)
     {
-        services.AddMediatR(ThisAssembly);
-        
         services
-            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>))
-            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            .AddScoped(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>))
+            .AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        services.AddMediatR(ThisAssembly);
 
         return services;
     }

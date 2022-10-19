@@ -8,9 +8,9 @@ namespace Notescrib.Api.Controllers;
 [ApiController]
 public abstract class ApiControllerBase : ControllerBase
 {
-    protected ISender Mediator { get; }
+    protected IMediator Mediator { get; }
 
-    public ApiControllerBase(ISender mediator)
+    public ApiControllerBase(IMediator mediator)
     {
         Mediator = mediator;
     }

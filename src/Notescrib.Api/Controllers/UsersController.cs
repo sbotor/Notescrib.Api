@@ -12,7 +12,7 @@ namespace Notescrib.Api.Controllers;
 [Authorize]
 public class UsersController : ApiControllerBase
 {
-    public UsersController(ISender mediator) : base(mediator)
+    public UsersController(IMediator mediator) : base(mediator)
     {
     }
 

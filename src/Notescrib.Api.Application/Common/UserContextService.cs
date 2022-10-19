@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace Notescrib.Api.Application.Common.Services;
+namespace Notescrib.Api.Application.Common;
 
 internal class UserContextService : IUserContextService
 {

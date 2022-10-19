@@ -1,16 +1,15 @@
 ﻿using Notescrib.Api.Core.Entities;
-using Notescrib.Api.Application.Workspaces;
-using Notescrib.Api.Infrastructure.MongoDb.Providers;
 using Notescrib.Api.Core.Models;
 using Notescrib.Api.Core.Contracts;
+using Notescrib.Api.Application.Common;
 
-namespace Notescrib.Api.Infrastructure.MongoDb.Repositories;
+namespace Notescrib.Api.Application.Workspaces;
 
 internal class WorkspaceRepository : IWorkspaceRepository
 {
-    private readonly IMongoPersistenceProvider<Workspace> _workspaces;
+    private readonly IPersistenceProvider<Workspace> _workspaces;
 
-    public WorkspaceRepository(IMongoPersistenceProvider<Workspace> workspaces)
+    public WorkspaceRepository(IPersistenceProvider<Workspace> workspaces)
     {
         _workspaces = workspaces;
     }
