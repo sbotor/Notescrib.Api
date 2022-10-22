@@ -12,7 +12,7 @@ using Notescrib.Api.Core.Models;
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
 internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
-    where TEntity : EntityIdBase<string>
+    where TEntity : EntityIdBase
 {
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IMongoCollection<TEntity> _collection;
@@ -99,5 +99,5 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
     }
 
     public async Task<bool> ExistsAsync(string id)
-        => await FindByIdAsync(id) != null;
+        => (await FindByIdAsync(id)) != null;
 }

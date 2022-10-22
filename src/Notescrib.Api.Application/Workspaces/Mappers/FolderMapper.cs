@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using Notescrib.Api.Application.Common.Mappers;
+﻿using Notescrib.Api.Application.Common.Mappers;
 using Notescrib.Api.Application.Notes.Models;
+using Notescrib.Api.Application.Workspaces.Commands;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 
@@ -14,5 +14,12 @@ internal class FolderMapper : MapperBase, IFolderMapper
         details.Notes = notes.ToList();
 
         return details;
+    }
+
+    protected override void ConfigureMappings()
+    {
+        CreateMap<Folder, FolderDetails>();
+
+        CreateMap<AddFolder.Command, Folder>();
     }
 }

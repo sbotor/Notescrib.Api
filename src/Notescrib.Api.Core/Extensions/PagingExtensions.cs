@@ -4,9 +4,9 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Core.Extensions;
 
-public static class EnumerableExtensions
+public static class PagingExtensions
 {
-    public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageNumber, int pageSize)
+    public static PagedList<T> ToPagedList<T>(this IQueryable<T> source, int pageNumber, int pageSize)
     {
         var skipCount = PagingHelpers.CalculateSkipCount(pageNumber, pageSize);
 
@@ -16,6 +16,9 @@ public static class EnumerableExtensions
         return new(data, totalCount, pageNumber, pageSize);
     }
 
+    public static PagedList<T> ToPagedList<T>(this IQueryable<T> source, IPaging paging)
+        => source.ToPagedList(paging.PageNumber, paging.PageSize);
+
     public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, IPaging paging)
-        => source.ToPagedList<T>(paging.PageNumber, paging.PageSize);
+        => source.AsQueryable().ToPagedList(paging.PageNumber, paging.PageSize);
 }

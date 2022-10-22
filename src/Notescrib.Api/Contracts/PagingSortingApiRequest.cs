@@ -4,7 +4,7 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Contracts;
 
-public class PagingSortingApiRequest : IPaging, ISorting
+public class PagingSortingApiRequest : IPaging, ISortingNullable
 {
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = Paging.DefaultPageSize;

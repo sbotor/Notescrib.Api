@@ -9,14 +9,33 @@ public class Result
     public HttpStatusCode? StatusCode { get; set; }
 }
 
-public class Result<TResponse> : Result
+public class Result<T> : Result
 {
     private const string NotFoundMsg = "The resource was not found.";
     private const string ForbiddenMsg = "Invalid permissions to access this resource.";
 
-    public TResponse? Response { get; set; }
+    public T? Response { get; set; }
 
-    public static Result<TResponse> Success(TResponse? response, HttpStatusCode statusCode = HttpStatusCode.OK)
+    public Result()
+    {
+    }
+
+    public Result(Result source)
+    {
+        IsSuccessful = source.IsSuccessful;
+        Error = source.Error;
+        StatusCode = source.StatusCode;
+    }
+
+    public Result(Result source, T response) : this(source)
+    {
+        Response = response;
+    }
+
+    public Result<TOut> Map<TOut>()
+        => new(this);
+
+    public static Result<T> Success(T? response, HttpStatusCode statusCode = HttpStatusCode.OK)
         => new()
         {
             IsSuccessful = true,
@@ -24,10 +43,10 @@ public class Result<TResponse> : Result
             Response = response
         };
 
-    public static Result<TResponse> Created(TResponse? response)
+    public static Result<T> Created(T? response)
         => Success(response, HttpStatusCode.Created);
 
-    public static Result<TResponse> Failure(string? message = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+    public static Result<T> Failure(string? message = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         => new()
         {
             IsSuccessful = false,
@@ -35,9 +54,9 @@ public class Result<TResponse> : Result
             StatusCode = statusCode
         };
 
-    public static Result<TResponse> NotFound(string? message = null)
+    public static Result<T> NotFound(string? message = null)
         => Failure(message ?? NotFoundMsg, HttpStatusCode.NotFound);
 
-    public static Result<TResponse> Forbidden(string? message = null)
+    public static Result<T> Forbidden(string? message = null)
         => Failure(message ?? ForbiddenMsg, HttpStatusCode.Forbidden);
 }

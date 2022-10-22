@@ -1,5 +1,6 @@
 ﻿using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Common;
 

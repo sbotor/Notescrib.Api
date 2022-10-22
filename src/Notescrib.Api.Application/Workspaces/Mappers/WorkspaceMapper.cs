@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Notescrib.Api.Application.Common.Mappers;
+﻿using Notescrib.Api.Application.Common.Mappers;
 using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Commands;
 using Notescrib.Api.Application.Workspaces.Models;

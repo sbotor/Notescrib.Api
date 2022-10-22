@@ -5,7 +5,7 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Common;
 
-public interface IPersistenceProvider<TEntity> where TEntity : EntityIdBase<string>
+public interface IPersistenceProvider<TEntity> where TEntity : EntityIdBase
 {
     Task<TEntity> AddAsync(TEntity entity);
     Task<bool> DeleteAsync(string id);

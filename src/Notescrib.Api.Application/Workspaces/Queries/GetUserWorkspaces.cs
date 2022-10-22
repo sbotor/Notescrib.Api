@@ -3,7 +3,6 @@ using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Contracts;
-using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
@@ -27,15 +26,13 @@ public static class GetUserWorkspaces
 
         public async Task<Result<PagedList<WorkspaceDetails>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var sorting = Sorting.GetDefaultIfEmpty(request.Sorting, nameof(Workspace.Name));
-
             var ownerId = _userContextService.UserId;
             if (ownerId == null)
             {
                 return Result<PagedList<WorkspaceDetails>>.Failure();
             }
 
-            var result = await _repository.GetUserWorkspacesAsync(ownerId, request.Paging, sorting);
+            var result = await _repository.GetUserWorkspacesAsync(ownerId, request.Paging, request.Sorting);
             var response = result.Map(x => _mapper.MapToResponse(x));
 
             return Result<PagedList<WorkspaceDetails>>.Success(response);
