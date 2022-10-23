@@ -6,9 +6,9 @@ namespace Notescrib.Api.Application.Notes;
 
 public interface INoteRepository
 {
-    Task<Note> AddNoteAsync(Note note);
-    Task<bool> DeleteNoteAsync(string noteId);
+    Task<string> AddNoteAsync(Note note);
+    Task DeleteNoteAsync(string noteId);
     Task<Note?> GetNoteByIdAsync(string noteId);
-    Task<PagedList<Note>> GetNotesFromFolderAsync(IWorkspacePath path, IPaging paging, ISorting? sorting = null, bool includeChildrenFolders = true);
+    Task<PagedList<Note>> GetNotesFromTreeAsync(string folderId, IPaging paging);
     Task UpdateNoteAsync(Note note);
 }

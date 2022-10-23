@@ -12,4 +12,9 @@ internal static class Id
     {
         public const string First = "Workspace_1";
     }
+
+    public static class Folder
+    {
+        public const string First = "Folder_1";
+    }
 }

@@ -9,9 +9,9 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class UpdateWorkspace
 {
-    public record Command(string Id, string Name, SharingDetails SharingDetails) : ICommand<Result<WorkspaceDetails>>;
+    public record Command(string Id, string Name, SharingDetails SharingDetails) : ICommand<Result>;
 
-    internal class Handler : ICommandHandler<Command, Result<WorkspaceDetails>>
+    internal class Handler : ICommandHandler<Command, Result>
     {
         private readonly IWorkspaceMapper _mapper;
         private readonly IWorkspaceRepository _repository;
@@ -24,24 +24,23 @@ public static class UpdateWorkspace
             _permissionService = permissionService;
         }
 
-        public async Task<Result<WorkspaceDetails>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
             var workspace = await _repository.GetWorkspaceByIdAsync(request.Id);
             if (workspace == null)
             {
-                return Result<WorkspaceDetails>.NotFound();
+                return Result<WorkspaceOverview>.NotFound();
             }
 
             if (!_permissionService.CanEdit(workspace))
             {
-                return Result<WorkspaceDetails>.Forbidden();
+                return Result<WorkspaceOverview>.Forbidden();
             }
 
             workspace = _mapper.MapToEntity(request, workspace);
             await _repository.UpdateWorkspaceAsync(workspace);
-            workspace = await _repository.GetWorkspaceByIdAsync(request.Id);
 
-            return Result<WorkspaceDetails>.Success(_mapper.MapToResponse(workspace!));
+            return Result.Success();
         }
     }
 }

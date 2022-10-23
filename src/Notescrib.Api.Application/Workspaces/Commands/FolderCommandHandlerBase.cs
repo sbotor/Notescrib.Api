@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Notescrib.Api.Application.Common;
+﻿using Notescrib.Api.Application.Common;
+using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 
@@ -8,38 +8,28 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 internal abstract class FolderCommandHandlerBase
 {
     protected IWorkspaceRepository WorkspaceRepository { get; }
+    protected IFolderRepository FolderRepository { get; }
     protected IPermissionService PermissionService { get; }
+    protected IFolderMapper Mapper { get; }
 
-    public FolderCommandHandlerBase(IWorkspaceRepository repository, IPermissionService permissionService)
+    public FolderCommandHandlerBase(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, IPermissionService permissionService, IFolderMapper mapper)
     {
-        WorkspaceRepository = repository;
+        WorkspaceRepository = workspaceRepository;
+        FolderRepository = folderRepository;
         PermissionService = permissionService;
+        Mapper = mapper;
     }
 
-    protected async Task<Result<Workspace>> ValidateAndGetWorkspace(Folder folder)
+    protected async Task<Result<Workspace>> GetWorkspace(Folder folder)
     {
         var workspace = await WorkspaceRepository.GetWorkspaceByIdAsync(folder.WorkspaceId);
         if (workspace == null)
         {
-            return Result<Workspace>.NotFound($"Workspace with ID '{folder.WorkspaceId}' not found.");
+            return Result<Workspace>.NotFound($"Workspace not found.");
         }
 
-        if (!PermissionService.CanEdit(workspace))
-        {
-            return Result<Workspace>.Forbidden();
-        }
-
-        if (workspace.Folders.Any(x => x.Name == folder.Name))
-        {
-            return Result<Workspace>.Failure($"A folder with name '{folder.Name}' already exists.");
-        }
-
-        if (folder.ParentPath != null
-            && !workspace.Folders.Any(x => x.AbsolutePath == folder.ParentPath))
-        {
-            return Result<Workspace>.NotFound($"Folder with path '{folder.ParentPath}' not found.");
-        }
-
-        return Result<Workspace>.Success(workspace);
+        return !PermissionService.CanEdit(workspace)
+            ? Result<Workspace>.Forbidden()
+            : Result<Workspace>.Success(workspace);
     }
 }

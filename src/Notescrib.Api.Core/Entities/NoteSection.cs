@@ -2,7 +2,7 @@
 
 public class NoteSection
 {
-    public string Name { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public List<NoteSection> Children { get; set; } = new();
+    public string Name { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public ICollection<NoteSection> Children { get; set; } = null!;
 }

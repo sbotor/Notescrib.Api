@@ -1,13 +1,14 @@
 ﻿using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Common;
 
 internal class PermissionService : IPermissionService
 {
     private readonly IUserContextService _userContextService;
+
+    public IUserContextService User => _userContextService;
 
     public PermissionService(IUserContextService userContextService)
     {

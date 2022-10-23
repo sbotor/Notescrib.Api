@@ -53,7 +53,8 @@ public static class ApplicationExtensions
 
         services
             .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
-            .AddScoped<INoteRepository, NoteRepository>();
+            .AddScoped<INoteRepository, NoteRepository>()
+            .AddScoped<IFolderRepository, FolderRepository>();
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 

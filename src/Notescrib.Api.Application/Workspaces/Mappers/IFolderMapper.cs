@@ -6,5 +6,5 @@ using Notescrib.Api.Core.Entities;
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 internal interface IFolderMapper : IMapperBase
 {
-    FolderDetails MapToResponse(Folder folder, IEnumerable<NoteOverview> notes);
+    FolderDetails MapToDetails(Folder folder, IEnumerable<NoteOverview> notes);
 }

@@ -10,46 +10,42 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddFolder
 {
-    public record Command(string WorkspaceId, string? ParentPath, string Name, SharingDetails? SharingDetails) : ICommand<Result<FolderDetails>>;
+    public record Command(string WorkspaceId, string? ParentPath, string Name, SharingDetails? SharingDetails) : ICommand<Result<string>>;
 
-    internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<FolderDetails>>
+    internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<string>>
     {
-        private readonly IWorkspaceRepository _repository;
-        private readonly IFolderMapper _mapper;
-
-        public Handler(IWorkspaceRepository repository, IPermissionService permissionService, IFolderMapper mapper)
-            : base(repository, permissionService)
+        public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, IPermissionService permissionService, IFolderMapper mapper)
+            : base(workspaceRepository, folderRepository, permissionService, mapper)
         {
-            _mapper = mapper;
-            _repository = repository;
         }
 
-        public async Task<Result<FolderDetails>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         {
-            //var folder = new Folder
-            //{
-            //    ParentPath = request.ParentPath,
-            //    Name = request.Name,
-            //    WorkspaceId = request.WorkspaceId
-            //};
+            var folder = Mapper.Map<Folder>(request);
 
-            var folder = _mapper.Map<Folder>(request);
-
-            var workspaceResult = await ValidateAndGetWorkspace(folder);
+            var workspaceResult = await GetWorkspace(folder);
             if (!workspaceResult.IsSuccessful || workspaceResult.Response == null)
             {
-                return workspaceResult.Map<FolderDetails>();
+                return workspaceResult.Map<string>();
             }
 
             var workspace = workspaceResult.Response;
-
             workspace.SharingDetails = request.SharingDetails ?? workspace.SharingDetails;
 
-            workspace.Folders.Add(folder);
-            await _repository.UpdateWorkspaceAsync(workspace);
+            var folders = await FolderRepository.GetWorkspaceFoldersAsync(folder.WorkspaceId);
+            
+            if (folders.Any(x => x.Name == folder.Name))
+            {
+                return Result<string>.Failure("Folder with this name already exists.");
+            }
 
-            folder = workspace.Folders.First(x => x.Name == folder.Name);
-            return Result<FolderDetails>.Success(_mapper.MapToResponse(folder, Enumerable.Empty<NoteOverview>()));
+            if (folder.ParentPath != null && !folders.Any(x => x.AbsolutePath == folder.ParentPath))
+            {
+                return Result<string>.NotFound("Parent folder does not exist.");
+            }
+
+            await FolderRepository.AddFolderAsync(folder);
+            return Result<string>.Success(folder.Id);
         }
     }
 }

@@ -2,16 +2,16 @@
 
 namespace Notescrib.Api.Core.Entities;
 
-public class Note : EntityIdBase, IWorkspacePath, IOwnableShareable, ICreatedTimestamp, IUpdatedTimestamp
+public class Note : EntityIdBase, IOwnableShareable, ICreatedTimestamp, IUpdatedTimestamp
 {
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
     public string? ParentPath { get; set; }
-    public string WorkspaceId { get; set; } = string.Empty;
+    public string WorkspaceId { get; set; } = null!;
     public NoteSection? RootSection { get; set; }
-    public ICollection<string> Labels { get; set; } = new List<string>();
+    public ICollection<string> Labels { get; set; } = null!;
 
-    public string OwnerId { get; set; } = string.Empty;
-    public SharingDetails SharingDetails { get; set; } = new();
+    public string OwnerId { get; set; } = null!;
+    public SharingDetails SharingDetails { get; set; } = null!;
 
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }

@@ -10,52 +10,39 @@ namespace Notescrib.Api.Application.Notes.Commands;
 
 public static class AddNote
 {
-    public record Command(
-        string Name,
-        string WorkspaceId,
-        string? ParentPath,
-        SharingDetails SharingDetails)
-        : ICommand<Result<NoteOverview>>;
+    public record Command(string Name, string FolderId, SharingDetails SharingDetails) : ICommand<Result<string>>;
 
-    internal class Handler : ICommandHandler<Command, Result<NoteOverview>>
+    internal class Handler : ICommandHandler<Command, Result<string>>
     {
         private readonly IPermissionService _permissionService;
-        private readonly IUserContextService _userContextService;
         private readonly INoteRepository _noteRepository;
-        private readonly IWorkspaceRepository _workspaceRepository;
+        private readonly IFolderRepository _folderRepository;
         private readonly IMapper _mapper;
 
-        public Handler(
-            IPermissionService permissionService,
-            IUserContextService userContextService,
-            INoteRepository noteRepository,
-            IWorkspaceRepository workspaceRepository,
-            IMapper mapper)
+        public Handler(IPermissionService permissionService, INoteRepository noteRepository, IFolderRepository folderRepository, IMapper mapper)
         {
             _permissionService = permissionService;
-            _userContextService = userContextService;
             _noteRepository = noteRepository;
-            _workspaceRepository = workspaceRepository;
+            _folderRepository = folderRepository;
             _mapper = mapper;
         }
 
-        public async Task<Result<NoteOverview>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.WorkspaceId);
-            if (workspace == null)
+            var folder = await _folderRepository.GetFolderByIdAsync(request.FolderId);
+            if (folder == null)
             {
-                return Result<NoteOverview>.NotFound($"Workspace (ID: {request.WorkspaceId}) not found.");
+                return Result<string>.NotFound();
             }
 
-            if (!_permissionService.CanEdit(workspace))
+            if (!_permissionService.CanEdit(folder))
             {
-                return Result<NoteOverview>.NotFound();
+                return Result<string>.Forbidden();
             }
 
             var note = _mapper.Map<Note>(request);
-            note = await _noteRepository.AddNoteAsync(note);
 
-            return Result<NoteOverview>.Success(_mapper.Map<NoteOverview>(note));
+            return Result<string>.Success(await _noteRepository.AddNoteAsync(note));
         }
     }
 }

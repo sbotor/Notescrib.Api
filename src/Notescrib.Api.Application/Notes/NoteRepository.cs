@@ -1,8 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
-using Notescrib.Api.Core.Helpers;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Notes;
@@ -16,7 +16,7 @@ internal class NoteRepository : INoteRepository
         _notes = persistenceProvider;
     }
 
-    public async Task<Note> AddNoteAsync(Note note)
+    public async Task<string> AddNoteAsync(Note note)
         => await _notes.AddAsync(note);
 
     public async Task<Note?> GetNoteByIdAsync(string noteId)
@@ -25,21 +25,16 @@ internal class NoteRepository : INoteRepository
     public async Task UpdateNoteAsync(Note note)
         => await _notes.UpdateAsync(note);
 
-    public async Task<bool> DeleteNoteAsync(string noteId)
+    public async Task DeleteNoteAsync(string noteId)
         => await _notes.DeleteAsync(noteId);
 
-    public async Task<PagedList<Note>> GetNotesFromFolderAsync(
-        IWorkspacePath path,
-        IPaging paging,
-        ISorting? sorting = null,
-        bool includeChildrenFolders = true)
+    public async Task<IPagedList<Note>> GetNotesFromTreeAsync(string folderId, IPaging paging)
     {
-        var comparer = new WorkspacePathComparer();
+        var field = new StringFieldDefinition<Note>(nameof(Note.ParentPath));
+        var regex = new BsonRegularExpression($"{folderId}.*");
 
-        Expression<Func<Note, bool>> filter = includeChildrenFolders
-            ? x => comparer.StartsWith(x, path)
-            : x => comparer.Equals(x, path);
+        var filter = Builders<Note>.Filter.Regex(field, regex);
 
-        return await _notes.FindPagedAsync(filter, paging, sorting);
+        return await _notes.FindPagedAsync(filter, paging, new Sorting(nameof(Note.ParentPath)));
     }
 }

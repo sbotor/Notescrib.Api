@@ -3,8 +3,9 @@ using System.Linq.Dynamic.Core;
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
-using Notescrib.Api.Core.Models;
 using Notescrib.Api.Core.Extensions;
+using Notescrib.Api.Core.Exceptions;
+using MongoDB.Driver.Linq;
 
 namespace Notescrib.Api.Application.Tests;
 
@@ -18,7 +19,7 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
         Collection = collection;
     }
 
-    public Task<TEntity> AddAsync(TEntity entity)
+    public Task<string> AddAsync(TEntity entity)
     {
         if (entity is ICreatedTimestamp created)
         {
@@ -33,25 +34,23 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
         entity.Id = Guid.NewGuid().ToString();
         Collection.Add(entity);
 
-        return Task.FromResult(entity);
+        return Task.FromResult(entity.Id);
     }
 
-    public async Task<bool> DeleteAsync(string id)
+    public async Task DeleteAsync(string id)
     {
-        var success = false;
         var found = await FindByIdAsync(id);
 
-        if (found != null)
+        if (found == null)
         {
-            Collection.Remove(found);
-            success = true;
+            throw new NotFoundException();
         }
 
-        return success;
+        Collection.Remove(found);
     }
     public async Task<bool> ExistsAsync(string id) => (await FindByIdAsync(id)) != null;
     public Task<TEntity?> FindByIdAsync(string id) => Task.FromResult(Collection.FirstOrDefault(x => x.Id == id));
-    public Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    public Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
         var output = Collection.AsQueryable().Where(filter);
 
@@ -72,10 +71,13 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
         var found = await FindByIdAsync(entity.Id ?? throw new InvalidOperationException("No entity ID."));
         if (found == null)
         {
-            throw new InvalidOperationException("Item not found.");
+            throw new NotFoundException("Item not found.");
         }
 
         Collection.Remove(found);
         Collection.Add(entity);
     }
+
+    public Task<IPagedList<TEntity>> FindPagedAsync(MongoDB.Driver.FilterDefinition<TEntity> filter, IPaging paging, ISorting? sorting = null)
+        => FindPagedAsync(_ => filter.Inject(), paging, sorting);
 }

@@ -8,7 +8,7 @@ namespace Notescrib.Api.Application.Workspaces.Mappers;
 
 internal class FolderMapper : MapperBase, IFolderMapper
 {
-    public FolderDetails MapToResponse(Folder folder, IEnumerable<NoteOverview> notes)
+    public FolderDetails MapToDetails(Folder folder, IEnumerable<NoteOverview> notes)
     {
         var details = InternalMapper.Map<FolderDetails>(folder);
         details.Notes = notes.ToList();

@@ -5,9 +5,9 @@ using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Extensions;
 using Notescrib.Api.Core.Helpers;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
@@ -23,13 +23,8 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity)
+    public async Task<string> AddAsync(TEntity entity)
     {
-        if (!string.IsNullOrEmpty(entity.Id))
-        {
-            throw new InvalidOperationException("Cannot add an entity with an existing Id.");
-        }
-
         if (entity is ICreatedTimestamp created)
         {
             created.Created = _dateTimeProvider.UtcNow;
@@ -40,16 +35,22 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
             updated.Updated = _dateTimeProvider.UtcNow;
         }
 
-        entity.Id = ObjectId.GenerateNewId().ToString();
+        entity.Id = string.IsNullOrEmpty(entity.Id)
+            ? ObjectId.GenerateNewId().ToString()
+            : entity.Id;
+
         await _collection.InsertOneAsync(entity);
 
-        return entity;
+        return entity.Id;
     }
 
-    public async Task<bool> DeleteAsync(string id)
+    public async Task DeleteAsync(string id)
     {
         var found = await _collection.FindOneAndDeleteAsync(d => d.Id == id);
-        return found != null;
+        if (found != null)
+        {
+            throw new NotFoundException("The resource was not found.");
+        }
     }
 
     public async Task UpdateAsync(TEntity entity)
@@ -73,7 +74,13 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
         return result.SingleOrDefault();
     }
 
-    public async Task<PagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    public async Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    {
+        var filterDefinition = new ExpressionFilterDefinition<TEntity>(filter);
+        return await FindPagedAsync(filterDefinition, paging, sorting);
+    }
+
+    public async Task<IPagedList<TEntity>> FindPagedAsync(FilterDefinition<TEntity> filter, IPaging paging, ISorting? sorting = null)
     {
         var options = new FindOptions<TEntity>
         {

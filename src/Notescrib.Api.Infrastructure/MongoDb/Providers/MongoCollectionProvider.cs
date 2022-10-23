@@ -10,7 +10,8 @@ internal class MongoCollectionProvider : IMongoCollectionProvider
     private readonly Dictionary<Type, string> _collectionMap = new Dictionary<Type, string>
     {
         [typeof(Workspace)] = "Workspaces",
-        [typeof(Note)] = "Notes"
+        [typeof(Note)] = "Notes",
+        [typeof(Folder)] = "Folders"
     };
 
     private readonly MongoDbSettings _settings;
