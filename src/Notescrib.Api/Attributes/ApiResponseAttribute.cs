@@ -10,3 +10,10 @@ public class ApiResponseAttribute : ProducesResponseTypeAttribute
     {
     }
 }
+
+public class CreatedApiResponseAttribute : ApiResponseAttribute
+{
+    public CreatedApiResponseAttribute() : base(typeof(void), HttpStatusCode.Created)
+    {
+    }
+}

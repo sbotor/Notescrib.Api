@@ -1,8 +1,6 @@
-﻿using Notescrib.Api.Core.Contracts;
-
-namespace Notescrib.Api.Application.Workspaces.Models;
+﻿namespace Notescrib.Api.Application.Workspaces.Models;
 
 public class WorkspaceDetails : WorkspaceOverview
 {
-    public IPagedList<FolderOverview> Folders { get; set; } = null!;
+    public IReadOnlyCollection<FolderOverview> Folders { get; set; } = Array.Empty<FolderOverview>();
 }

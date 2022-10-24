@@ -66,14 +66,14 @@ public class Result<T> : Result
         => Success(response, HttpStatusCode.Created);
 
     public static new Result<T> Failure(string? message = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-        => new(Failure(message, statusCode));
+        => new(Result.Failure(message, statusCode));
 
     public static new Result<T> InternalError(string? message = null)
         => Failure(message, HttpStatusCode.InternalServerError);
 
     public static new Result<T> NotFound(string? message = null)
-        => new(Failure(message, HttpStatusCode.NotFound));
+        => new(Result.Failure(message, HttpStatusCode.NotFound));
 
     public static new Result<T> Forbidden(string? message = null)
-        => new(Failure(message, HttpStatusCode.Forbidden));
+        => new(Result.Failure(message, HttpStatusCode.Forbidden));
 }

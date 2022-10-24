@@ -21,12 +21,8 @@ internal class UserRepository : IUserRepository
 
     public async Task<User> AddUserAsync(User user, string password)
     {
-        if (!await ExistsByEmailAsync(user.Email))
-        {
-            throw new BadRequestException("User with this email already exists.");
-        }
-
         var identityUser = _mapper.Map<UserData>(user);
+        identityUser.Id = Guid.NewGuid().ToString();
 
         identityUser.EmailConfirmed = true; // TODO: Email confirmation
 
@@ -46,7 +42,7 @@ internal class UserRepository : IUserRepository
     public async Task<bool> ExistsByEmailAsync(string email)
     {
         var foundUser = await _userManager.FindByEmailAsync(email);
-        return foundUser == null;
+        return foundUser != null;
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)

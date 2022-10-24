@@ -10,6 +10,7 @@ using Notescrib.Api.Application.Common.Configuration;
 using Notescrib.Api.Application.Cqrs.Behaviors;
 using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Application.Notes;
+using Notescrib.Api.Application.Users.Mappers;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Application.Workspaces.Mappers;
 
@@ -67,7 +68,8 @@ public static class ApplicationExtensions
 
         services
             .AddScoped<IFolderMapper, FolderMapper>()
-            .AddScoped<IWorkspaceMapper, WorkspaceMapper>();
+            .AddScoped<IWorkspaceMapper, WorkspaceMapper>()
+            .AddScoped<IUserMapper, UserMapper>();
 
         return services;
     }

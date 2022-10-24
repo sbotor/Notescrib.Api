@@ -13,7 +13,7 @@ public static class PagingExtensions
         var totalCount = source.Count();
         var data = source.Skip(skipCount).Take(pageSize).ToList();
 
-        return new PagedList<T>(data, totalCount, pageNumber, pageSize);
+        return new PagedList<T>(data, pageNumber, pageSize, totalCount);
     }
 
     public static IPagedList<T> ToPagedList<T>(this IQueryable<T> source, IPaging paging)

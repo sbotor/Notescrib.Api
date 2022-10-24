@@ -1,23 +1,20 @@
 ﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
-using Notescrib.Api.Application.Notes;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
-using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
 
 public static class GetWorkspaceById
 {
-    public record Query(string Id, IPaging NotePaging) : IQuery<Result<WorkspaceDetails>>;
+    public record Query(string Id) : IQuery<Result<WorkspaceDetails>>;
 
     internal class Handler : IQueryHandler<Query, Result<WorkspaceDetails>>
     {
         private readonly IPermissionService _permissionService;
         private readonly IWorkspaceRepository _repository;
         private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
         private readonly IWorkspaceMapper _mapper;
         private readonly IFolderMapper _folderMapper;
 
@@ -25,14 +22,12 @@ public static class GetWorkspaceById
             IPermissionService permissionService,
             IWorkspaceRepository repository,
             IFolderRepository folderRepository,
-            INoteRepository noteRepository,
             IWorkspaceMapper mapper,
             IFolderMapper folderMapper)
         {
             _permissionService = permissionService;
             _repository = repository;
             _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
             _mapper = mapper;
             _folderMapper = folderMapper;
         }
@@ -52,13 +47,13 @@ public static class GetWorkspaceById
 
             var folders = await _folderRepository.GetWorkspaceFoldersAsync(workspace.Id!);
             folders = folders.Where(x => _permissionService.CanView(x)).ToList();
+            
+            var folderTree = _folderMapper.MapToTree(folders);
 
-            var rootFolder = folders.First(x => x.IsRoot);
-            var notes = await _noteRepository.GetNotesFromTreeAsync(rootFolder.Id!, request.NotePaging);
+            var response = _mapper.Map<WorkspaceDetails>(workspace);
+            response.Folders = folderTree;
 
-            var response = _folderMapper.Map<WorkspaceDetails>(workspace);
-
-            return Result<WorkspaceOverview>.Success(_mapper.Map<WorkspaceOverview>(workspace));
+            return Result<WorkspaceDetails>.Success(response);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Users.Models;
+using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 using Notescrib.Api.Infrastructure.Identity.Models;
 
@@ -18,23 +19,23 @@ internal class AuthService : IAuthService
         _mapper = mapper;
     }
 
-    public async Task<Result<UserDetails>> AuthenticateAsync(string email, string password)
+    public async Task<Result<User>> AuthenticateAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-            return Result<UserDetails>.NotFound();
+            return Result<User>.NotFound();
         }
 
         if (!user.EmailConfirmed)
         {
-            return Result<UserDetails>.Failure("User does not have a confirmed email.");
+            return Result<User>.Failure("User does not have a confirmed email.");
         }
 
         var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
         if (result == PasswordVerificationResult.Failed)
         {
-            return Result<UserDetails>.Forbidden();
+            return Result<User>.Forbidden();
         }
 
         if (result == PasswordVerificationResult.SuccessRehashNeeded)
@@ -42,6 +43,6 @@ internal class AuthService : IAuthService
             await _userManager.ChangePasswordAsync(user, user.PasswordHash, password);
         }
 
-        return Result<UserDetails>.Success(_mapper.Map<UserDetails>(user));
+        return Result<User>.Success(_mapper.Map<User>(user));
     }
 }

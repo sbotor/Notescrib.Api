@@ -12,7 +12,7 @@ using Notescrib.Api.Infrastructure.Identity;
 namespace Notescrib.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20221016203905_User")]
+    [Migration("20221024195340_User")]
     partial class User
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

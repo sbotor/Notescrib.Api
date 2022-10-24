@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Notescrib.Api.Application.Common;
@@ -11,7 +12,7 @@ using Notescrib.Api.Core.Helpers;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
 
-internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
+internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEntity>
     where TEntity : EntityIdBase
 {
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -74,6 +75,26 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
         return result.SingleOrDefault();
     }
 
+    public async Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
+    {
+        IAsyncCursor<TEntity> result;
+        if (sorting == null)
+        {
+            result = await _collection.FindAsync(filter);
+        }
+        else
+        {
+            var options = new FindOptions<TEntity>
+            {
+                Sort = GetSortDefinition(sorting)
+            };
+
+            result = await _collection.FindAsync(filter, options);
+        }
+
+        return await result.ToListAsync();
+    }
+
     public async Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
         var filterDefinition = new ExpressionFilterDefinition<TEntity>(filter);
@@ -90,13 +111,7 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
 
         if (sorting != null && string.IsNullOrEmpty(sorting.OrderBy))
         {
-            var fieldDefinition = new StringFieldDefinition<TEntity>(sorting.OrderBy);
-
-            var sortDefinition = sorting.Direction == SortingDirection.Ascending
-                ? Builders<TEntity>.Sort.Ascending(fieldDefinition)
-                : Builders<TEntity>.Sort.Descending(fieldDefinition);
-
-            options.Sort = sortDefinition;
+            options.Sort = GetSortDefinition(sorting);
         }
 
         var result = await _collection.FindAsync(filter, options);
@@ -107,4 +122,13 @@ internal class MongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
 
     public async Task<bool> ExistsAsync(string id)
         => (await FindByIdAsync(id)) != null;
+
+    private static SortDefinition<TEntity> GetSortDefinition(ISorting sorting)
+    {
+        var fieldDefinition = new StringFieldDefinition<TEntity>(sorting.OrderBy);
+
+        return sorting.Direction == SortingDirection.Ascending
+            ? Builders<TEntity>.Sort.Ascending(fieldDefinition)
+            : Builders<TEntity>.Sort.Descending(fieldDefinition);
+    }
 }

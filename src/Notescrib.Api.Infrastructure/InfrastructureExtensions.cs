@@ -6,8 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Extensions;
+using Notescrib.Api.Application.Notes;
 using Notescrib.Api.Application.Users;
-using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.Identity;
 using Notescrib.Api.Infrastructure.Identity.Models;
 using Notescrib.Api.Infrastructure.MongoDb;
@@ -25,6 +25,7 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
         services.AddScoped(typeof(IPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
+        services.AddScoped(typeof(IMongoPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
 
         services.AddIdentity(config);
 

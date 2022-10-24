@@ -8,16 +8,11 @@ public class Folder : EntityIdBase, IOwnableShareable, ICreatedTimestamp, IUpdat
 
     public string Name { get; set; } = null!;
     public string OwnerId { get; set; } = null!;
-    public string? ParentPath { get; set; }
+    public string? ParentId { get; set; }
     public string WorkspaceId { get; set; } = null!;
     public SharingDetails SharingDetails { get; set; } = null!;
 
-    public string AbsolutePath => string.IsNullOrWhiteSpace(ParentPath)
-        ? Id!
-        : string.Join(Separator, ParentPath, Id);
-
-    public string[] Segments => AbsolutePath.Split(Separator);
-    public bool IsRoot => string.IsNullOrWhiteSpace(ParentPath);
+    public bool IsRoot => ParentId == null;
 
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }

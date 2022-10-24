@@ -26,12 +26,5 @@ internal class FolderRepository : IFolderRepository
         => await _folders.DeleteAsync(id);
 
     public async Task<IReadOnlyCollection<Folder>> GetWorkspaceFoldersAsync(string workspaceId)
-    {
-        var result = await _folders.FindPagedAsync(
-            x => x.WorkspaceId == workspaceId,
-            new Paging(1, Paging.MaxPageSize),
-            new Sorting(nameof(Folder.AbsolutePath)));
-
-        return result.Data;
-    }
+        => await _folders.FindAsync(x => x.WorkspaceId == workspaceId, new Sorting(nameof(Folder.ParentId)));
 }

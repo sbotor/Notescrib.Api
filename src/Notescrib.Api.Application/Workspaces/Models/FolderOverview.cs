@@ -1,10 +1,6 @@
-﻿using Notescrib.Api.Application.Notes.Models;
-using Notescrib.Api.Core.Contracts;
+﻿namespace Notescrib.Api.Application.Workspaces.Models;
 
-namespace Notescrib.Api.Application.Workspaces.Models;
-
-public class FolderOverview : FolderDetails
+public class FolderOverview : FolderInfoBase
 {
-    public IPagedList<NoteOverview> Notes { get; set; } = null!;
-    public string WorkspaceId { get; set; } = null!;
+    public IReadOnlyCollection<FolderOverview> Children { get; set; } = null!;
 }

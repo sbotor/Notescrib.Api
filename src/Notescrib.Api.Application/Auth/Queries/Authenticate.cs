@@ -4,6 +4,8 @@ using System.Net;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Auth.Contracts;
 using Notescrib.Api.Core.Models;
+using Notescrib.Api.Application.Users.Mappers;
+using Notescrib.Api.Application.Users.Models;
 
 namespace Notescrib.Api.Application.Auth.Queries;
 
@@ -15,12 +17,14 @@ public static class Authenticate
     {
         private readonly IAuthService _authService;
         private readonly IJwtProvider _jwtProvider;
+        private readonly IUserMapper _mapper;
         private readonly ILogger<Handler> _logger;
 
-        public Handler(IAuthService userService, IJwtProvider jwtProvider, ILogger<Handler> logger)
+        public Handler(IAuthService userService, IJwtProvider jwtProvider, IUserMapper mapper, ILogger<Handler> logger)
         {
             _authService = userService;
             _jwtProvider = jwtProvider;
+            _mapper = mapper;
             _logger = logger;
         }
 
@@ -39,7 +43,7 @@ public static class Authenticate
             return Result<TokenResponse>.Success(new TokenResponse
             {
                 Token = token,
-                User = verifyResult.Response
+                User = _mapper.Map<UserDetails>(verifyResult.Response)
             });
         }
     }

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Net;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Api.Application.Workspaces.Models;
@@ -23,6 +24,7 @@ public class WorkspacesController : ApiControllerBase
         => await GetResponseAsync(request.ToQuery());
 
     [HttpPost]
+    [CreatedApiResponse]
     public async Task<IActionResult> AddWorkspace(AddWorkspaceRequest request)
         => await GetCreatedResponseAsync(request.ToCommand(), nameof(GetWorkspaceById));
 
@@ -31,12 +33,18 @@ public class WorkspacesController : ApiControllerBase
         => await GetResponseAsync(request.ToCommand(id));
 
     [HttpGet("{id}")]
-    [ApiResponse(typeof(WorkspaceOverview))]
+    [ApiResponse(typeof(WorkspaceDetails))]
     [AllowAnonymous]
     public async Task<IActionResult> GetWorkspaceById(string id)
         => await GetResponseAsync(new GetWorkspaceById.Query(id));
 
-    [HttpPost("{id}/folders")]
+    [HttpPost("{id}/folder")]
+    [CreatedApiResponse]
     public async Task<IActionResult> AddFolder(string id, AddFolderRequest request)
-        => await GetResponseAsync(request.ToCommand(id));
+        => await GetCreatedResponseAsync(request.ToCommand(id), nameof(GetFolderDetails));
+
+    [HttpGet("folder/{id}")]
+    [ApiResponse(typeof(FolderDetails))]
+    public async Task<IActionResult> GetFolderDetails(string id)
+        => StatusCode((int)HttpStatusCode.NotImplemented);
 }

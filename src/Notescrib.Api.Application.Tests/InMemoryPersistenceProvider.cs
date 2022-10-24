@@ -50,20 +50,10 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
     }
     public async Task<bool> ExistsAsync(string id) => (await FindByIdAsync(id)) != null;
     public Task<TEntity?> FindByIdAsync(string id) => Task.FromResult(Collection.FirstOrDefault(x => x.Id == id));
-    public Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    public async Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
-        var output = Collection.AsQueryable().Where(filter);
-
-        if (sorting != null && string.IsNullOrEmpty(sorting.OrderBy))
-        {
-            var directionString = sorting.Direction == Core.Enums.SortingDirection.Ascending
-                ? "ASC"
-                : "DESC";
-
-            output = output.AsQueryable().OrderBy($"{sorting.OrderBy} {directionString}");
-        }
-
-        return Task.FromResult(output.ToPagedList(paging));
+        var result = await FindAsync(filter, sorting);
+        return result.ToPagedList(paging);
     }
 
     public async Task UpdateAsync(TEntity entity)
@@ -78,6 +68,19 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
         Collection.Add(entity);
     }
 
-    public Task<IPagedList<TEntity>> FindPagedAsync(MongoDB.Driver.FilterDefinition<TEntity> filter, IPaging paging, ISorting? sorting = null)
-        => FindPagedAsync(_ => filter.Inject(), paging, sorting);
+    public Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
+    {
+        var output = Collection.AsQueryable().Where(filter);
+
+        if (sorting != null && string.IsNullOrEmpty(sorting.OrderBy))
+        {
+            var directionString = sorting.Direction == Core.Enums.SortingDirection.Ascending
+                ? "ASC"
+                : "DESC";
+
+            output = output.AsQueryable().OrderBy($"{sorting.OrderBy} {directionString}");
+        }
+
+        return Task.FromResult((IReadOnlyCollection<TEntity>)output.ToList());
+    }
 }

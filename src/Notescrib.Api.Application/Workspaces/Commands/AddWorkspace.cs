@@ -39,7 +39,7 @@ public static class AddWorkspace
             var folder = new Folder
             {
                 Id = workspaceId,
-                Name = string.Empty,
+                Name = "_root",
                 OwnerId = ownerId,
                 WorkspaceId = workspaceId,
                 SharingDetails = workspace.SharingDetails

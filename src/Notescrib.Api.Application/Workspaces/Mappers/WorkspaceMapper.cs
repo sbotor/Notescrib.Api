@@ -1,11 +1,23 @@
 ﻿using Notescrib.Api.Application.Common.Mappers;
+using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Application.Workspaces.Commands;
+using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 
 internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
 {
+    protected override void ConfigureMappings()
+    {
+        CreateMap<AddWorkspace.Command, Workspace>();
+        CreateMap<UpdateWorkspace.Command, Workspace>()
+            .Ignore(x => x.Id).Ignore(x => x.OwnerId);
+
+        CreateMap<Workspace, WorkspaceOverview>();
+        CreateMap<Workspace, WorkspaceDetails>();
+    }
+
     public Workspace MapToEntity(AddWorkspace.Command command, string ownerId)
     {
         var workspace = InternalMapper.Map<Workspace>(command);
@@ -16,7 +28,7 @@ internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
 
     public Workspace MapToEntity(UpdateWorkspace.Command command, Workspace old)
     {
-        var workspace = InternalMapper.Map<Workspace>(command);
+        var workspace = InternalMapper.Map(command, old);
 
         workspace.Id = old.Id;
         workspace.OwnerId = old.OwnerId;

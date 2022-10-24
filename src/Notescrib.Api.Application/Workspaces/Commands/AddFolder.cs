@@ -1,8 +1,6 @@
 ﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
-using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces.Mappers;
-using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 
@@ -10,7 +8,7 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddFolder
 {
-    public record Command(string WorkspaceId, string? ParentPath, string Name, SharingDetails? SharingDetails) : ICommand<Result<string>>;
+    public record Command(string WorkspaceId, string? ParentId, string Name, SharingDetails? SharingDetails) : ICommand<Result<string>>;
 
     internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<string>>
     {
@@ -39,7 +37,7 @@ public static class AddFolder
                 return Result<string>.Failure("Folder with this name already exists.");
             }
 
-            if (folder.ParentPath != null && !folders.Any(x => x.AbsolutePath == folder.ParentPath))
+            if (folder.ParentId != null && !folders.Any(x => x.Id == folder.ParentId))
             {
                 return Result<string>.NotFound("Parent folder does not exist.");
             }

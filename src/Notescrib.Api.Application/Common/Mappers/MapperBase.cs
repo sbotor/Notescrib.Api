@@ -13,9 +13,7 @@ internal abstract class MapperBase : Profile, IMapperBase
         InternalMapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(this)));
     }
 
-    protected virtual void ConfigureMappings()
-    {
-    }
+    protected abstract void ConfigureMappings();
 
     public TDestination Map<TSource, TDestination>(TSource source)
         => InternalMapper.Map<TSource, TDestination>(source);

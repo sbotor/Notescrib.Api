@@ -8,12 +8,9 @@ internal class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        UserToUserData();
-    }
-
-    private void UserToUserData()
-    {
         CreateMap<User, UserData>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<UserData, User>();
     }
 }

@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using Notescrib.Api.Application.Common;
+﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
@@ -28,13 +26,6 @@ internal class NoteRepository : INoteRepository
     public async Task DeleteNoteAsync(string noteId)
         => await _notes.DeleteAsync(noteId);
 
-    public async Task<IPagedList<Note>> GetNotesFromTreeAsync(string folderId, IPaging paging)
-    {
-        var field = new StringFieldDefinition<Note>(nameof(Note.ParentPath));
-        var regex = new BsonRegularExpression($"{folderId}.*");
-
-        var filter = Builders<Note>.Filter.Regex(field, regex);
-
-        return await _notes.FindPagedAsync(filter, paging, new Sorting(nameof(Note.ParentPath)));
-    }
+    public async Task<IPagedList<Note>> GetNotesFromFolderAsync(string folderId, IPaging paging, ISorting? sorting = null)
+        => await _notes.FindPagedAsync(x => x.FolderId == folderId, paging, new Sorting(nameof(Note.Name)));
 }
