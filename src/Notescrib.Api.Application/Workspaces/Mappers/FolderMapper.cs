@@ -26,12 +26,12 @@ internal class FolderMapper : MapperBase, IFolderMapper
 
     public IReadOnlyCollection<FolderOverview> MapToTree(IEnumerable<Folder> folders)
     {
-        if (folders.Any())
+        if (!folders.Any())
         {
             return Array.Empty<FolderOverview>();
         }
 
-        var grouped = folders.GroupBy(x => x.ParentId);
+        var grouped = folders.GroupBy(x => x.ParentId).ToList();
         var root = grouped.First(x => x.Key == null).First();
 
         return grouped.Select(x => GetOverviewRecursively(root, grouped)).ToList();

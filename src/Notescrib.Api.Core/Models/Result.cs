@@ -69,11 +69,11 @@ public class Result<T> : Result
         => new(Result.Failure(message, statusCode));
 
     public static new Result<T> InternalError(string? message = null)
-        => Failure(message, HttpStatusCode.InternalServerError);
+        => new(Result.InternalError(message));
 
     public static new Result<T> NotFound(string? message = null)
-        => new(Result.Failure(message, HttpStatusCode.NotFound));
+        => new(Result.NotFound(message));
 
     public static new Result<T> Forbidden(string? message = null)
-        => new(Result.Failure(message, HttpStatusCode.Forbidden));
+        => new(Result.Forbidden(message));
 }

@@ -14,14 +14,12 @@ public static class AddWorkspace
     {
         private readonly IUserContextService _userContextService;
         private readonly IWorkspaceRepository _repository;
-        private readonly IFolderRepository _folderRepository;
         private readonly IWorkspaceMapper _mapper;
 
-        public Handler(IUserContextService userContextService, IWorkspaceRepository repository, IFolderRepository folderRepository, IWorkspaceMapper mapper)
+        public Handler(IUserContextService userContextService, IWorkspaceRepository repository, IWorkspaceMapper mapper)
         {
             _userContextService = userContextService;
             _repository = repository;
-            _folderRepository = folderRepository;
             _mapper = mapper;
         }
 
@@ -34,17 +32,7 @@ public static class AddWorkspace
             }
 
             var workspace = _mapper.MapToEntity(request, ownerId);
-            var workspaceId = await _repository.AddWorkspaceAsync(workspace);
-
-            var folder = new Folder
-            {
-                Id = workspaceId,
-                Name = "_root",
-                OwnerId = ownerId,
-                WorkspaceId = workspaceId,
-                SharingDetails = workspace.SharingDetails
-            };
-            await _folderRepository.AddFolderAsync(folder);
+            await _repository.AddWorkspaceAsync(workspace);
 
             return Result<string>.Created(workspace.Id);
         }

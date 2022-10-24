@@ -27,9 +27,6 @@ public static class AddFolder
                 return workspaceResult.Map<string>();
             }
 
-            var workspace = workspaceResult.Response;
-            workspace.SharingDetails = request.SharingDetails ?? workspace.SharingDetails;
-
             var folders = await FolderRepository.GetWorkspaceFoldersAsync(folder.WorkspaceId);
             
             if (folders.Any(x => x.Name == folder.Name))
@@ -37,10 +34,18 @@ public static class AddFolder
                 return Result<string>.Failure("Folder with this name already exists.");
             }
 
-            if (folder.ParentId != null && !folders.Any(x => x.Id == folder.ParentId))
+            var parent = folders.FirstOrDefault(x => x.Id == folder.ParentId);
+            if (folder.ParentId != null && parent == null)
             {
                 return Result<string>.NotFound("Parent folder does not exist.");
             }
+
+            var workspace = workspaceResult.Response;
+
+            folder.SharingDetails = request.SharingDetails
+                ?? parent?.SharingDetails
+                ?? workspace.SharingDetails;
+            folder.OwnerId = workspace.OwnerId;
 
             await FolderRepository.AddFolderAsync(folder);
             return Result<string>.Success(folder.Id);
