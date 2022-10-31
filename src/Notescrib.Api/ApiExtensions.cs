@@ -21,7 +21,9 @@ public static class ApiExtensions
             .AddApplicationServices(builder.Configuration)
             .AddInfrastructure(builder.Configuration);
 
-        builder.Services.ConfigureAuthentication(builder.Configuration);
+        builder.Services
+            .ConfigureAuthentication(builder.Configuration)
+            .ConfigureCors(builder.Configuration);
 
         return builder;
     }

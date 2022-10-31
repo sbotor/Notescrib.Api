@@ -5,7 +5,7 @@ using Notescrib.Api.Application.Common.Configuration;
 
 namespace Notescrib.Api.Extensions;
 
-public static class AuthExtensions
+public static class SecurityExtensions
 {
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration config)
     {
@@ -23,6 +23,21 @@ public static class AuthExtensions
                 ValidateLifetime = true,
                 ValidateAudience = false,
             };
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration config)
+    {
+        var origins = config.GetSection("AllowedOrigins").Get<string[]>();
+
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(x =>
+                x.WithOrigins(origins)
+                    .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .AllowAnyHeader());
         });
 
         return services;
