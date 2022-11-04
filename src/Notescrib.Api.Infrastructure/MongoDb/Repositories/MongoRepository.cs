@@ -9,18 +9,20 @@ using Notescrib.Api.Core.Enums;
 using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Extensions;
 using Notescrib.Api.Core.Helpers;
+using Notescrib.Api.Infrastructure.MongoDb.Providers;
 
-namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
+namespace Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
-internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEntity>
+internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
     where TEntity : EntityIdBase
 {
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IMongoCollection<TEntity> _collection;
 
-    public MongoPersistenceProvider(IMongoCollectionProvider collectionProvider, IDateTimeProvider dateTimeProvider)
+    protected IMongoCollection<TEntity> Collection { get; }
+
+    public MongoRepository(IMongoCollectionProvider collectionProvider, IDateTimeProvider dateTimeProvider)
     {
-        _collection = collectionProvider.GetCollection<TEntity>();
+        Collection = collectionProvider.GetCollection<TEntity>();
         _dateTimeProvider = dateTimeProvider;
     }
 
@@ -40,14 +42,14 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             ? ObjectId.GenerateNewId().ToString()
             : entity.Id;
 
-        await _collection.InsertOneAsync(entity);
+        await Collection.InsertOneAsync(entity);
 
         return entity.Id;
     }
 
     public async Task DeleteAsync(string id)
     {
-        var found = await _collection.FindOneAndDeleteAsync(d => d.Id == id);
+        var found = await Collection.FindOneAndDeleteAsync(d => d.Id == id);
         if (found != null)
         {
             throw new NotFoundException("The resource was not found.");
@@ -66,21 +68,21 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             updated.Updated = _dateTimeProvider.UtcNow;
         }
 
-        await _collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
+        await Collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
     }
 
-    public async Task<TEntity?> FindByIdAsync(string id)
+    public async Task<TEntity?> GetByIdAsync(string id)
     {
-        var result = await _collection.FindAsync(d => d.Id == id);
+        var result = await Collection.FindAsync(d => d.Id == id);
         return result.SingleOrDefault();
     }
 
-    public async Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
+    public async Task<IReadOnlyCollection<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
     {
         IAsyncCursor<TEntity> result;
         if (sorting == null)
         {
-            result = await _collection.FindAsync(filter);
+            result = await Collection.FindAsync(filter);
         }
         else
         {
@@ -89,13 +91,13 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
                 Sort = GetSortDefinition(sorting)
             };
 
-            result = await _collection.FindAsync(filter, options);
+            result = await Collection.FindAsync(filter, options);
         }
 
         return await result.ToListAsync();
     }
 
-    public async Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    public async Task<IPagedList<TEntity>> GetPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
         var filterDefinition = new ExpressionFilterDefinition<TEntity>(filter);
         return await FindPagedAsync(filterDefinition, paging, sorting);
@@ -114,14 +116,14 @@ internal class MongoPersistenceProvider<TEntity> : IMongoPersistenceProvider<TEn
             options.Sort = GetSortDefinition(sorting);
         }
 
-        var result = await _collection.FindAsync(filter, options);
+        var result = await Collection.FindAsync(filter, options);
         var data = await result.ToListAsync();
 
         return data.ToPagedList(paging);
     }
 
     public async Task<bool> ExistsAsync(string id)
-        => (await FindByIdAsync(id)) != null;
+        => await GetByIdAsync(id) != null;
 
     private static SortDefinition<TEntity> GetSortDefinition(ISorting sorting)
     {

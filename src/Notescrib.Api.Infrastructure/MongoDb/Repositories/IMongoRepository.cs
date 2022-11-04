@@ -3,9 +3,9 @@ using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 
-namespace Notescrib.Api.Infrastructure.MongoDb.Providers;
+namespace Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
-internal interface IMongoPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
+internal interface IMongoRepository<TEntity> : IRepository<TEntity>
     where TEntity : EntityIdBase
 {
     Task<IPagedList<TEntity>> FindPagedAsync(FilterDefinition<TEntity> filter, IPaging paging, ISorting? sorting = null);

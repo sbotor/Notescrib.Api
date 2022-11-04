@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Notescrib.Api.Application\Notescrib.Api.Application.csproj" />
+    <ProjectReference Include="..\..\src\Notescrib.Api.Application\Notescrib.Api.Application.csproj" />
   </ItemGroup>
 
 </Project>

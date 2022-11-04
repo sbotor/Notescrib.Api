@@ -26,7 +26,7 @@ public static class UpdateWorkspace
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _repository.GetWorkspaceByIdAsync(request.Id);
+            var workspace = await _repository.GetByIdAsync(request.Id);
             if (workspace == null)
             {
                 return Result<WorkspaceOverview>.NotFound();
@@ -38,7 +38,7 @@ public static class UpdateWorkspace
             }
 
             workspace = _mapper.MapToEntity(request, workspace);
-            await _repository.UpdateWorkspaceAsync(workspace);
+            await _repository.UpdateAsync(workspace);
 
             return Result.Success();
         }

@@ -1,20 +1,20 @@
 ﻿using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
-using Notescrib.Api.Application.Common;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Extensions;
 using Notescrib.Api.Core.Exceptions;
 using MongoDB.Driver.Linq;
+using Notescrib.Api.Application.Common;
 
 namespace Notescrib.Api.Application.Tests;
 
-internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEntity>
+internal class InMemoryRepository<TEntity> : IRepository<TEntity>
     where TEntity : EntityIdBase
 {
     public ICollection<TEntity> Collection { get; }
 
-    public InMemoryPersistenceProvider(ICollection<TEntity> collection)
+    public InMemoryRepository(ICollection<TEntity> collection)
     {
         Collection = collection;
     }
@@ -39,7 +39,7 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
 
     public async Task DeleteAsync(string id)
     {
-        var found = await FindByIdAsync(id);
+        var found = await GetByIdAsync(id);
 
         if (found == null)
         {
@@ -48,17 +48,17 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
 
         Collection.Remove(found);
     }
-    public async Task<bool> ExistsAsync(string id) => (await FindByIdAsync(id)) != null;
-    public Task<TEntity?> FindByIdAsync(string id) => Task.FromResult(Collection.FirstOrDefault(x => x.Id == id));
-    public async Task<IPagedList<TEntity>> FindPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
+    public async Task<bool> ExistsAsync(string id) => (await GetByIdAsync(id)) != null;
+    public Task<TEntity?> GetByIdAsync(string id) => Task.FromResult(Collection.FirstOrDefault(x => x.Id == id));
+    public async Task<IPagedList<TEntity>> GetPagedAsync(Expression<Func<TEntity, bool>> filter, IPaging paging, ISorting? sorting = null)
     {
-        var result = await FindAsync(filter, sorting);
+        var result = await GetAsync(filter, sorting);
         return result.ToPagedList(paging);
     }
 
     public async Task UpdateAsync(TEntity entity)
     {
-        var found = await FindByIdAsync(entity.Id ?? throw new InvalidOperationException("No entity ID."));
+        var found = await GetByIdAsync(entity.Id ?? throw new InvalidOperationException("No entity ID."));
         if (found == null)
         {
             throw new NotFoundException("Item not found.");
@@ -68,7 +68,7 @@ internal class InMemoryPersistenceProvider<TEntity> : IPersistenceProvider<TEnti
         Collection.Add(entity);
     }
 
-    public Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
+    public Task<IReadOnlyCollection<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null)
     {
         var output = Collection.AsQueryable().Where(filter);
 

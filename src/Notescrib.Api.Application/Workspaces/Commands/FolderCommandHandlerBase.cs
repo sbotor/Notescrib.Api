@@ -22,7 +22,7 @@ internal abstract class FolderCommandHandlerBase
 
     protected async Task<Result<Workspace>> GetWorkspace(Folder folder)
     {
-        var workspace = await WorkspaceRepository.GetWorkspaceByIdAsync(folder.WorkspaceId);
+        var workspace = await WorkspaceRepository.GetByIdAsync(folder.WorkspaceId);
         if (workspace == null)
         {
             return Result<Workspace>.NotFound($"Workspace not found.");

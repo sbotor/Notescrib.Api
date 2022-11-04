@@ -32,7 +32,7 @@ public static class AddWorkspace
             }
 
             var workspace = _mapper.MapToEntity(request, ownerId);
-            await _repository.AddWorkspaceAsync(workspace);
+            await _repository.AddAsync(workspace);
 
             return Result<string>.Created(workspace.Id);
         }

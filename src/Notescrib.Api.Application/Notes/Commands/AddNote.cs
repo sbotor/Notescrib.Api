@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
-using Notescrib.Api.Application.Notes.Models;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
@@ -29,7 +28,7 @@ public static class AddNote
 
         public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _folderRepository.GetFolderByIdAsync(request.FolderId);
+            var folder = await _folderRepository.GetByIdAsync(request.FolderId);
             if (folder == null)
             {
                 return Result<string>.NotFound();
@@ -42,7 +41,7 @@ public static class AddNote
 
             var note = _mapper.Map<Note>(request);
 
-            return Result<string>.Success(await _noteRepository.AddNoteAsync(note));
+            return Result<string>.Success(await _noteRepository.AddAsync(note));
         }
     }
 }

@@ -47,7 +47,7 @@ public static class AddFolder
                 ?? workspace.SharingDetails;
             folder.OwnerId = workspace.OwnerId;
 
-            await FolderRepository.AddFolderAsync(folder);
+            await FolderRepository.AddAsync(folder);
             return Result<string>.Success(folder.Id);
         }
     }

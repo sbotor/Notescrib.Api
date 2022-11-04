@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api", "src\Notescrib.Api\Notescrib.Api.csproj", "{2EB96F5F-C826-4385-95C4-FEF9871B8E92}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api.Application", "src\Notescrib.Api.Application\Notescrib.Api.Application.csproj", "{4D534B2B-D36C-4599-BD05-3A55C8A5D31B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api.Core", "src\Notescrib.Api.Core\Notescrib.Api.Core.csproj", "{93BF675D-29B2-4F18-B3FE-A6B04BE0A556}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api.Infrastructure", "src\Notescrib.Api.Infrastructure\Notescrib.Api.Infrastructure.csproj", "{FDC33723-0D69-4676-AA1F-479469438EB2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1605F0AE-3586-49F0-BC25-5F7F7316BBDC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C2C3815C-0C55-4BCC-A393-706B7F29FE11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notescrib.Api.Application.Tests", "tests\Notescrib.Api.Application.Tests\Notescrib.Api.Application.Tests.csproj", "{BF3D408A-D7F0-4EE4-8BF1-42978BA88801}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EB96F5F-C826-4385-95C4-FEF9871B8E92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB96F5F-C826-4385-95C4-FEF9871B8E92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB96F5F-C826-4385-95C4-FEF9871B8E92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB96F5F-C826-4385-95C4-FEF9871B8E92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D534B2B-D36C-4599-BD05-3A55C8A5D31B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D534B2B-D36C-4599-BD05-3A55C8A5D31B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D534B2B-D36C-4599-BD05-3A55C8A5D31B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D534B2B-D36C-4599-BD05-3A55C8A5D31B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93BF675D-29B2-4F18-B3FE-A6B04BE0A556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93BF675D-29B2-4F18-B3FE-A6B04BE0A556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93BF675D-29B2-4F18-B3FE-A6B04BE0A556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93BF675D-29B2-4F18-B3FE-A6B04BE0A556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDC33723-0D69-4676-AA1F-479469438EB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDC33723-0D69-4676-AA1F-479469438EB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDC33723-0D69-4676-AA1F-479469438EB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDC33723-0D69-4676-AA1F-479469438EB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF3D408A-D7F0-4EE4-8BF1-42978BA88801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF3D408A-D7F0-4EE4-8BF1-42978BA88801}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF3D408A-D7F0-4EE4-8BF1-42978BA88801}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF3D408A-D7F0-4EE4-8BF1-42978BA88801}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BF3D408A-D7F0-4EE4-8BF1-42978BA88801} = {C2C3815C-0C55-4BCC-A393-706B7F29FE11}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C26EBC60-43F6-4D76-A482-08D8240D1ECF}
+	EndGlobalSection
+EndGlobal

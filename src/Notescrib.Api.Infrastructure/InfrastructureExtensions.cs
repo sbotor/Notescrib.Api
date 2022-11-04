@@ -8,10 +8,12 @@ using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Extensions;
 using Notescrib.Api.Application.Notes;
 using Notescrib.Api.Application.Users;
+using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.Identity;
 using Notescrib.Api.Infrastructure.Identity.Models;
 using Notescrib.Api.Infrastructure.MongoDb;
 using Notescrib.Api.Infrastructure.MongoDb.Providers;
+using Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
 namespace Notescrib.Api.Infrastructure;
 
@@ -24,8 +26,13 @@ public static class InfrastructureExtensions
         services.Configure(config);
 
         services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
-        services.AddScoped(typeof(IPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
-        services.AddScoped(typeof(IMongoPersistenceProvider<>), typeof(MongoPersistenceProvider<>));
+
+        services
+            .AddScoped(typeof(IRepository<>), typeof(MongoRepository<>))
+            .AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>))
+            .AddScoped<IFolderRepository, FolderRepository>()
+            .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
+            .AddScoped<INoteRepository, NoteRepository>();
 
         services.AddIdentity(config);
 

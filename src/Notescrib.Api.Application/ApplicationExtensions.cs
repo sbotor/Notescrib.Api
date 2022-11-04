@@ -52,11 +52,6 @@ public static class ApplicationExtensions
             .AddScoped<IUserContextService, UserContextService>()
             .AddScoped<IJwtProvider, JwtProvider>();
 
-        services
-            .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
-            .AddScoped<INoteRepository, NoteRepository>()
-            .AddScoped<IFolderRepository, FolderRepository>();
-
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         return services;

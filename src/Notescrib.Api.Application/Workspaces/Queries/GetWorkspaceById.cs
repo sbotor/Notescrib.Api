@@ -34,7 +34,7 @@ public static class GetWorkspaceById
 
         public async Task<Result<WorkspaceDetails>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var workspace = await _repository.GetWorkspaceByIdAsync(request.Id);
+            var workspace = await _repository.GetByIdAsync(request.Id);
             if (workspace == null)
             {
                 return Result<WorkspaceDetails>.NotFound();
