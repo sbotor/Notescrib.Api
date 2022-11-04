@@ -3,11 +3,11 @@ using Notescrib.Api.Application.Common;
 
 namespace Notescrib.Api.Application.Tests;
 
-internal class TestUserContextService : IUserContextService
+internal class TestUserContextProvider : IUserContextProvider
 {
-    public static TestUserContextService First => new(Id.User.First);
+    public static TestUserContextProvider First => new(Id.User.First);
 
-    public TestUserContextService(string? userId = null, string? email = null)
+    public TestUserContextProvider(string? userId = null, string? email = null)
     {
         UserId = userId;
         Email = email;

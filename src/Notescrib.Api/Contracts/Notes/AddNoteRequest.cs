@@ -7,8 +7,8 @@ public class AddNoteRequest
 {
     public string Name { get; set; } = null!;
     public string FolderId { get; set; } = null!;
-    public SharingDetails SharingDetails { get; set; } = new();
+    public SharingInfo SharingInfo { get; set; } = new();
 
     public AddNote.Command ToCommand()
-        => new(Name, FolderId, SharingDetails);
+        => new(Name, FolderId, SharingInfo);
 }

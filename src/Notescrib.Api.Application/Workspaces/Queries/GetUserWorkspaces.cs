@@ -14,19 +14,19 @@ public static class GetUserWorkspaces
     internal class Handler : IQueryHandler<Query, Result<IPagedList<WorkspaceOverview>>>
     {
         private readonly IWorkspaceRepository _repository;
-        private readonly IUserContextService _userContextService;
+        private readonly IUserContextProvider _userContext;
         private readonly IWorkspaceMapper _mapper;
 
-        public Handler(IWorkspaceRepository repository, IUserContextService userContextService, IWorkspaceMapper mapper)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider _userContext, IWorkspaceMapper mapper)
         {
             _repository = repository;
-            _userContextService = userContextService;
+            this._userContext = _userContext;
             _mapper = mapper;
         }
 
         public async Task<Result<IPagedList<WorkspaceOverview>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var ownerId = _userContextService.UserId;
+            var ownerId = _userContext.UserId;
             if (ownerId == null)
             {
                 return Result<IPagedList<WorkspaceOverview>>.Failure();

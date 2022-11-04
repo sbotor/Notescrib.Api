@@ -1,5 +1,8 @@
-﻿namespace Notescrib.Api.Core.Contracts;
+﻿using Notescrib.Api.Core.Entities;
 
-public interface IOwnableShareable : IShareable, IOwnable
+namespace Notescrib.Api.Core.Contracts;
+
+public interface IShareable : IOwnable
 {
+    public SharingInfo SharingInfo { get; set; }
 }

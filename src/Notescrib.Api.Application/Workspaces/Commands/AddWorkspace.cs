@@ -8,24 +8,24 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddWorkspace
 {
-    public record Command(string Name, SharingDetails SharingDetails) : ICommand<Result<string>>;
+    public record Command(string Name, SharingInfo SharingInfo) : ICommand<Result<string>>;
 
     internal class Handler : ICommandHandler<Command, Result<string>>
     {
-        private readonly IUserContextService _userContextService;
+        private readonly IUserContextProvider _userContext;
         private readonly IWorkspaceRepository _repository;
         private readonly IWorkspaceMapper _mapper;
 
-        public Handler(IUserContextService userContextService, IWorkspaceRepository repository, IWorkspaceMapper mapper)
+        public Handler(IUserContextProvider userContext, IWorkspaceRepository repository, IWorkspaceMapper mapper)
         {
-            _userContextService = userContextService;
+            _userContext = userContext;
             _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var ownerId = _userContextService.UserId;
+            var ownerId = _userContext.UserId;
             if (ownerId == null)
             {
                 return Result<string>.Failure("No user context found.");

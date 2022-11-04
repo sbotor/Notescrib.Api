@@ -9,14 +9,14 @@ internal abstract class FolderCommandHandlerBase
 {
     protected IWorkspaceRepository WorkspaceRepository { get; }
     protected IFolderRepository FolderRepository { get; }
-    protected IPermissionService PermissionService { get; }
+    protected ISharingService SharingService { get; }
     protected IFolderMapper Mapper { get; }
 
-    public FolderCommandHandlerBase(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, IPermissionService permissionService, IFolderMapper mapper)
+    public FolderCommandHandlerBase(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, ISharingService sharingService, IFolderMapper mapper)
     {
         WorkspaceRepository = workspaceRepository;
         FolderRepository = folderRepository;
-        PermissionService = permissionService;
+        SharingService = sharingService;
         Mapper = mapper;
     }
 
@@ -28,7 +28,7 @@ internal abstract class FolderCommandHandlerBase
             return Result<Workspace>.NotFound($"Workspace not found.");
         }
 
-        return !PermissionService.CanEdit(workspace)
+        return !SharingService.CanEdit(workspace)
             ? Result<Workspace>.Forbidden()
             : Result<Workspace>.Success(workspace);
     }

@@ -2,7 +2,7 @@
 
 namespace Notescrib.Api.Core.Entities;
 
-public class Folder : EntityIdBase, IOwnableShareable, ICreatedTimestamp, IUpdatedTimestamp
+public class Folder : EntityIdBase, IShareable, ICreatedTimestamp, IUpdatedTimestamp
 {
     public const string Separator = "/";
 
@@ -10,7 +10,7 @@ public class Folder : EntityIdBase, IOwnableShareable, ICreatedTimestamp, IUpdat
     public string OwnerId { get; set; } = null!;
     public string? ParentId { get; set; }
     public string WorkspaceId { get; set; } = null!;
-    public SharingDetails SharingDetails { get; set; } = null!;
+    public SharingInfo SharingInfo { get; set; } = null!;
 
     public bool IsRoot => ParentId == null;
 

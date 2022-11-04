@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Api.Application.Common;
 
-public interface IUserContextService
+public interface IUserContextProvider
 {
     string? UserId { get; }
     string? Email { get; }

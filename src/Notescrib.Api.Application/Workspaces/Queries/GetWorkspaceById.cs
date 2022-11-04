@@ -12,20 +12,20 @@ public static class GetWorkspaceById
 
     internal class Handler : IQueryHandler<Query, Result<WorkspaceDetails>>
     {
-        private readonly IPermissionService _permissionService;
+        private readonly ISharingService _sharingService;
         private readonly IWorkspaceRepository _repository;
         private readonly IFolderRepository _folderRepository;
         private readonly IWorkspaceMapper _mapper;
         private readonly IFolderMapper _folderMapper;
 
         public Handler(
-            IPermissionService permissionService,
+            ISharingService sharingService,
             IWorkspaceRepository repository,
             IFolderRepository folderRepository,
             IWorkspaceMapper mapper,
             IFolderMapper folderMapper)
         {
-            _permissionService = permissionService;
+            _sharingService = sharingService;
             _repository = repository;
             _folderRepository = folderRepository;
             _mapper = mapper;
@@ -40,13 +40,13 @@ public static class GetWorkspaceById
                 return Result<WorkspaceDetails>.NotFound();
             }
 
-            if (!_permissionService.CanView(workspace))
+            if (!_sharingService.CanView(workspace))
             {
                 return Result<WorkspaceDetails>.Forbidden();
             }
 
             var folders = await _folderRepository.GetWorkspaceFoldersAsync(workspace.Id!);
-            folders = folders.Where(x => _permissionService.CanView(x)).ToList();
+            folders = folders.Where(x => _sharingService.CanView(x)).ToList();
             
             var folderTree = _folderMapper.MapToTree(folders);
 

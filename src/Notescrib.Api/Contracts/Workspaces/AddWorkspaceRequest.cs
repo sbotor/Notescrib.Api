@@ -6,8 +6,8 @@ namespace Notescrib.Api.Contracts.Workspaces;
 public class AddWorkspaceRequest
 {
     public string Name { get; set; } = null!;
-    public SharingDetails? SharingDetails { get; set; }
+    public SharingInfo? SharingInfo { get; set; }
 
     public AddWorkspace.Command ToCommand()
-        => new(Name, SharingDetails ?? new());
+        => new(Name, SharingInfo ?? new());
 }

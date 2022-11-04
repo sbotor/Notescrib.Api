@@ -9,18 +9,18 @@ namespace Notescrib.Api.Application.Notes.Commands;
 
 public static class AddNote
 {
-    public record Command(string Name, string FolderId, SharingDetails SharingDetails) : ICommand<Result<string>>;
+    public record Command(string Name, string FolderId, SharingInfo SharingInfo) : ICommand<Result<string>>;
 
     internal class Handler : ICommandHandler<Command, Result<string>>
     {
-        private readonly IPermissionService _permissionService;
+        private readonly ISharingService _sharingService;
         private readonly INoteRepository _noteRepository;
         private readonly IFolderRepository _folderRepository;
         private readonly IMapper _mapper;
 
-        public Handler(IPermissionService permissionService, INoteRepository noteRepository, IFolderRepository folderRepository, IMapper mapper)
+        public Handler(ISharingService sharingService, INoteRepository noteRepository, IFolderRepository folderRepository, IMapper mapper)
         {
-            _permissionService = permissionService;
+            _sharingService = sharingService;
             _noteRepository = noteRepository;
             _folderRepository = folderRepository;
             _mapper = mapper;
@@ -34,7 +34,7 @@ public static class AddNote
                 return Result<string>.NotFound();
             }
 
-            if (!_permissionService.CanEdit(folder))
+            if (!_sharingService.CanEdit(folder))
             {
                 return Result<string>.Forbidden();
             }

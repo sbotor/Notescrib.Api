@@ -9,7 +9,6 @@ internal abstract class MapperBase : Profile, IMapperBase
     public MapperBase()
     {
         ConfigureMappings();
-
         InternalMapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(this)));
     }
 

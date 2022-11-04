@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Notescrib.Api.Application.Common;
 
-internal class UserContextService : IUserContextService
+internal class UserContextProvider : IUserContextProvider
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserContextService(IHttpContextAccessor httpContextAccessor)
+    public UserContextProvider(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
     }

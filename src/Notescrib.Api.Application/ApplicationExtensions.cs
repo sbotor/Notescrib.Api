@@ -48,8 +48,8 @@ public static class ApplicationExtensions
     private static IServiceCollection AddGeneralServices(this IServiceCollection services)
     {
         services
-            .AddScoped<IPermissionService, PermissionService>()
-            .AddScoped<IUserContextService, UserContextService>()
+            .AddScoped<ISharingService, SharingService>()
+            .AddScoped<IUserContextProvider, UserContextProvider>()
             .AddScoped<IJwtProvider, JwtProvider>();
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();

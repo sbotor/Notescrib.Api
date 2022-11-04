@@ -8,12 +8,12 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class AddFolder
 {
-    public record Command(string WorkspaceId, string? ParentId, string Name, SharingDetails? SharingDetails) : ICommand<Result<string>>;
+    public record Command(string WorkspaceId, string? ParentId, string Name, SharingInfo? SharingInfo) : ICommand<Result<string>>;
 
     internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<string>>
     {
-        public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, IPermissionService permissionService, IFolderMapper mapper)
-            : base(workspaceRepository, folderRepository, permissionService, mapper)
+        public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, ISharingService sharingService, IFolderMapper mapper)
+            : base(workspaceRepository, folderRepository, sharingService, mapper)
         {
         }
 
@@ -42,9 +42,9 @@ public static class AddFolder
 
             var workspace = workspaceResult.Response;
 
-            folder.SharingDetails = request.SharingDetails
-                ?? parent?.SharingDetails
-                ?? workspace.SharingDetails;
+            folder.SharingInfo = request.SharingInfo
+                ?? parent?.SharingInfo
+                ?? workspace.SharingInfo;
             folder.OwnerId = workspace.OwnerId;
 
             await FolderRepository.AddAsync(folder);

@@ -9,19 +9,19 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class UpdateWorkspace
 {
-    public record Command(string Id, string Name, SharingDetails SharingDetails) : ICommand<Result>;
+    public record Command(string Id, string Name, SharingInfo SharingInfo) : ICommand<Result>;
 
     internal class Handler : ICommandHandler<Command, Result>
     {
         private readonly IWorkspaceMapper _mapper;
         private readonly IWorkspaceRepository _repository;
-        private readonly IPermissionService _permissionService;
+        private readonly ISharingService _sharingService;
 
-        public Handler(IWorkspaceRepository repository, IPermissionService permissionService, IWorkspaceMapper mapper)
+        public Handler(IWorkspaceRepository repository, ISharingService sharingService, IWorkspaceMapper mapper)
         {
             _mapper = mapper;
             _repository = repository;
-            _permissionService = permissionService;
+            _sharingService = sharingService;
         }
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public static class UpdateWorkspace
                 return Result<WorkspaceOverview>.NotFound();
             }
 
-            if (!_permissionService.CanEdit(workspace))
+            if (!_sharingService.CanEdit(workspace))
             {
                 return Result<WorkspaceOverview>.Forbidden();
             }

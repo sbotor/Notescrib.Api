@@ -8,5 +8,5 @@ public class WorkspaceOverview : IShareable
     public string Id { get; set; } = null!;
     public string OwnerId { get; set; } = null!;
     public string Name { get; set; } = null!;
-    public SharingDetails SharingDetails { get; set; } = null!;
+    public SharingInfo SharingInfo { get; set; } = null!;
 }
