@@ -1,14 +1,17 @@
-﻿using Notescrib.Api.Core.Contracts;
+﻿using System.Collections;
+using Notescrib.Api.Core.Contracts;
+using Notescrib.Api.Core.Helpers;
 
 namespace Notescrib.Api.Core.Models;
 
-public abstract class FolderTreeBase<T, TSource>
+public abstract class FolderTreeBase<T, TSource, TNode> : IEnumerable<TNode>
     where T : IEntityId
     where TSource : IFolderStructure
+    where TNode : class, ITreeNode<T, TNode>
 {
     protected Func<TSource, T> Mapping { get; }
 
-    public IList<Node> Items { get; } = new List<Node>();
+    public IList<TNode> Items { get; } = new List<TNode>();
 
     protected FolderTreeBase(IEnumerable<TSource> items, Func<TSource, T> mapping)
     {
@@ -16,24 +19,16 @@ public abstract class FolderTreeBase<T, TSource>
         Items = CreateTree(items.ToList());
     }
 
-    public bool CanMoveFolder(string id, string targetId)
-    {
-        var node = FindNode(id) ?? throw new InvalidOperationException();
-        var target = FindNode(id) ?? throw new InvalidOperationException();
-
-        return node.Level >= target.Level;
-    }
-
-    protected virtual IList<Node> CreateTree(IReadOnlyCollection<TSource> items)
+    protected virtual IList<TNode> CreateTree(IReadOnlyCollection<TSource> items)
     {
         if (!items.Any())
         {
-            return new List<Node>();
+            return new List<TNode>();
         }
 
         var itemsToAdd = items.ToList();
-        var roots = new List<Node>();
-        var parentLookup = new Dictionary<string, Node>();
+        var roots = new List<TNode>();
+        var parentLookup = new Dictionary<string, TNode>();
         var i = 0;
 
         while (itemsToAdd.Count > 0)
@@ -45,8 +40,9 @@ public abstract class FolderTreeBase<T, TSource>
             {
                 if (parentLookup.TryGetValue(item.ParentId, out var parent))
                 {
-                    var node = new Node(Mapping.Invoke(item), parent);
+                    var node = CreateNode(parent, item);
                     parent.Children.Add(node);
+
                     itemsToAdd.RemoveAt(i);
 
                     parentLookup.Add(node.Item.Id, node);
@@ -58,8 +54,9 @@ public abstract class FolderTreeBase<T, TSource>
             }
             else
             {
-                var node = new Node(Mapping.Invoke(item), null);
+                var node = CreateNode(null, item);
                 roots.Add(node);
+
                 itemsToAdd.RemoveAt(i);
 
                 parentLookup.Add(node.Item.Id, node);
@@ -69,9 +66,11 @@ public abstract class FolderTreeBase<T, TSource>
         return roots;
     }
 
-    private Node? FindNode(Predicate<Node> predicate)
+    protected abstract TNode CreateNode(TNode? parent, TSource item);
+
+    public IEnumerator<TNode> GetEnumerator()
     {
-        var queue = new Queue<Node>();
+        var queue = new Queue<TNode>();
         foreach (var item in Items)
         {
             queue.Enqueue(item);
@@ -81,36 +80,68 @@ public abstract class FolderTreeBase<T, TSource>
         {
             var node = queue.Dequeue();
 
-            if (predicate.Invoke(node))
-            {
-                return node;
-            }
+            yield return node;
 
             foreach (var child in node.Children)
             {
                 queue.Enqueue(child);
             }
         }
-
-        return null;
     }
 
-    private Node? FindNode(string id) => FindNode(x => x.Item.Id == id);
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
 
-    public class Node
+public abstract class FolderTreeBase<T, TSource> : FolderTreeBase<T, TSource, FolderTreeBase<T, TSource>.Node>
+    where T : IEntityId
+    where TSource : IFolderStructure
+{
+    protected FolderTreeBase(IEnumerable<TSource> items, Func<TSource, T> mapping)
+        : base(items, mapping)
     {
-        internal int Level { get; }
-        internal Node? Parent { get; }
+    }
 
+    protected override Node CreateNode(Node? parent, TSource item)
+        => new(Mapping.Invoke(item), parent);
+
+    public class Node : ITreeNode<T, Node>
+    {
+        public int NestingLevel { get; }
+        public Node? Parent { get; }
         public T Item { get; }
-
         public IList<Node> Children { get; } = new List<Node>();
 
-        internal Node(T item, Node? parent)
+        public bool CanNestChildren => NestingLevel < Size.NestingLevel.Max;
+
+        public Node(T item, Node? parent)
         {
             Item = item;
             Parent = parent;
-            Level = (Parent?.Level + 1) ?? 0;
+            NestingLevel = (Parent?.NestingLevel + 1) ?? 0;
+        }
+
+        public Node? FindAncestor(Predicate<Node> predicate)
+        {
+            var node = this;
+            var i = Size.NestingLevel.Max;
+
+            while (i >= 0)
+            {
+                if (node == null)
+                {
+                    return null;
+                }
+
+                if (predicate.Invoke(node))
+                {
+                    return node;
+                }
+
+                node = node.Parent;
+                i--;
+            }
+
+            return null;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using Notescrib.Api.Core.Models;
+﻿using Notescrib.Api.Core.Entities;
 
-namespace Notescrib.Api.Core.Entities;
+namespace Notescrib.Api.Core.Models;
 
 public class FolderTree : FolderTreeBase<Folder>
 {

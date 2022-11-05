@@ -32,16 +32,33 @@ public static class CreateFolder
             }
 
             var folders = await FolderRepository.GetWorkspaceFoldersAsync(folder.WorkspaceId);
+            var folderTree = new FolderTree(folders);
             
-            if (folders.Any(x => x.Name == folder.Name))
+            if (folderTree.Any(x => x.Item.Name == folder.Name))
             {
                 return Result<string>.Failure("Folder with this name already exists.");
             }
 
-            var parent = folders.FirstOrDefault(x => x.Id == folder.ParentId);
-            if (folder.ParentId != null && parent == null)
+            Folder? parent = null;
+            if (folder.ParentId != null)
             {
-                return Result<string>.NotFound("Parent folder does not exist.");
+                var parentNode = folderTree.FirstOrDefault(x => x.Item.Id == folder.ParentId);
+                if (parentNode == null)
+                {
+                    return Result<string>.NotFound("Parent folder does not exist.");
+                }
+
+                if (!parentNode.CanNestChildren)
+                {
+                    return Result<string>.Failure("Max nesting level achieved.");
+                }
+
+                if (parentNode.FindAncestor(x => x.Item.Id == folder.Id) != null)
+                {
+                    return Result<string>.Failure("The folder cannot be its own ancestor.");
+                }
+
+                parent = parentNode.Item;
             }
 
             var workspace = workspaceResult.Response;
@@ -49,6 +66,8 @@ public static class CreateFolder
             folder.SharingInfo = request.SharingInfo
                 ?? parent?.SharingInfo
                 ?? workspace.SharingInfo;
+
+            folder.NestingLevel = (parent?.NestingLevel + 1) ?? 0;
 
             folder.OwnerId = workspace.OwnerId;
 
