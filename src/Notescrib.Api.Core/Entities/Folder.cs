@@ -2,7 +2,7 @@
 
 namespace Notescrib.Api.Core.Entities;
 
-public class Folder : EntityIdBase, IShareable, ICreatedTimestamp, IUpdatedTimestamp
+public class Folder : EntityIdBase, IShareable, ICreatedTimestamp, IUpdatedTimestamp, IFolderStructure
 {
     public const string Separator = "/";
 

@@ -6,7 +6,7 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
-public static class AddWorkspace
+public static class CreateWorkspace
 {
     public record Command(string Name, SharingInfo SharingInfo) : ICommand<Result<string>>;
 
@@ -31,7 +31,7 @@ public static class AddWorkspace
                 return Result<string>.Failure("No user context found.");
             }
 
-            var workspace = _mapper.MapToEntity(request, ownerId);
+            var workspace = _mapper.CreateEntity(request, ownerId);
             await _repository.AddAsync(workspace);
 
             return Result<string>.Created(workspace.Id);

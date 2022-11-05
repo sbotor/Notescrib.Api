@@ -8,5 +8,4 @@ namespace Notescrib.Api.Application.Workspaces.Mappers;
 internal interface IFolderMapper : IMapperBase
 {
     FolderDetails MapToDetails(Folder folder, IEnumerable<NoteOverview> notes);
-    IReadOnlyCollection<FolderOverview> MapToTree(IEnumerable<Folder> folders);
 }

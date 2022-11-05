@@ -6,6 +6,6 @@ namespace Notescrib.Api.Application.Workspaces.Mappers;
 
 public interface IWorkspaceMapper : IMapperBase
 {
-    Workspace MapToEntity(AddWorkspace.Command command, string ownerId);
-    Workspace MapToEntity(UpdateWorkspace.Command command, Workspace old);
+    Workspace CreateEntity(CreateWorkspace.Command command, string ownerId);
+    Workspace UpdateEntity(UpdateWorkspace.Command command, Workspace old);
 }

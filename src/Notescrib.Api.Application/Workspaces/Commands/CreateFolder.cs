@@ -6,13 +6,17 @@ using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
-public static class AddFolder
+public static class CreateFolder
 {
     public record Command(string WorkspaceId, string? ParentId, string Name, SharingInfo? SharingInfo) : ICommand<Result<string>>;
 
     internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<string>>
     {
-        public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, ISharingService sharingService, IFolderMapper mapper)
+        public Handler(
+            IWorkspaceRepository workspaceRepository,
+            IFolderRepository folderRepository,
+            ISharingService sharingService,
+            IFolderMapper mapper)
             : base(workspaceRepository, folderRepository, sharingService, mapper)
         {
         }
@@ -21,7 +25,7 @@ public static class AddFolder
         {
             var folder = Mapper.Map<Folder>(request);
 
-            var workspaceResult = await GetWorkspace(folder);
+            var workspaceResult = await GetWorkspace(folder.WorkspaceId);
             if (!workspaceResult.IsSuccessful || workspaceResult.Response == null)
             {
                 return workspaceResult.Map<string>();
@@ -45,6 +49,7 @@ public static class AddFolder
             folder.SharingInfo = request.SharingInfo
                 ?? parent?.SharingInfo
                 ?? workspace.SharingInfo;
+
             folder.OwnerId = workspace.OwnerId;
 
             await FolderRepository.AddAsync(folder);

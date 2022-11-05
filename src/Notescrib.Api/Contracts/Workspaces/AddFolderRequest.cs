@@ -9,6 +9,6 @@ public class AddFolderRequest
     public string? ParentId { get; set; }
     public SharingInfo? SharingInfo { get; set; }
 
-    public AddFolder.Command ToCommand(string workspaceId)
+    public CreateFolder.Command ToCommand(string workspaceId)
         => new(workspaceId, ParentId, Name, SharingInfo);
 }

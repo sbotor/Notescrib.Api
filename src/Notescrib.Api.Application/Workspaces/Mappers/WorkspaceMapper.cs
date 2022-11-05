@@ -10,7 +10,7 @@ internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
 {
     protected override void ConfigureMappings()
     {
-        CreateMap<AddWorkspace.Command, Workspace>();
+        CreateMap<CreateWorkspace.Command, Workspace>();
         CreateMap<UpdateWorkspace.Command, Workspace>()
             .Ignore(x => x.Id).Ignore(x => x.OwnerId);
 
@@ -18,7 +18,7 @@ internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
         CreateMap<Workspace, WorkspaceDetails>();
     }
 
-    public Workspace MapToEntity(AddWorkspace.Command command, string ownerId)
+    public Workspace CreateEntity(CreateWorkspace.Command command, string ownerId)
     {
         var workspace = InternalMapper.Map<Workspace>(command);
         workspace.OwnerId = ownerId;
@@ -26,7 +26,7 @@ internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
         return workspace;
     }
 
-    public Workspace MapToEntity(UpdateWorkspace.Command command, Workspace old)
+    public Workspace UpdateEntity(UpdateWorkspace.Command command, Workspace old)
     {
         var workspace = InternalMapper.Map(command, old);
 

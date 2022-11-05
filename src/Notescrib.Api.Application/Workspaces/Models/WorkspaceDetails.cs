@@ -2,5 +2,5 @@
 
 public class WorkspaceDetails : WorkspaceOverview
 {
-    public IReadOnlyCollection<FolderOverview> Folders { get; set; } = Array.Empty<FolderOverview>();
+    public IReadOnlyCollection<FolderOverviewTree.Node> Folders { get; set; } = Array.Empty<FolderOverviewTree.Node>();
 }

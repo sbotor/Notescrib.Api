@@ -48,10 +48,10 @@ public static class GetWorkspaceById
             var folders = await _folderRepository.GetWorkspaceFoldersAsync(workspace.Id!);
             folders = folders.Where(x => _sharingService.CanView(x)).ToList();
             
-            var folderTree = _folderMapper.MapToTree(folders);
+            var folderTree = new FolderOverviewTree(folders, _folderMapper);
 
             var response = _mapper.Map<WorkspaceDetails>(workspace);
-            response.Folders = folderTree;
+            response.Folders = folderTree.Items.ToArray();
 
             return Result<WorkspaceDetails>.Success(response);
         }

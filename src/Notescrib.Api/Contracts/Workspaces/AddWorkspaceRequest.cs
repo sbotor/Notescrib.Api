@@ -8,6 +8,6 @@ public class AddWorkspaceRequest
     public string Name { get; set; } = null!;
     public SharingInfo? SharingInfo { get; set; }
 
-    public AddWorkspace.Command ToCommand()
+    public CreateWorkspace.Command ToCommand()
         => new(Name, SharingInfo ?? new());
 }

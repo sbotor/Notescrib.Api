@@ -20,9 +20,9 @@ internal abstract class FolderCommandHandlerBase
         Mapper = mapper;
     }
 
-    protected async Task<Result<Workspace>> GetWorkspace(Folder folder)
+    protected async Task<Result<Workspace>> GetWorkspace(string workspaceId)
     {
-        var workspace = await WorkspaceRepository.GetByIdAsync(folder.WorkspaceId);
+        var workspace = await WorkspaceRepository.GetByIdAsync(workspaceId);
         if (workspace == null)
         {
             return Result<Workspace>.NotFound($"Workspace not found.");

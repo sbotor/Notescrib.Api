@@ -37,7 +37,7 @@ public static class UpdateWorkspace
                 return Result<WorkspaceOverview>.Forbidden();
             }
 
-            workspace = _mapper.MapToEntity(request, workspace);
+            workspace = _mapper.UpdateEntity(request, workspace);
             await _repository.UpdateAsync(workspace);
 
             return Result.Success();

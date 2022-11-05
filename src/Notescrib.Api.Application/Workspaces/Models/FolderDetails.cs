@@ -2,7 +2,7 @@
 
 namespace Notescrib.Api.Application.Workspaces.Models;
 
-public class FolderDetails : FolderInfoBase
+public class FolderDetails : FolderOverview
 {
     public IReadOnlyCollection<NoteOverview> Notes { get; set; } = null!;
 }

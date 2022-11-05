@@ -1,6 +1,9 @@
-﻿namespace Notescrib.Api.Core.Entities;
+﻿using Notescrib.Api.Core.Contracts;
 
-public class EntityIdBase<TKey> where TKey : IEquatable<TKey>
+namespace Notescrib.Api.Core.Entities;
+
+public class EntityIdBase<TKey> : IEntityId<TKey>
+    where TKey : IEquatable<TKey>
 {
     public TKey Id { get; set; } = default!;
 }

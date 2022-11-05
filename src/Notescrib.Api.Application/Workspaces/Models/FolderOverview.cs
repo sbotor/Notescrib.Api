@@ -1,6 +1,11 @@
-﻿namespace Notescrib.Api.Application.Workspaces.Models;
+﻿using Notescrib.Api.Core.Contracts;
+using Notescrib.Api.Core.Entities;
 
-public class FolderOverview : FolderInfoBase
+namespace Notescrib.Api.Application.Workspaces.Models;
+
+public class FolderOverview : IEntityId
 {
-    public IReadOnlyCollection<FolderOverview> Children { get; set; } = null!;
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public SharingInfo SharingInfo { get; set; } = null!;
 }
