@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Notescrib.Api.Application.Auth.Services;
 using Notescrib.Api.Application.Users.Models;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 using Notescrib.Api.Infrastructure.Identity.Models;
 
@@ -12,37 +14,41 @@ internal class AuthService : IAuthService
 {
     private readonly UserManager<UserData> _userManager;
     private readonly IMapper _mapper;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(UserManager<UserData> userManager, IMapper mapper)
+    public AuthService(UserManager<UserData> userManager, IMapper mapper, ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<Result<User>> AuthenticateAsync(string email, string password)
+    public async Task<User?> AuthenticateAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-            return Result<User>.NotFound();
+            throw new NotFoundException();
         }
 
         if (!user.EmailConfirmed)
         {
-            return Result<User>.Failure("User does not have a confirmed email.");
+            return null;
         }
 
         var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        if (result == PasswordVerificationResult.Failed)
+        
+        switch (result)
         {
-            return Result<User>.Forbidden();
+            case PasswordVerificationResult.Failed:
+                _logger.LogWarning("Failed login with email {email}.", email);
+                throw new ForbiddenException();
+            
+            case PasswordVerificationResult.SuccessRehashNeeded:
+                await _userManager.ChangePasswordAsync(user, user.PasswordHash, password);
+                break;
         }
 
-        if (result == PasswordVerificationResult.SuccessRehashNeeded)
-        {
-            await _userManager.ChangePasswordAsync(user, user.PasswordHash, password);
-        }
-
-        return Result<User>.Success(_mapper.Map<User>(user));
+        return _mapper.Map<User>(user);
     }
 }

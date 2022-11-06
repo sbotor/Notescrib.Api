@@ -3,15 +3,16 @@ using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Notes.Commands;
 
 public static class AddNote
 {
-    public record Command(string Name, string FolderId, SharingInfo SharingInfo) : ICommand<Result<string>>;
+    public record Command(string Name, string FolderId, SharingInfo SharingInfo) : ICommand<string>;
 
-    internal class Handler : ICommandHandler<Command, Result<string>>
+    internal class Handler : ICommandHandler<Command, string>
     {
         private readonly ISharingService _sharingService;
         private readonly INoteRepository _noteRepository;
@@ -26,22 +27,19 @@ public static class AddNote
             _mapper = mapper;
         }
 
-        public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
             var folder = await _folderRepository.GetByIdAsync(request.FolderId);
             if (folder == null)
             {
-                return Result<string>.NotFound();
+                throw new NotFoundException();
             }
 
-            if (!_sharingService.CanEdit(folder))
-            {
-                return Result<string>.Forbidden();
-            }
+            _sharingService.GuardCanEdit(folder);
 
             var note = _mapper.Map<Note>(request);
 
-            return Result<string>.Success(await _noteRepository.AddAsync(note));
+            return await _noteRepository.AddAsync(note);
         }
     }
 }

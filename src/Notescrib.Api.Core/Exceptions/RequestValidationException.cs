@@ -6,15 +6,14 @@ namespace Notescrib.Api.Core.Exceptions;
 public class RequestValidationException : AppException
 {
     private const string ErrorMsg = "Validation errors occured.";
-    private const HttpStatusCode DefaultStatusCode = HttpStatusCode.BadRequest;
 
-    public RequestValidationException(IEnumerable<ErrorItem> errors)
-        : base(ErrorMsg, errors, DefaultStatusCode)
+    public RequestValidationException(IEnumerable<ErrorItem> errorData)
+        : base(ErrorMsg, errorData)
     {
     }
 
     public RequestValidationException(ErrorItem error)
-        : base(ErrorMsg, new[] { error }, DefaultStatusCode)
+        : base(ErrorMsg, new[] { error })
     {
     }
 }

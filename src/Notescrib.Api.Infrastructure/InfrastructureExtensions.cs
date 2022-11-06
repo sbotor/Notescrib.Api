@@ -29,7 +29,6 @@ public static class InfrastructureExtensions
 
         services
             .AddScoped(typeof(IRepository<>), typeof(MongoRepository<>))
-            .AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>))
             .AddScoped<IFolderRepository, FolderRepository>()
             .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
             .AddScoped<INoteRepository, NoteRepository>();

@@ -6,3 +6,8 @@ internal interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TCo
     where TCommand : ICommand<TResponse>
 {
 }
+
+internal interface ICommandHandler<in TCommand> : ICommandHandler<TCommand, Unit>
+    where TCommand : ICommand
+{
+}

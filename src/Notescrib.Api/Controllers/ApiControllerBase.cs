@@ -15,62 +15,18 @@ public abstract class ApiControllerBase : ControllerBase
         _mediator = mediator;
     }
 
-    protected async Task<IActionResult> GetResponseAsync<TResponse>(IRequest<Result<TResponse>> request)
+    protected async Task<IActionResult> Ok<TResponse>(IRequest<TResponse> request)
+        => Ok(await _mediator.Send(request));
+
+    protected async Task<IActionResult> NoContent(IRequest request)
     {
-        var result = await GetResult(request);
-        return result.IsSuccessful ? Success(result) : Error(result);
+        await _mediator.Send(request);
+        return new NoContentResult();
     }
 
-    protected async Task<IActionResult> GetResponseAsync(IRequest<Result> request)
+    protected async Task<IActionResult> CreatedAtAction(IRequest<string> request, string actionName)
     {
-        var result = await GetResult(request);
-        return result.IsSuccessful ? Success(result) : Error(result);
+        var result = await _mediator.Send(request);
+        return CreatedAtAction(actionName, new[] { result }, null);
     }
-
-    protected async Task<IActionResult> GetCreatedResponseAsync(IRequest<Result<string>> request, string actionName)
-    {
-        var result = await GetResult(request);
-        return result.IsSuccessful
-            ? CreatedAtAction(actionName, new { id = result.Response! }, null)
-            : Error(result);
-    }
-
-    private async Task<Result<TResponse>> GetResult<TResponse>(IRequest<Result<TResponse>> request)
-    {
-        Result<TResponse> result;
-        try
-        {
-            result = await _mediator.Send(request);
-        }
-        catch (AppException e)
-        {
-            result = e.ToResult<TResponse>();
-        }
-
-        return result;
-    }
-
-    private async Task<Result> GetResult(IRequest<Result> request)
-    {
-        Result result;
-        try
-        {
-            result = await _mediator.Send(request);
-        }
-        catch (AppException e)
-        {
-            result = e.ToResult();
-        }
-
-        return result;
-    }
-
-    protected IActionResult Success<TResponse>(Result<TResponse> result)
-        => StatusCode((int)(result.StatusCode ?? System.Net.HttpStatusCode.OK), result.Response);
-
-    protected IActionResult Error(Result result)
-        => StatusCode((int)(result.StatusCode ?? System.Net.HttpStatusCode.BadRequest), result.Error);
-
-    protected IActionResult Success(Result result)
-        => StatusCode((int)(result.StatusCode ?? System.Net.HttpStatusCode.NoContent));
 }

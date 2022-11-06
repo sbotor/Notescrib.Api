@@ -1,17 +1,19 @@
-﻿using Notescrib.Api.Application.Common;
+﻿using MediatR;
+using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class UpdateWorkspace
 {
-    public record Command(string Id, string Name, SharingInfo SharingInfo) : ICommand<Result>;
+    public record Command(string Id, string Name, SharingInfo SharingInfo) : ICommand;
 
-    internal class Handler : ICommandHandler<Command, Result>
+    internal class Handler : ICommandHandler<Command>
     {
         private readonly IWorkspaceMapper _mapper;
         private readonly IWorkspaceRepository _repository;
@@ -24,23 +26,20 @@ public static class UpdateWorkspace
             _sharingService = sharingService;
         }
 
-        public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var workspace = await _repository.GetByIdAsync(request.Id);
             if (workspace == null)
             {
-                return Result<WorkspaceOverview>.NotFound();
+                throw new NotFoundException();
             }
 
-            if (!_sharingService.CanEdit(workspace))
-            {
-                return Result<WorkspaceOverview>.Forbidden();
-            }
+            _sharingService.GuardCanEdit(workspace);
 
             workspace = _mapper.UpdateEntity(request, workspace);
             await _repository.UpdateAsync(workspace);
 
-            return Result.Success();
+            return Unit.Value;
         }
     }
 }

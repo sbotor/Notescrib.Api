@@ -18,6 +18,6 @@ public class AuthController : ApiControllerBase
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TokenResponse), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Authenticate(LoginRequest request)
-        => await GetResponseAsync(request.ToQuery());
+    public Task<IActionResult> Authenticate(LoginRequest request)
+        => Ok(request.ToQuery());
 }

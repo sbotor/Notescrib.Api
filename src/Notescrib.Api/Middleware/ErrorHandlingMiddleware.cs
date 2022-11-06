@@ -26,19 +26,32 @@ public class ErrorHandlingMiddleware
         catch (Exception e)
         {
             _logger.LogError(e, DefaultMsg);
-
             await HandleException(e, context);
         }
     }
 
     private static async Task HandleException(Exception exception, HttpContext context)
     {
+        var statusCode = HttpStatusCode.InternalServerError;
+        ErrorModel error;
+        
         if (exception is AppException appException)
         {
-            await SerializeError(context, appException.ToErrorModel(), appException.StatusCode);
+            statusCode = appException switch
+            {
+                NotFoundException _ => HttpStatusCode.BadRequest,
+                ForbiddenException _ => HttpStatusCode.Forbidden,
+                _ => HttpStatusCode.BadRequest
+            };
+
+            error = appException.ToErrorModel();
+        }
+        else
+        {
+            error = new(exception);
         }
 
-        await SerializeError(context, new ErrorModel(exception));
+        await SerializeError(context, error, statusCode);
     }
 
     private static async Task SerializeError(HttpContext context, ErrorModel error, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)

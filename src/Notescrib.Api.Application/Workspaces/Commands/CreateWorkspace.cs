@@ -2,15 +2,16 @@
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class CreateWorkspace
 {
-    public record Command(string Name, SharingInfo SharingInfo) : ICommand<Result<string>>;
+    public record Command(string Name, SharingInfo SharingInfo) : ICommand<string>;
 
-    internal class Handler : ICommandHandler<Command, Result<string>>
+    internal class Handler : ICommandHandler<Command, string>
     {
         private readonly IUserContextProvider _userContext;
         private readonly IWorkspaceRepository _repository;
@@ -23,18 +24,16 @@ public static class CreateWorkspace
             _mapper = mapper;
         }
 
-        public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
             var ownerId = _userContext.UserId;
             if (ownerId == null)
             {
-                return Result<string>.Failure("No user context found.");
+                throw new AppException("No user context found.");
             }
 
             var workspace = _mapper.CreateEntity(request, ownerId);
-            await _repository.AddAsync(workspace);
-
-            return Result<string>.Created(workspace.Id);
+            return await _repository.AddAsync(workspace);
         }
     }
 }

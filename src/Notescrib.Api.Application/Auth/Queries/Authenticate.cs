@@ -6,45 +6,42 @@ using Notescrib.Api.Application.Auth.Contracts;
 using Notescrib.Api.Core.Models;
 using Notescrib.Api.Application.Users.Mappers;
 using Notescrib.Api.Application.Users.Models;
+using Notescrib.Api.Core.Exceptions;
 
 namespace Notescrib.Api.Application.Auth.Queries;
 
 public static class Authenticate
 {
-    public record Query(string Email, string Password) : IQuery<Result<TokenResponse>>;
+    public record Query(string Email, string Password) : IQuery<TokenResponse>;
 
-    internal class Handler : IQueryHandler<Query, Result<TokenResponse>>
+    internal class Handler : IQueryHandler<Query, TokenResponse>
     {
         private readonly IAuthService _authService;
         private readonly IJwtProvider _jwtProvider;
         private readonly IUserMapper _mapper;
-        private readonly ILogger<Handler> _logger;
 
-        public Handler(IAuthService userService, IJwtProvider jwtProvider, IUserMapper mapper, ILogger<Handler> logger)
+        public Handler(IAuthService userService, IJwtProvider jwtProvider, IUserMapper mapper)
         {
             _authService = userService;
             _jwtProvider = jwtProvider;
             _mapper = mapper;
-            _logger = logger;
         }
 
-        public async Task<Result<TokenResponse>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<TokenResponse> Handle(Query request, CancellationToken cancellationToken)
         {
-            var verifyResult = await _authService.AuthenticateAsync(request.Email, request.Password);
-
-            if (!verifyResult.IsSuccessful || verifyResult.Response == null)
+            var user = await _authService.AuthenticateAsync(request.Email, request.Password);
+            if (user == null)
             {
-                _logger.LogWarning("Failed login with email {email}.", request.Email);
-                return Result<TokenResponse>.Failure(verifyResult.Error?.ErrorMessage, verifyResult.StatusCode ?? HttpStatusCode.BadRequest);
+                throw new AppException("Could not authenticate.");
             }
 
-            var token = _jwtProvider.GenerateToken(verifyResult.Response.Id, verifyResult.Response.Email);
+            var token = _jwtProvider.GenerateToken(user.Id, user.Email);
 
-            return Result<TokenResponse>.Success(new TokenResponse
+            return new TokenResponse
             {
                 Token = token,
-                User = _mapper.Map<UserDetails>(verifyResult.Response)
-            });
+                User = _mapper.Map<UserDetails>(user)
+            };
         }
     }
 }

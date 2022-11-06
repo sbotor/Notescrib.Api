@@ -1,7 +1,7 @@
-﻿using System.Security.AccessControl;
-using Notescrib.Api.Application.Common;
+﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
@@ -30,34 +30,31 @@ public static class FolderCommandBase
             Mapper = mapper;
         }
 
-        protected Result<FolderTree.Node?> FindAndValidateParent(FolderTree tree, string parentId)
+        protected FolderTree.Node FindAndValidateParent(FolderTree tree, string parentId)
         {
             var parentNode = tree.FirstOrDefault(x => x.Item.Id == parentId);
         
             if (parentNode == null)
             {
-                return Result<FolderTree.Node?>.NotFound("Parent folder does not exist.");
+                throw new NotFoundException("Parent folder does not exist.");
             }
 
             return !parentNode.CanNestChildren
-                ? Result<FolderTree.Node?>.Failure("Max nesting level achieved.")
-                : Result<FolderTree.Node?>.Success(parentNode);
+                ? throw new AppException("Max nesting level achieved.")
+                : parentNode;
         }
 
-        protected async Task<Result<Workspace>> FindAndValidateWorkspace(string workspaceId)
+        protected async Task<Workspace> FindAndValidateWorkspace(string workspaceId)
         {
             var workspace = await WorkspaceRepository.GetByIdAsync(workspaceId);
             if (workspace == null)
             {
-                return Result<Workspace>.NotFound($"Workspace not found.");
+                throw new NotFoundException("Workspace not found.");
             }
 
-            if (!SharingService.CanEdit(workspace))
-            {
-                return Result<Workspace>.Forbidden();
-            }
+            SharingService.GuardCanEdit(workspace);
 
-            return Result<Workspace>.Success(workspace);
+            return workspace;
         }
     }
 }

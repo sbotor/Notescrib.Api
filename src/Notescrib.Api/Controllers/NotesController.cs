@@ -13,6 +13,6 @@ public class NotesController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddNote(AddNoteRequest request)
-        => await GetResponseAsync(request.ToCommand());
+    public Task<IActionResult> AddNote(AddNoteRequest request)
+        => Ok(request.ToCommand());
 }

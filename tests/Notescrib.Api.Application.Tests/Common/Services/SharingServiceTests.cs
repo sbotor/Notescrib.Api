@@ -1,4 +1,5 @@
 ﻿using Notescrib.Api.Application.Common;
+using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Enums;
 
@@ -6,8 +7,19 @@ namespace Notescrib.Api.Application.Tests.Common.Services;
 
 public class SharingServiceTests
 {
-    private readonly SharingService _sut;
+    private class TestClass : IShareable
+    {
+        public string OwnerId { get; set; }
+        public SharingInfo SharingInfo { get; set; }
 
+        public TestClass(string ownerId, SharingInfo? sharingInfo = null)
+        {
+            OwnerId = ownerId;
+            SharingInfo = sharingInfo ?? new();
+        }
+    }
+    
+    private readonly SharingService _sut;
     private readonly TestUserContextProvider _userContext = new();
 
     public SharingServiceTests()
@@ -23,7 +35,7 @@ public class SharingServiceTests
     {
         _userContext.UserId = userId;
 
-        var result = _sut.CanEdit(ownerId);
+        var result = _sut.CanEdit(new TestClass(ownerId));
 
         Assert.Equal(canEdit, result);
     }
@@ -40,7 +52,7 @@ public class SharingServiceTests
             Visibility = VisibilityLevel.Private
         };
 
-        var result = _sut.CanView(ownerId, sharingInfo);
+        var result = _sut.CanView(new TestClass(ownerId, sharingInfo));
 
         Assert.Equal(canView, result);
     }
@@ -58,7 +70,7 @@ public class SharingServiceTests
             AllowedUserIds = allowedIds.ToList()
         };
 
-        var result = _sut.CanView("owner", sharingInfo);
+        var result = _sut.CanView(new TestClass("owner", sharingInfo));
 
         Assert.Equal(canView, result);
     }
@@ -75,7 +87,7 @@ public class SharingServiceTests
             Visibility = VisibilityLevel.Public,
         };
 
-        var result = _sut.CanView(ownerId, sharingInfo);
+        var result = _sut.CanView(new TestClass(ownerId, sharingInfo));
 
         Assert.True(result);
     }

@@ -13,16 +13,16 @@ using Notescrib.Api.Infrastructure.MongoDb.Providers;
 
 namespace Notescrib.Api.Infrastructure.MongoDb.Repositories;
 
-internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
+internal class MongoRepository<TEntity> : IRepository<TEntity>
     where TEntity : EntityIdBase
 {
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    protected IMongoCollection<TEntity> Collection { get; }
+    private readonly IMongoCollection<TEntity> _collection;
 
     public MongoRepository(IMongoCollectionProvider collectionProvider, IDateTimeProvider dateTimeProvider)
     {
-        Collection = collectionProvider.GetCollection<TEntity>();
+        _collection = collectionProvider.GetCollection<TEntity>();
         _dateTimeProvider = dateTimeProvider;
     }
 
@@ -42,14 +42,14 @@ internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
             ? ObjectId.GenerateNewId().ToString()
             : entity.Id;
 
-        await Collection.InsertOneAsync(entity);
+        await _collection.InsertOneAsync(entity);
 
         return entity.Id;
     }
 
     public async Task DeleteAsync(string id)
     {
-        var found = await Collection.FindOneAndDeleteAsync(d => d.Id == id);
+        var found = await _collection.FindOneAndDeleteAsync(d => d.Id == id);
         if (found != null)
         {
             throw new NotFoundException("The resource was not found.");
@@ -68,12 +68,12 @@ internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
             updated.Updated = _dateTimeProvider.UtcNow;
         }
 
-        await Collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
+        await _collection.FindOneAndReplaceAsync(d => d.Id == entity.Id, entity);
     }
 
     public async Task<TEntity?> GetByIdAsync(string id)
     {
-        var result = await Collection.FindAsync(d => d.Id == id);
+        var result = await _collection.FindAsync(d => d.Id == id);
         return result.SingleOrDefault();
     }
 
@@ -82,7 +82,7 @@ internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
         IAsyncCursor<TEntity> result;
         if (sorting == null)
         {
-            result = await Collection.FindAsync(filter);
+            result = await _collection.FindAsync(filter);
         }
         else
         {
@@ -91,7 +91,7 @@ internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
                 Sort = GetSortDefinition(sorting)
             };
 
-            result = await Collection.FindAsync(filter, options);
+            result = await _collection.FindAsync(filter, options);
         }
 
         return await result.ToListAsync();
@@ -116,7 +116,7 @@ internal class MongoRepository<TEntity> : IMongoRepository<TEntity>
             options.Sort = GetSortDefinition(sorting);
         }
 
-        var result = await Collection.FindAsync(filter, options);
+        var result = await _collection.FindAsync(filter, options);
         var data = await result.ToListAsync();
 
         return data.ToPagedList(paging);

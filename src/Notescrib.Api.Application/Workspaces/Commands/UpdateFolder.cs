@@ -1,60 +1,53 @@
-﻿using Notescrib.Api.Application.Common;
+﻿using MediatR;
+using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class UpdateFolder
 {
-    public class Command : FolderCommandBase.Command, IQuery<Result>
+    public class Command : FolderCommandBase.Command, ICommand
     {
         public string Id { get; set; } = null!;
     }
 
-    internal class Handler : FolderCommandBase.Handler, IQueryHandler<Command, Result>
+    internal class Handler : FolderCommandBase.Handler, ICommandHandler<Command>
     {
         public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository, ISharingService sharingService, IFolderMapper mapper)
             : base(workspaceRepository, folderRepository, sharingService, mapper)
         {
         }
         
-        public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var folder = await FolderRepository.GetByIdAsync(request.Id);
             if (folder == null)
             {
-                return Result.NotFound();
+                throw new NotFoundException();
             }
 
-            var workspaceResult = await FindAndValidateWorkspace(folder.WorkspaceId);
-            if (!workspaceResult.IsSuccessful)
-            {
-                return workspaceResult.CastError();
-            }
+            await FindAndValidateWorkspace(folder.WorkspaceId);
 
             var folders = await FolderRepository.GetWorkspaceFoldersAsync(folder.WorkspaceId);
             var tree = new FolderTree(folders);
             
             if (request.ParentId != null)
             {
-                var parentResult = FindAndValidateParent(tree, request.ParentId);
-                if (!parentResult.IsSuccessful)
-                {
-                    return parentResult.CastError();
-                }
+                var parentNode = FindAndValidateParent(tree, request.ParentId);
                 
-                var parentNode = parentResult.Response!;
                 if (parentNode.FindAncestor(x => x.Item.Id == folder.Id) != null)
                 {
-                    return Result<string>.Failure("The folder cannot be its own ancestor.");
+                    throw new AppException("The folder cannot be its own ancestor.");
                 }
             }
 
             folder = Mapper.Update(folder, request);
 
             await FolderRepository.UpdateAsync(folder);
-            return Result.Success();
+            return Unit.Value;
         }
     }
 }

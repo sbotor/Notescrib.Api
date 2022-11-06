@@ -16,14 +16,9 @@ public class UsersController : ApiControllerBase
     {
     }
 
-    //[HttpGet("{email}")]
-    //[ProducesResponseType(typeof(UserDetails), (int)HttpStatusCode.OK)]
-    //public async Task<IActionResult> GetUserByEmail(string email)
-    //    => GetResult(await _userService.GetUserByEmailAsync(email));
-
     [HttpPost]
     [AllowAnonymous]
     [ApiResponse(typeof(UserDetails), HttpStatusCode.Created)]
-    public async Task<IActionResult> AddUser(CreateUserRequest request)
-        => await GetResponseAsync(request.ToCommand());
+    public Task<IActionResult> AddUser(CreateUserRequest request)
+        => Ok(request.ToCommand());
 }

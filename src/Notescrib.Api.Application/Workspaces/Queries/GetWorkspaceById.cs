@@ -3,15 +3,16 @@ using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
 
 public static class GetWorkspaceById
 {
-    public record Query(string Id) : IQuery<Result<WorkspaceDetails>>;
+    public record Query(string Id) : IQuery<WorkspaceDetails>;
 
-    internal class Handler : IQueryHandler<Query, Result<WorkspaceDetails>>
+    internal class Handler : IQueryHandler<Query, WorkspaceDetails>
     {
         private readonly ISharingService _sharingService;
         private readonly IWorkspaceRepository _repository;
@@ -33,28 +34,23 @@ public static class GetWorkspaceById
             _folderMapper = folderMapper;
         }
 
-        public async Task<Result<WorkspaceDetails>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<WorkspaceDetails> Handle(Query request, CancellationToken cancellationToken)
         {
             var workspace = await _repository.GetByIdAsync(request.Id);
             if (workspace == null)
             {
-                return Result<WorkspaceDetails>.NotFound();
+                throw new NotFoundException();
             }
 
-            if (!_sharingService.CanView(workspace))
-            {
-                return Result<WorkspaceDetails>.Forbidden();
-            }
+            _sharingService.GuardCanView(workspace);
 
             var folders = await _folderRepository.GetWorkspaceFoldersAsync(workspace.Id!);
-            folders = folders.Where(x => _sharingService.CanView(x)).ToList();
-            
             var folderTree = new FolderTree<FolderOverview, Folder>(folders, _folderMapper.Map<FolderOverview>);
 
             var response = _mapper.Map<WorkspaceDetails>(workspace);
             response.Folders = folderTree.Items.ToArray();
 
-            return Result<WorkspaceDetails>.Success(response);
+            return response;
         }
     }
 }

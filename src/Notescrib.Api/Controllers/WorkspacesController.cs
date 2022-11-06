@@ -20,28 +20,28 @@ public class WorkspacesController : ApiControllerBase
 
     [HttpGet]
     [ApiResponse(typeof(IPagedList<WorkspaceOverview>))]
-    public async Task<IActionResult> ListWorkspaces([FromQuery] GetUserWorkspacesRequest request)
-        => await GetResponseAsync(request.ToQuery());
+    public Task<IActionResult> ListWorkspaces([FromQuery] GetUserWorkspacesRequest request)
+        => Ok(request.ToQuery());
 
     [HttpPost]
     [CreatedApiResponse]
-    public async Task<IActionResult> AddWorkspace(AddWorkspaceRequest request)
-        => await GetCreatedResponseAsync(request.ToCommand(), nameof(GetWorkspaceById));
+    public Task<IActionResult> AddWorkspace(AddWorkspaceRequest request)
+        => CreatedAtAction(request.ToCommand(), nameof(GetWorkspaceById));
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateWorkspace(string id, UpdateWorkspaceRequest request)
-        => await GetResponseAsync(request.ToCommand(id));
+    public Task<IActionResult> UpdateWorkspace(string id, UpdateWorkspaceRequest request)
+        => Ok(request.ToCommand(id));
 
     [HttpGet("{id}")]
     [ApiResponse(typeof(WorkspaceDetails))]
     [AllowAnonymous]
-    public async Task<IActionResult> GetWorkspaceById(string id)
-        => await GetResponseAsync(new GetWorkspaceById.Query(id));
+    public Task<IActionResult> GetWorkspaceById(string id)
+        => Ok(new GetWorkspaceById.Query(id));
 
     [HttpPost("{id}")]
     [CreatedApiResponse]
-    public async Task<IActionResult> AddFolder(string id, AddFolderRequest request)
-        => await GetCreatedResponseAsync(request.ToCommand(id), nameof(GetFolderDetails));
+    public Task<IActionResult> AddFolder(string id, AddFolderRequest request)
+        => CreatedAtAction(request.ToCommand(id), nameof(GetFolderDetails));
 
     [HttpGet("folder/{id}")]
     [ApiResponse(typeof(FolderDetails))]
@@ -49,6 +49,6 @@ public class WorkspacesController : ApiControllerBase
         => Task.FromResult((IActionResult)StatusCode((int)HttpStatusCode.NotImplemented));
 
     [HttpPut("folder/{id}")]
-    public async Task<IActionResult> UpdateFolder(string id, UpdateFolderRequest request)
-        => await GetResponseAsync(request.ToCommand(id));
+    public Task<IActionResult> UpdateFolder(string id, UpdateFolderRequest request)
+        => Ok(request.ToCommand(id));
 }

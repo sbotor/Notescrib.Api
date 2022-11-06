@@ -2,15 +2,16 @@
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Users.Models;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Users.Commands;
 
 public static class AddUser
 {
-    public record Command(string Email, string Password, string PasswordConfirmation) : ICommand<Result<UserDetails>>;
+    public record Command(string Email, string Password, string PasswordConfirmation) : ICommand<UserDetails>;
 
-    internal class Handler : ICommandHandler<Command, Result<UserDetails>>
+    internal class Handler : ICommandHandler<Command, UserDetails>
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
@@ -21,16 +22,16 @@ public static class AddUser
             _mapper = mapper;
         }
 
-        public async Task<Result<UserDetails>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<UserDetails> Handle(Command request, CancellationToken cancellationToken)
         {
             if (request.Password != request.PasswordConfirmation)
             {
-                return Result<UserDetails>.Failure("Passwords do not match.");
+                throw new AppException("Passwords do not match.");
             }
 
             if (await _userRepository.ExistsByEmailAsync(request.Email))
             {
-                return Result<UserDetails>.Failure("User with this email already exists.");
+                throw new NotFoundException("User with this email already exists.");
             }
 
             var user = new User
@@ -40,8 +41,7 @@ public static class AddUser
             };
 
             user = await _userRepository.AddUserAsync(user, request.Password);
-
-            return Result<UserDetails>.Created(_mapper.Map<UserDetails>(user));
+            return _mapper.Map<UserDetails>(user);
         }
     }
 }

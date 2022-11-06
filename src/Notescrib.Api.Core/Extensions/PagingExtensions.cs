@@ -11,7 +11,7 @@ public static class PagingExtensions
         var skipCount = PagingHelpers.CalculateSkipCount(pageNumber, pageSize);
 
         var totalCount = source.Count();
-        var data = source.Skip(skipCount).Take(pageSize).ToList();
+        var data = source.Skip(skipCount).Take(pageSize).ToArray();
 
         return new PagedList<T>(data, pageNumber, pageSize, totalCount);
     }

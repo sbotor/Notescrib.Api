@@ -4,7 +4,6 @@ using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Extensions;
 using Notescrib.Api.Core.Exceptions;
-using MongoDB.Driver.Linq;
 using Notescrib.Api.Application.Common;
 
 namespace Notescrib.Api.Application.Tests;

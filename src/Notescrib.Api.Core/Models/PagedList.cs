@@ -14,7 +14,7 @@ public class PagedList<T> : IPagedList<T>
 
     public PagedList(IEnumerable<T> data, int pageNumber, int pageSize, int totalCount)
     {
-        Data = data.ToList();
+        Data = data.ToArray();
 
         PageNumber = pageNumber;
         TotalCount = totalCount;
@@ -25,7 +25,7 @@ public class PagedList<T> : IPagedList<T>
 
     public IPagedList<TOut> Map<TOut>(Func<T, TOut> mappingFunction)
         => new PagedList<TOut>(
-            Data.Select(x => mappingFunction.Invoke(x)),
+            Data.Select(mappingFunction),
             PageNumber,
             PageSize,
             TotalCount);
