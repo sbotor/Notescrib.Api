@@ -2,6 +2,7 @@
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
+using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
@@ -48,7 +49,7 @@ public static class GetWorkspaceById
             var folders = await _folderRepository.GetWorkspaceFoldersAsync(workspace.Id!);
             folders = folders.Where(x => _sharingService.CanView(x)).ToList();
             
-            var folderTree = new FolderOverviewTree(folders, _folderMapper);
+            var folderTree = new FolderTree<FolderOverview, Folder>(folders, _folderMapper.Map<FolderOverview>);
 
             var response = _mapper.Map<WorkspaceDetails>(workspace);
             response.Folders = folderTree.Items.ToArray();

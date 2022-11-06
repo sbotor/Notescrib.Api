@@ -11,7 +11,7 @@ public abstract class FolderTreeBase<T, TSource, TNode> : IEnumerable<TNode>
 {
     protected Func<TSource, T> Mapping { get; }
 
-    public IList<TNode> Items { get; } = new List<TNode>();
+    public IList<TNode> Items { get; }
 
     protected FolderTreeBase(IEnumerable<TSource> items, Func<TSource, T> mapping)
     {
@@ -19,7 +19,7 @@ public abstract class FolderTreeBase<T, TSource, TNode> : IEnumerable<TNode>
         Items = CreateTree(items.ToList());
     }
 
-    protected virtual IList<TNode> CreateTree(IReadOnlyCollection<TSource> items)
+    protected IList<TNode> CreateTree(IReadOnlyCollection<TSource> items)
     {
         if (!items.Any())
         {
@@ -143,13 +143,5 @@ public abstract class FolderTreeBase<T, TSource> : FolderTreeBase<T, TSource, Fo
 
             return null;
         }
-    }
-}
-
-public abstract class FolderTreeBase<T> : FolderTreeBase<T, T>
-    where T : IFolderStructure
-{
-    protected FolderTreeBase(IEnumerable<T> items) : base(items, x => x)
-    {
     }
 }

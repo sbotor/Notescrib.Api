@@ -1,6 +1,8 @@
-﻿namespace Notescrib.Api.Application.Workspaces.Models;
+﻿using Notescrib.Api.Core.Models;
+
+namespace Notescrib.Api.Application.Workspaces.Models;
 
 public class WorkspaceDetails : WorkspaceOverview
 {
-    public IReadOnlyCollection<FolderOverviewTree.Node> Folders { get; set; } = Array.Empty<FolderOverviewTree.Node>();
+    public IReadOnlyCollection<TreeNode<FolderOverview>> Folders { get; set; } = Array.Empty<TreeNode<FolderOverview>>();
 }

@@ -8,11 +8,11 @@ namespace Notescrib.Api.Controllers;
 [ApiController]
 public abstract class ApiControllerBase : ControllerBase
 {
-    protected IMediator Mediator { get; }
+    private readonly IMediator _mediator;
 
-    public ApiControllerBase(IMediator mediator)
+    protected ApiControllerBase(IMediator mediator)
     {
-        Mediator = mediator;
+        _mediator = mediator;
     }
 
     protected async Task<IActionResult> GetResponseAsync<TResponse>(IRequest<Result<TResponse>> request)
@@ -40,7 +40,7 @@ public abstract class ApiControllerBase : ControllerBase
         Result<TResponse> result;
         try
         {
-            result = await Mediator.Send(request);
+            result = await _mediator.Send(request);
         }
         catch (AppException e)
         {
@@ -55,7 +55,7 @@ public abstract class ApiControllerBase : ControllerBase
         Result result;
         try
         {
-            result = await Mediator.Send(request);
+            result = await _mediator.Send(request);
         }
         catch (AppException e)
         {

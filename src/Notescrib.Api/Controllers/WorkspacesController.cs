@@ -45,6 +45,6 @@ public class WorkspacesController : ApiControllerBase
 
     [HttpGet("folder/{id}")]
     [ApiResponse(typeof(FolderDetails))]
-    public async Task<IActionResult> GetFolderDetails(string id)
-        => StatusCode((int)HttpStatusCode.NotImplemented);
+    public Task<IActionResult> GetFolderDetails(string id)
+        => Task.FromResult((IActionResult)StatusCode((int)HttpStatusCode.NotImplemented));
 }
