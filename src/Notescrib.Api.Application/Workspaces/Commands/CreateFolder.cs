@@ -12,6 +12,8 @@ public static class CreateFolder
     public class Command : FolderCommandBase.Command, ICommand<string>
     {
         public string WorkspaceId { get; set; }
+        
+        public SharingInfo? SharingInfo { get; set; }
     }
 
     internal class Handler : FolderCommandBase.Handler, ICommandHandler<Command, string>
@@ -43,15 +45,12 @@ public static class CreateFolder
                 parent = FindAndValidateParent(tree, request.ParentId).Item;
             }
 
-            var folder = Mapper.Map<Folder>(request);
-            
-            folder.SharingInfo = request.SharingInfo
-                                 ?? parent?.SharingInfo
-                                 ?? workspace.SharingInfo;
+            var folder = Mapper.MapToEntity(
+                request,
+                workspace.OwnerId,
+                request.SharingInfo ?? parent?.SharingInfo ?? workspace.SharingInfo);
 
-            folder.OwnerId = workspace.OwnerId;
-
-            return await FolderRepository.AddAsync(folder);
+            return (await FolderRepository.AddAsync(folder)).Id;
         }
     }
 }

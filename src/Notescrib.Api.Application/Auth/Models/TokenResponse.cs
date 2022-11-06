@@ -1,6 +1,6 @@
 ﻿using Notescrib.Api.Application.Users.Models;
 
-namespace Notescrib.Api.Application.Auth.Contracts;
+namespace Notescrib.Api.Application.Auth.Models;
 
 public class TokenResponse
 {

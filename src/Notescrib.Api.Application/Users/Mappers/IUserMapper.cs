@@ -1,7 +1,11 @@
-﻿using AutoMapper;
+﻿using Notescrib.Api.Application.Users.Commands;
+using Notescrib.Api.Application.Users.Models;
+using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Users.Mappers;
 
-internal interface IUserMapper : IMapperBase
+public interface IUserMapper
 {
+    UserDetails MapToDetails(User item);
+    User MapToEntity(CreateUser.Command item);
 }

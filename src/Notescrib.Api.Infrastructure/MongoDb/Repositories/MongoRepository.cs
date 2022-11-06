@@ -26,7 +26,7 @@ internal class MongoRepository<TEntity> : IRepository<TEntity>
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<string> AddAsync(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity)
     {
         if (entity is ICreatedTimestamp created)
         {
@@ -44,7 +44,7 @@ internal class MongoRepository<TEntity> : IRepository<TEntity>
 
         await _collection.InsertOneAsync(entity);
 
-        return entity.Id;
+        return entity;
     }
 
     public async Task DeleteAsync(string id)

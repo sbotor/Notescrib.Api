@@ -18,7 +18,7 @@ internal class InMemoryRepository<TEntity> : IRepository<TEntity>
         Collection = collection;
     }
 
-    public Task<string> AddAsync(TEntity entity)
+    public Task<TEntity> AddAsync(TEntity entity)
     {
         if (entity is ICreatedTimestamp created)
         {
@@ -33,7 +33,7 @@ internal class InMemoryRepository<TEntity> : IRepository<TEntity>
         entity.Id = Guid.NewGuid().ToString();
         Collection.Add(entity);
 
-        return Task.FromResult(entity.Id);
+        return Task.FromResult(entity);
     }
 
     public async Task DeleteAsync(string id)

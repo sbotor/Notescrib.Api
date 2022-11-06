@@ -6,7 +6,7 @@ namespace Notescrib.Api.Application.Common;
 
 public interface IRepository<TEntity> where TEntity : EntityIdBase
 {
-    Task<string> AddAsync(TEntity entity);
+    Task<TEntity> AddAsync(TEntity entity);
     Task DeleteAsync(string id);
     Task<bool> ExistsAsync(string id);
     Task<IReadOnlyCollection<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter, ISorting? sorting = null);

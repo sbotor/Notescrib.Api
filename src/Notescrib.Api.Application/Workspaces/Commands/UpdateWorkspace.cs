@@ -2,10 +2,8 @@
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
-using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 

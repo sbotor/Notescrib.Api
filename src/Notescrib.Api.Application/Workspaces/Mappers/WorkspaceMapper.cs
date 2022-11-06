@@ -1,38 +1,41 @@
-﻿using Notescrib.Api.Application.Common.Mappers;
-using Notescrib.Api.Application.Extensions;
-using Notescrib.Api.Application.Workspaces.Commands;
+﻿using Notescrib.Api.Application.Workspaces.Commands;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Entities;
+using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Mappers;
 
-internal class WorkspaceMapper : MapperBase, IWorkspaceMapper
+public class WorkspaceMapper : IWorkspaceMapper
 {
-    protected override void ConfigureMappings()
+    public WorkspaceOverview MapToOverview(Workspace item)
+        => new()
+        {
+            Id = item.Id,
+            OwnerId = item.OwnerId,
+            Name = item.Name,
+            SharingInfo = item.SharingInfo,
+            Updated = item.Updated
+        };
+
+    public WorkspaceDetails MapToDetails(Workspace item, IEnumerable<TreeNode<FolderOverview>> folders)
+        => new()
+        {
+            Id = item.Id,
+            OwnerId = item.OwnerId,
+            Name = item.Name,
+            SharingInfo = item.SharingInfo,
+            Updated = item.Updated,
+            Folders = folders.ToArray()
+        };
+
+    public Workspace MapToEntity(CreateWorkspace.Command item, string ownerId)
+        => new() { Name = item.Name, SharingInfo = item.SharingInfo, OwnerId = ownerId };
+
+    public Workspace UpdateEntity(UpdateWorkspace.Command item, Workspace original)
     {
-        CreateMap<CreateWorkspace.Command, Workspace>();
-        CreateMap<UpdateWorkspace.Command, Workspace>()
-            .Ignore(x => x.Id).Ignore(x => x.OwnerId);
+        original.Name = item.Name;
+        original.SharingInfo = item.SharingInfo;
 
-        CreateMap<Workspace, WorkspaceOverview>();
-        CreateMap<Workspace, WorkspaceDetails>();
-    }
-
-    public Workspace CreateEntity(CreateWorkspace.Command command, string ownerId)
-    {
-        var workspace = InternalMapper.Map<Workspace>(command);
-        workspace.OwnerId = ownerId;
-
-        return workspace;
-    }
-
-    public Workspace UpdateEntity(UpdateWorkspace.Command command, Workspace old)
-    {
-        var workspace = InternalMapper.Map(command, old);
-
-        workspace.Id = old.Id;
-        workspace.OwnerId = old.OwnerId;
-
-        return workspace;
+        return original;
     }
 }

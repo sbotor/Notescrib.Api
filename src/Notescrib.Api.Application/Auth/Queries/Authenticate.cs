@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Notescrib.Api.Application.Cqrs;
-using System.Net;
+﻿using Notescrib.Api.Application.Auth.Models;
 using Notescrib.Api.Application.Auth.Services;
-using Notescrib.Api.Application.Auth.Contracts;
-using Notescrib.Api.Core.Models;
+using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Users.Mappers;
-using Notescrib.Api.Application.Users.Models;
 using Notescrib.Api.Core.Exceptions;
 
 namespace Notescrib.Api.Application.Auth.Queries;
@@ -40,7 +36,7 @@ public static class Authenticate
             return new TokenResponse
             {
                 Token = token,
-                User = _mapper.Map<UserDetails>(user)
+                User = _mapper.MapToDetails(user)
             };
         }
     }

@@ -17,3 +17,10 @@ public class CreatedApiResponseAttribute : ApiResponseAttribute
     {
     }
 }
+
+public class NoContentApiResponseAttribute : ApiResponseAttribute
+{
+    public NoContentApiResponseAttribute() : base(typeof(void), HttpStatusCode.NoContent)
+    {
+    }
+}

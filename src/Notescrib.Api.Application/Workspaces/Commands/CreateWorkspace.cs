@@ -3,7 +3,6 @@ using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Commands;
 
@@ -32,8 +31,8 @@ public static class CreateWorkspace
                 throw new AppException("No user context found.");
             }
 
-            var workspace = _mapper.CreateEntity(request, ownerId);
-            return await _repository.AddAsync(workspace);
+            var workspace = _mapper.MapToEntity(request, ownerId);
+            return (await _repository.AddAsync(workspace)).Id;
         }
     }
 }

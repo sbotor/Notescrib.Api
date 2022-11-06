@@ -8,7 +8,8 @@ public class AddNoteRequest
     public string Name { get; set; } = null!;
     public string FolderId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = new();
+    public IReadOnlyCollection<string> Labels { get; set; } = Array.Empty<string>();
 
-    public AddNote.Command ToCommand()
-        => new(Name, FolderId, SharingInfo);
+    public CreateNote.Command ToCommand()
+        => new(Name, FolderId, SharingInfo, Labels);
 }

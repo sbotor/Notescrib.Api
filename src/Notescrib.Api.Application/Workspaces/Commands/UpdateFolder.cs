@@ -2,6 +2,7 @@
 using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
 using Notescrib.Api.Application.Workspaces.Mappers;
+using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
 
@@ -12,6 +13,7 @@ public static class UpdateFolder
     public class Command : FolderCommandBase.Command, ICommand
     {
         public string Id { get; set; } = null!;
+        public SharingInfo SharingInfo { get; set; } = null!;
     }
 
     internal class Handler : FolderCommandBase.Handler, ICommandHandler<Command>
@@ -44,7 +46,7 @@ public static class UpdateFolder
                 }
             }
 
-            folder = Mapper.Update(folder, request);
+            folder = Mapper.UpdateEntity(request, folder);
 
             await FolderRepository.UpdateAsync(folder);
             return Unit.Value;

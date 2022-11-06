@@ -18,7 +18,7 @@ public class UsersController : ApiControllerBase
 
     [HttpPost]
     [AllowAnonymous]
-    [ApiResponse(typeof(UserDetails), HttpStatusCode.Created)]
+    [CreatedApiResponse]
     public Task<IActionResult> AddUser(CreateUserRequest request)
         => Ok(request.ToCommand());
 }

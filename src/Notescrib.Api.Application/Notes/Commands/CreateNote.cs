@@ -1,25 +1,24 @@
-﻿using AutoMapper;
-using Notescrib.Api.Application.Common;
+﻿using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Cqrs;
+using Notescrib.Api.Application.Notes.Mappers;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Notes.Commands;
 
-public static class AddNote
+public static class CreateNote
 {
-    public record Command(string Name, string FolderId, SharingInfo SharingInfo) : ICommand<string>;
+    public record Command(string Name, string FolderId, SharingInfo? SharingInfo, IEnumerable<string> Labels) : ICommand<string>;
 
     internal class Handler : ICommandHandler<Command, string>
     {
         private readonly ISharingService _sharingService;
         private readonly INoteRepository _noteRepository;
         private readonly IFolderRepository _folderRepository;
-        private readonly IMapper _mapper;
+        private readonly INoteMapper _mapper;
 
-        public Handler(ISharingService sharingService, INoteRepository noteRepository, IFolderRepository folderRepository, IMapper mapper)
+        public Handler(ISharingService sharingService, INoteRepository noteRepository, IFolderRepository folderRepository, INoteMapper mapper)
         {
             _sharingService = sharingService;
             _noteRepository = noteRepository;
@@ -37,9 +36,12 @@ public static class AddNote
 
             _sharingService.GuardCanEdit(folder);
 
-            var note = _mapper.Map<Note>(request);
+            var note = _mapper.MapToEntity(
+                request,
+                folder.OwnerId,
+                request.SharingInfo ?? folder.SharingInfo);
 
-            return await _noteRepository.AddAsync(note);
+            return (await _noteRepository.AddAsync(note)).Id;
         }
     }
 }

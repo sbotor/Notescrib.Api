@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Notescrib.Api.Application.Auth.Services;
-using Notescrib.Api.Application.Users.Models;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
-using Notescrib.Api.Core.Models;
+using Notescrib.Api.Infrastructure.Identity.Mappers;
 using Notescrib.Api.Infrastructure.Identity.Models;
 
 namespace Notescrib.Api.Infrastructure.Identity;
@@ -13,10 +11,10 @@ namespace Notescrib.Api.Infrastructure.Identity;
 internal class AuthService : IAuthService
 {
     private readonly UserManager<UserData> _userManager;
-    private readonly IMapper _mapper;
+    private readonly IUserDataMapper _mapper;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(UserManager<UserData> userManager, IMapper mapper, ILogger<AuthService> logger)
+    public AuthService(UserManager<UserData> userManager, IUserDataMapper mapper, ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _mapper = mapper;
@@ -49,6 +47,6 @@ internal class AuthService : IAuthService
                 break;
         }
 
-        return _mapper.Map<User>(user);
+        return _mapper.MapToEntity(user);
     }
 }

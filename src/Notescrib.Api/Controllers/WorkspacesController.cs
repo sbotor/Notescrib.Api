@@ -29,8 +29,9 @@ public class WorkspacesController : ApiControllerBase
         => CreatedAtAction(request.ToCommand(), nameof(GetWorkspaceById));
 
     [HttpPut("{id}")]
+    [NoContentApiResponse]
     public Task<IActionResult> UpdateWorkspace(string id, UpdateWorkspaceRequest request)
-        => Ok(request.ToCommand(id));
+        => NoContent(request.ToCommand(id));
 
     [HttpGet("{id}")]
     [ApiResponse(typeof(WorkspaceDetails))]
@@ -49,6 +50,7 @@ public class WorkspacesController : ApiControllerBase
         => Task.FromResult((IActionResult)StatusCode((int)HttpStatusCode.NotImplemented));
 
     [HttpPut("folder/{id}")]
+    [NoContentApiResponse]
     public Task<IActionResult> UpdateFolder(string id, UpdateFolderRequest request)
-        => Ok(request.ToCommand(id));
+        => NoContent(request.ToCommand(id));
 }

@@ -10,6 +10,7 @@ using Notescrib.Api.Application.Notes;
 using Notescrib.Api.Application.Users;
 using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Infrastructure.Identity;
+using Notescrib.Api.Infrastructure.Identity.Mappers;
 using Notescrib.Api.Infrastructure.Identity.Models;
 using Notescrib.Api.Infrastructure.MongoDb;
 using Notescrib.Api.Infrastructure.MongoDb.Providers;
@@ -27,6 +28,8 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
 
+        services.AddSingleton<IUserDataMapper, UserDataMapper>();
+
         services
             .AddScoped(typeof(IRepository<>), typeof(MongoRepository<>))
             .AddScoped<IFolderRepository, FolderRepository>()
@@ -34,8 +37,6 @@ public static class InfrastructureExtensions
             .AddScoped<INoteRepository, NoteRepository>();
 
         services.AddIdentity(config);
-
-        services.AddAutoMapper(typeof(MappingProfile));
 
         return services;
     }

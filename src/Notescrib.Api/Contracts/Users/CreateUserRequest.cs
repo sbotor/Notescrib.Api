@@ -8,6 +8,6 @@ public class CreateUserRequest
     public string Password { get; set; } = string.Empty;
     public string PasswordConfirmation { get; set; } = string.Empty;
 
-    public AddUser.Command ToCommand()
+    public CreateUser.Command ToCommand()
         => new(Email, Password, PasswordConfirmation);
 }

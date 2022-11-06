@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Notescrib.Api.Application.Users;
 using Notescrib.Api.Core.Entities;
 using Notescrib.Api.Core.Exceptions;
 using Notescrib.Api.Core.Models;
+using Notescrib.Api.Infrastructure.Identity.Mappers;
 using Notescrib.Api.Infrastructure.Identity.Models;
 
 namespace Notescrib.Api.Infrastructure.Identity;
@@ -11,9 +11,9 @@ namespace Notescrib.Api.Infrastructure.Identity;
 internal class UserRepository : IUserRepository
 {
     private readonly UserManager<UserData> _userManager;
-    private readonly IMapper _mapper;
+    private readonly IUserDataMapper _mapper;
 
-    public UserRepository(UserManager<UserData> userManager, IMapper mapper)
+    public UserRepository(UserManager<UserData> userManager, IUserDataMapper mapper)
     {
         _userManager = userManager;
         _mapper = mapper;
@@ -21,7 +21,7 @@ internal class UserRepository : IUserRepository
 
     public async Task<User> AddUserAsync(User user, string password)
     {
-        var identityUser = _mapper.Map<UserData>(user);
+        var identityUser = _mapper.MapToData(user);
         identityUser.Id = Guid.NewGuid().ToString();
 
         identityUser.EmailConfirmed = true; // TODO: Email confirmation
@@ -51,7 +51,7 @@ internal class UserRepository : IUserRepository
 
         return user == null
             ? null
-            : _mapper.Map<User>(user);
+            : _mapper.MapToEntity(user);
     }
 
     private static IEnumerable<ErrorItem> GetIdentityErrors(IdentityResult result)

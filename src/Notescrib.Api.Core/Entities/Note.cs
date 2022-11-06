@@ -6,7 +6,6 @@ public class Note : EntityIdBase, IShareable, ICreatedTimestamp, IUpdatedTimesta
 {
     public string Name { get; set; } = null!;
     public string FolderId { get; set; } = null!;
-    public string WorkspaceId { get; set; } = null!;
     public NoteSection? RootSection { get; set; }
     public ICollection<string> Labels { get; set; } = null!;
 

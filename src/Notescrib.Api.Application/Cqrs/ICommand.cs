@@ -6,6 +6,6 @@ internal interface ICommand<out TResponse> : IRequest<TResponse>
 {
 }
 
-internal interface ICommand : ICommand<Unit>
+internal interface ICommand : IRequest
 {
 }

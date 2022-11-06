@@ -9,9 +9,8 @@ using Notescrib.Api.Application.Common;
 using Notescrib.Api.Application.Common.Configuration;
 using Notescrib.Api.Application.Cqrs.Behaviors;
 using Notescrib.Api.Application.Extensions;
-using Notescrib.Api.Application.Notes;
+using Notescrib.Api.Application.Notes.Mappers;
 using Notescrib.Api.Application.Users.Mappers;
-using Notescrib.Api.Application.Workspaces;
 using Notescrib.Api.Application.Workspaces.Mappers;
 
 [assembly: InternalsVisibleTo("Notescrib.Api.Application.Tests")]
@@ -24,14 +23,15 @@ public static class ApplicationExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure(config);
+        services
+            .Configure(config)
+            .AddMappers();
 
         services.AddHttpContextAccessor();
 
         services
             .AddGeneralServices()
-            .AddMediatR()
-            .AddMappers();
+            .AddMediatR();
 
         services.AddValidatorsFromAssembly(ThisAssembly, includeInternalTypes: true);
 
@@ -57,18 +57,6 @@ public static class ApplicationExtensions
         return services;
     }
 
-    private static IServiceCollection AddMappers(this IServiceCollection services)
-    {
-        services.AddAutoMapper(ThisAssembly);
-
-        services
-            .AddScoped<IFolderMapper, FolderMapper>()
-            .AddScoped<IWorkspaceMapper, WorkspaceMapper>()
-            .AddScoped<IUserMapper, UserMapper>();
-
-        return services;
-    }
-
     private static IServiceCollection AddMediatR(this IServiceCollection services)
     {
         services
@@ -77,6 +65,17 @@ public static class ApplicationExtensions
 
         services.AddMediatR(ThisAssembly);
 
+        return services;
+    }
+
+    private static IServiceCollection AddMappers(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<IWorkspaceMapper, WorkspaceMapper>()
+            .AddSingleton<IFolderMapper, FolderMapper>()
+            .AddSingleton<IUserMapper, UserMapper>()
+            .AddSingleton<INoteMapper, NoteMapper>();
+        
         return services;
     }
 }

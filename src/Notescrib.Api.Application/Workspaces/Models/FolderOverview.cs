@@ -3,9 +3,10 @@ using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Application.Workspaces.Models;
 
-public class FolderOverview : IEntityId
+public class FolderOverview : IEntityId, IUpdatedTimestamp
 {
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
+    public DateTime Updated { get; set; }
 }

@@ -4,7 +4,6 @@ using Notescrib.Api.Application.Workspaces.Mappers;
 using Notescrib.Api.Application.Workspaces.Models;
 using Notescrib.Api.Core.Contracts;
 using Notescrib.Api.Core.Exceptions;
-using Notescrib.Api.Core.Models;
 
 namespace Notescrib.Api.Application.Workspaces.Queries;
 
@@ -35,7 +34,7 @@ public static class GetUserWorkspaces
 
             var result = await _repository.GetUserWorkspacesAsync(ownerId, request.Paging, request.Sorting);
 
-            return result.Map(_mapper.Map<WorkspaceOverview>);
+            return result.Map(_mapper.MapToOverview);
         }
     }
 }
