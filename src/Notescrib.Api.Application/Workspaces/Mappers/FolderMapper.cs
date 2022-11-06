@@ -11,6 +11,7 @@ internal class FolderMapper : MapperBase, IFolderMapper
     protected override void ConfigureMappings()
     {
         CreateMap<CreateFolder.Command, Folder>();
+        CreateMap<UpdateFolder.Command, Folder>();
 
         CreateMap<Folder, FolderDetails>();
         CreateMap<Folder, FolderOverview>();
@@ -22,5 +23,16 @@ internal class FolderMapper : MapperBase, IFolderMapper
         details.Notes = notes.ToList();
 
         return details;
+    }
+
+    public Folder Update(Folder original, UpdateFolder.Command command)
+    {
+        var folder = InternalMapper.Map(command, original);
+
+        // folder.Id = original.Id;
+        // folder.WorkspaceId = original.WorkspaceId;
+        // folder.OwnerId = original.OwnerId;
+
+        return folder;
     }
 }

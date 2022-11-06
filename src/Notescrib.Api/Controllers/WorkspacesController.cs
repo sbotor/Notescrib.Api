@@ -38,7 +38,7 @@ public class WorkspacesController : ApiControllerBase
     public async Task<IActionResult> GetWorkspaceById(string id)
         => await GetResponseAsync(new GetWorkspaceById.Query(id));
 
-    [HttpPost("{id}/folder")]
+    [HttpPost("{id}")]
     [CreatedApiResponse]
     public async Task<IActionResult> AddFolder(string id, AddFolderRequest request)
         => await GetCreatedResponseAsync(request.ToCommand(id), nameof(GetFolderDetails));
@@ -47,4 +47,8 @@ public class WorkspacesController : ApiControllerBase
     [ApiResponse(typeof(FolderDetails))]
     public Task<IActionResult> GetFolderDetails(string id)
         => Task.FromResult((IActionResult)StatusCode((int)HttpStatusCode.NotImplemented));
+
+    [HttpPut("folder/{id}")]
+    public async Task<IActionResult> UpdateFolder(string id, UpdateFolderRequest request)
+        => await GetResponseAsync(request.ToCommand(id));
 }

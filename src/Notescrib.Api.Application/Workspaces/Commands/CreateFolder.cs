@@ -8,9 +8,12 @@ namespace Notescrib.Api.Application.Workspaces.Commands;
 
 public static class CreateFolder
 {
-    public record Command(string WorkspaceId, string? ParentId, string Name, SharingInfo? SharingInfo) : ICommand<Result<string>>;
+    public class Command : FolderCommandBase.Command, ICommand<Result<string>>
+    {
+        public string WorkspaceId { get; set; }
+    }
 
-    internal class Handler : FolderCommandHandlerBase, ICommandHandler<Command, Result<string>>
+    internal class Handler : FolderCommandBase.Handler, ICommandHandler<Command, Result<string>>
     {
         public Handler(
             IWorkspaceRepository workspaceRepository,
@@ -23,51 +26,39 @@ public static class CreateFolder
 
         public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = Mapper.Map<Folder>(request);
-
-            var workspaceResult = await GetWorkspace(folder.WorkspaceId);
-            if (!workspaceResult.IsSuccessful || workspaceResult.Response == null)
+            var workspaceResult = await FindAndValidateWorkspace(request.WorkspaceId);
+            if (!workspaceResult.IsSuccessful)
             {
-                return workspaceResult.Map<string>();
+                return workspaceResult.CastError<string>();
             }
 
-            var folders = await FolderRepository.GetWorkspaceFoldersAsync(folder.WorkspaceId);
-            var folderTree = new FolderTree(folders);
-            
-            if (folderTree.Any(x => x.Item.Name == folder.Name))
+            var workspace = workspaceResult.Response!;
+
+            var folders = await FolderRepository.GetWorkspaceFoldersAsync(request.WorkspaceId);
+            var tree = new FolderTree(folders);
+
+            if (tree.Any(x => x.Item.Name == request.Name))
             {
                 return Result<string>.Failure("Folder with this name already exists.");
             }
 
             Folder? parent = null;
-            if (folder.ParentId != null)
+            if (request.ParentId != null)
             {
-                var parentNode = folderTree.FirstOrDefault(x => x.Item.Id == folder.ParentId);
-                if (parentNode == null)
+                var parentResult = FindAndValidateParent(tree, request.ParentId);
+                if (!parentResult.IsSuccessful)
                 {
-                    return Result<string>.NotFound("Parent folder does not exist.");
+                    return parentResult.CastError<string>();
                 }
 
-                if (!parentNode.CanNestChildren)
-                {
-                    return Result<string>.Failure("Max nesting level achieved.");
-                }
-
-                if (parentNode.FindAncestor(x => x.Item.Id == folder.Id) != null)
-                {
-                    return Result<string>.Failure("The folder cannot be its own ancestor.");
-                }
-
-                parent = parentNode.Item;
+                parent = parentResult.Response!.Item;
             }
 
-            var workspace = workspaceResult.Response;
-
+            var folder = Mapper.Map<Folder>(request);
+            
             folder.SharingInfo = request.SharingInfo
-                ?? parent?.SharingInfo
-                ?? workspace.SharingInfo;
-
-            folder.NestingLevel = (parent?.NestingLevel + 1) ?? 0;
+                                 ?? parent?.SharingInfo
+                                 ?? workspace.SharingInfo;
 
             folder.OwnerId = workspace.OwnerId;
 

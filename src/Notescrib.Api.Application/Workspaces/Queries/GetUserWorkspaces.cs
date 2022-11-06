@@ -17,10 +17,10 @@ public static class GetUserWorkspaces
         private readonly IUserContextProvider _userContext;
         private readonly IWorkspaceMapper _mapper;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider _userContext, IWorkspaceMapper mapper)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext, IWorkspaceMapper mapper)
         {
             _repository = repository;
-            this._userContext = _userContext;
+            _userContext = userContext;
             _mapper = mapper;
         }
 

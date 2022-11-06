@@ -6,8 +6,8 @@ namespace Notescrib.Api.Core.Exceptions;
 
 public class AppException : Exception
 {
-    public IEnumerable<ErrorItem>? Errors { get; protected set; }
-    public HttpStatusCode StatusCode { get; protected set; }
+    public IEnumerable<ErrorItem>? Errors { get; }
+    public HttpStatusCode StatusCode { get; }
 
     public AppException(string? message = null, IEnumerable<ErrorItem>? errors = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         : base(message ?? ErrorModel.DefaultMessage)
@@ -17,6 +17,7 @@ public class AppException : Exception
     }
 
     public AppException(IEnumerable<ErrorItem>? errors = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+        : base(ErrorModel.DefaultMessage)
     {
         Errors = errors;
         StatusCode = statusCode;

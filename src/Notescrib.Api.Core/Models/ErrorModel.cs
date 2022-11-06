@@ -6,7 +6,7 @@ public class ErrorModel
 
     public IReadOnlyCollection<ErrorItem>? ErrorData { get; set; }
 
-    public string ErrorMessage { get; set; } = DefaultMessage;
+    public string ErrorMessage { get; } = DefaultMessage;
 
     public ErrorModel(string? message = null, IEnumerable<ErrorItem>? errors = null)
     {

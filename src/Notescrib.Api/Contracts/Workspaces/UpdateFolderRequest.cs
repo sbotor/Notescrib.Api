@@ -1,14 +1,13 @@
 ﻿using Notescrib.Api.Application.Workspaces.Commands;
-using Notescrib.Api.Core.Entities;
 
 namespace Notescrib.Api.Contracts.Workspaces;
 
-public class AddFolderRequest : ModifyFolderRequestBase
+public class UpdateFolderRequest : ModifyFolderRequestBase
 {
-    public CreateFolder.Command ToCommand(string workspaceId)
+    public UpdateFolder.Command ToCommand(string folderId)
         => new()
         {
-            WorkspaceId = workspaceId,
+            Id = folderId,
             Name = Name,
             ParentId = ParentId,
             SharingInfo = SharingInfo

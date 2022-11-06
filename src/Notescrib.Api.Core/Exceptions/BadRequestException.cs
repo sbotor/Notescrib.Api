@@ -4,11 +4,13 @@ namespace Notescrib.Api.Core.Exceptions;
 
 public class BadRequestException : AppException
 {
-    public BadRequestException(string message) : base(message, null, HttpStatusCode.BadRequest)
+    private const HttpStatusCode DefaultStatusCode = HttpStatusCode.BadRequest;
+    
+    public BadRequestException(string message) : base(message, null, DefaultStatusCode)
     {
     }
 
-    public BadRequestException() : base(HttpStatusCode.BadRequest)
+    public BadRequestException() : base(DefaultStatusCode)
     {
     }
 }

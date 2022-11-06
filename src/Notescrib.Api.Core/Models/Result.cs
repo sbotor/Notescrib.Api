@@ -7,24 +7,15 @@ public class Result
     protected const string NotFoundMsg = "The resource was not found.";
     protected const string ForbiddenMsg = "Invalid permissions to access this resource.";
 
-    public ErrorModel? Error { get; set; }
-    public bool IsSuccessful { get; set; }
-    public HttpStatusCode? StatusCode { get; set; }
+    public ErrorModel? Error { get; init; }
+    public virtual bool IsSuccessful => Error != null;
+    public HttpStatusCode? StatusCode { get; init; }
 
     public static Result Success(HttpStatusCode statusCode = HttpStatusCode.NoContent)
-        => new()
-        {
-            IsSuccessful = true,
-            StatusCode = statusCode
-        };
+        => new() { StatusCode = statusCode };
 
     public static Result Failure(string? message = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-        => new()
-        {
-            IsSuccessful = false,
-            Error = new(message),
-            StatusCode = statusCode
-        };
+        => new() { Error = new(message), StatusCode = statusCode };
 
     public static Result InternalError(string? message = null)
         => Failure(message, HttpStatusCode.InternalServerError);
@@ -38,7 +29,8 @@ public class Result
 
 public class Result<T> : Result
 {
-    public T? Response { get; set; }
+    public T? Response { get; }
+    public override bool IsSuccessful => base.IsSuccessful && Response != null;
 
     public Result()
     {
@@ -46,7 +38,6 @@ public class Result<T> : Result
 
     public Result(Result source)
     {
-        IsSuccessful = source.IsSuccessful;
         Error = source.Error;
         StatusCode = source.StatusCode;
     }
@@ -56,8 +47,11 @@ public class Result<T> : Result
         Response = response;
     }
 
-    public Result<TOut> Map<TOut>()
+    public Result<TOut> CastError<TOut>()
         => new(this);
+
+    public Result CastError()
+        => new() { Error = Error, StatusCode = StatusCode };
 
     public static Result<T> Success(T? response, HttpStatusCode statusCode = HttpStatusCode.OK)
         => new(Success(statusCode), response);
