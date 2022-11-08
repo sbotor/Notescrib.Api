@@ -2,13 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "src\Identity\Notescrib.Identity\Notescrib.Identity.csproj", "{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{7B72A438-616E-4ED1-9F4A-A3AE4DDCB954}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{47D93E4B-B7AC-4DDC-AD47-90DBA2852C97}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Core", "src\Notes\Notescrib.Notes.Core\Notescrib.Notes.Core.csproj", "{343D3DA9-D556-46D0-9648-F1B3047BA7FD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Application", "src\Notes\Notescrib.Notes.Application\Notescrib.Notes.Application.csproj", "{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes", "src\Notes\Notescrib.Notes\Notescrib.Notes.csproj", "{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,18 +14,11 @@ Global
 		{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{343D3DA9-D556-46D0-9648-F1B3047BA7FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{343D3DA9-D556-46D0-9648-F1B3047BA7FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{343D3DA9-D556-46D0-9648-F1B3047BA7FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{343D3DA9-D556-46D0-9648-F1B3047BA7FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D} = {7B72A438-616E-4ED1-9F4A-A3AE4DDCB954}
-		{343D3DA9-D556-46D0-9648-F1B3047BA7FD} = {47D93E4B-B7AC-4DDC-AD47-90DBA2852C97}
-		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65} = {47D93E4B-B7AC-4DDC-AD47-90DBA2852C97}
 	EndGlobalSection
 EndGlobal

@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Notescrib.Identity.Auth.Providers;
-using Notescrib.Identity.Auth.Queries;
-using Notescrib.Identity.Common.Data;
-using Notescrib.Identity.Common.Entities;
-using Notescrib.Identity.Users.Mappers;
+using Notescrib.Identity.Data;
+using Notescrib.Identity.Features.Auth.Providers;
+using Notescrib.Identity.Features.Auth.Queries;
+using Notescrib.Identity.Features.Users;
+using Notescrib.Identity.Features.Users.Mappers;
 
 namespace Notescrib.Identity;
 
