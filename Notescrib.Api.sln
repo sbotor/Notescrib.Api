@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "src\I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes", "src\Notes\Notescrib.Notes\Notescrib.Notes.csproj", "{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Api", "src\Notes\Notescrib.Notes.Api\Notescrib.Notes.Api.csproj", "{F7694EA6-FAF7-4341-878C-E3E88825CFAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +20,10 @@ Global
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7694EA6-FAF7-4341-878C-E3E88825CFAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7694EA6-FAF7-4341-878C-E3E88825CFAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7694EA6-FAF7-4341-878C-E3E88825CFAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7694EA6-FAF7-4341-878C-E3E88825CFAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

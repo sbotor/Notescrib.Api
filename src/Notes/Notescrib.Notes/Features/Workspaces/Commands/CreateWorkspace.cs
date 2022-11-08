@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using MongoDB.Driver;
-using Notescrib.Notes.Application.Models;
-using Notescrib.Notes.Application.Models.Exceptions;
-using Notescrib.Notes.Application.Services;
+using Notescrib.Notes.Models;
+using Notescrib.Notes.Models.Exceptions;
+using Notescrib.Notes.Services;
 
-namespace Notescrib.Notes.Application.Features.Workspaces.Commands;
+namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class AddWorkspace
 {

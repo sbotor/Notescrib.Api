@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Application.Models;
+﻿using Notescrib.Notes.Models;
 
-namespace Notescrib.Notes.Application.Utils;
+namespace Notescrib.Notes.Utils;
 
 public static class PagingHelper
 {

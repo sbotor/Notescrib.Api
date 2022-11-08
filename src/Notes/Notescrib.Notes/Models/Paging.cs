@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Models;
+﻿namespace Notescrib.Notes.Models;
 
 public readonly struct Paging
 {

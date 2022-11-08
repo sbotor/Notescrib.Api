@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Models.Exceptions;
+﻿namespace Notescrib.Notes.Models.Exceptions;
 
 public class NotFoundException : AppException
 {

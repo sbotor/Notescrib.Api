@@ -1,10 +1,10 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
-using Notescrib.Notes.Application.Models;
-using Notescrib.Notes.Application.Models.Enums;
-using Notescrib.Notes.Application.Utils;
+using Notescrib.Notes.Models;
+using Notescrib.Notes.Models.Enums;
+using Notescrib.Notes.Utils;
 
-namespace Notescrib.Notes.Application.Extensions;
+namespace Notescrib.Notes.Extensions;
 
 public static class PagingExtensions
 {

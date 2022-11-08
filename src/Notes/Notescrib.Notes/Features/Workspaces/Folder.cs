@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Application.Models;
+﻿using Notescrib.Notes.Models;
 
-namespace Notescrib.Notes.Application.Features.Workspaces;
+namespace Notescrib.Notes.Features.Workspaces;
 
 public class Folder
 {

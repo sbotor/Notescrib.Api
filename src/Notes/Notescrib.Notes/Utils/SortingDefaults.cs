@@ -1,6 +1,8 @@
-﻿namespace Notescrib.Notes.Application.Utils;
+﻿using Notescrib.Notes.Features.Workspaces;
+
+namespace Notescrib.Notes.Utils;
 
 public static class SortingDefaults
 {
-    public const string Workspace = nameof(Features.Workspaces.Workspace.Name);
+    public const string Workspaces = nameof(Workspace.Name);
 }

@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Services;
+﻿namespace Notescrib.Notes.Services;
 
 public interface IUserContextProvider
 {

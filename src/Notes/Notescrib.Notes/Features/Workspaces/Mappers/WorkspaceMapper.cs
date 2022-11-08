@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Application.Contracts;
-using Notescrib.Notes.Application.Features.Workspaces.Models;
+﻿using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Workspaces.Models;
 
-namespace Notescrib.Notes.Application.Features.Workspaces.Mappers;
+namespace Notescrib.Notes.Features.Workspaces.Mappers;
 
 public class WorkspaceMapper : IMapper<Workspace, WorkspaceOverview>
 {

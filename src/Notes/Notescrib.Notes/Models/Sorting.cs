@@ -1,31 +1,29 @@
 ﻿using System.Globalization;
-using Notescrib.Notes.Application.Models.Enums;
-using Notescrib.Notes.Application.Models.Exceptions;
+using Notescrib.Notes.Models.Enums;
+using Notescrib.Notes.Models.Exceptions;
 
-namespace Notescrib.Notes.Application.Models;
+namespace Notescrib.Notes.Models;
 
-public readonly struct Sorting
+public struct Sorting
 {
-    public string OrderBy { get; }
+    internal bool IsSafe { get; }
+    
+    public string OrderBy { get; internal set; }
     public SortingDirection Direction { get; }
 
-    private Sorting(string orderBy, SortingDirection direction = SortingDirection.Ascending)
+    public Sorting(string? orderBy, SortingDirection direction, string defaultSafeOrderBy)
     {
-        OrderBy = orderBy;
-        Direction = direction;
-    }
-
-    public static Sorting Parse<T>(string? orderBy, SortingDirection direction, string defaultOrderBy)
-    {
-        if (orderBy == null)
+        if (string.IsNullOrEmpty(orderBy))
         {
-            return new(defaultOrderBy, direction);
+            OrderBy = defaultSafeOrderBy;
+            IsSafe = true;
         }
-
-        var propertyName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(orderBy);
-        var property = typeof(T).GetProperty(propertyName)
-                       ?? throw new AppException($"Invalid property name '{propertyName}'.");
-
-        return new(property.Name, direction);
+        else
+        {
+            OrderBy = orderBy;
+            IsSafe = false;
+        }
+        
+        Direction = direction;
     }
 }

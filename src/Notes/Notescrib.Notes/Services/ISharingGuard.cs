@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Application.Models;
+﻿using Notescrib.Notes.Models;
 
-namespace Notescrib.Notes.Application.Services;
+namespace Notescrib.Notes.Services;
 
 public interface ISharingGuard
 {

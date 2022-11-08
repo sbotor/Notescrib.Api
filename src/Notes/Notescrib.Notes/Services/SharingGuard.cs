@@ -1,8 +1,8 @@
-﻿using Notescrib.Notes.Application.Models;
-using Notescrib.Notes.Application.Models.Enums;
-using Notescrib.Notes.Application.Models.Exceptions;
+﻿using Notescrib.Notes.Models;
+using Notescrib.Notes.Models.Enums;
+using Notescrib.Notes.Models.Exceptions;
 
-namespace Notescrib.Notes.Application.Services;
+namespace Notescrib.Notes.Services;
 
 internal class SharingGuard : ISharingGuard
 {

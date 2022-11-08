@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Models.Configuration;
+﻿namespace Notescrib.Notes.Models.Configuration;
 
 public class MongoDbSettings
 {
@@ -9,5 +9,5 @@ public class MongoDbSettings
 
 public class CollectionNames
 {
-    public string Workspaces { get; set; } = "Workspaces";
+    public string Workspaces { get; set; } = nameof(Workspaces);
 }

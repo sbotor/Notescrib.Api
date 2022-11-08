@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Notescrib.Notes.Application.Models.Configuration;
+using Notescrib.Notes.Models.Configuration;
 
-namespace Notescrib.Notes.Application.Services;
+namespace Notescrib.Notes.Services;
 
 public class MongoCollectionProvider : IMongoCollectionProvider
 {

@@ -1,17 +1,17 @@
 ﻿using MediatR;
 using MongoDB.Driver;
-using Notescrib.Notes.Application.Contracts;
-using Notescrib.Notes.Application.Extensions;
-using Notescrib.Notes.Application.Features.Workspaces.Models;
-using Notescrib.Notes.Application.Models;
-using Notescrib.Notes.Application.Models.Exceptions;
-using Notescrib.Notes.Application.Services;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Extensions;
+using Notescrib.Notes.Features.Workspaces.Models;
+using Notescrib.Notes.Models;
+using Notescrib.Notes.Models.Exceptions;
+using Notescrib.Notes.Services;
 
-namespace Notescrib.Notes.Application.Features.Workspaces.Queries;
+namespace Notescrib.Notes.Features.Workspaces.Queries;
 
 public static class GetWorkspaces
 {
-    public record Query(Paging Paging, Sorting Sorting) : IRequest<PagedList<WorkspaceOverview>>;
+    public record Query(Paging Paging, Sorting Sorting) : IPagingSortingRequest<Workspace, PagedList<WorkspaceOverview>>;
 
     internal class Handler : IRequestHandler<Query, PagedList<WorkspaceOverview>>
     {

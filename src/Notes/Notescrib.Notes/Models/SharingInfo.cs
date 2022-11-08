@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Application.Models.Enums;
+﻿using Notescrib.Notes.Models.Enums;
 
-namespace Notescrib.Notes.Application.Models;
+namespace Notescrib.Notes.Models;
 
 public class SharingInfo
 {

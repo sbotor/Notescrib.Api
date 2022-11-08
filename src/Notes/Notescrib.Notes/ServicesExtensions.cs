@@ -3,12 +3,13 @@ using MediatR;
 using MediatR.Extensions.FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Notescrib.Notes.Application.Contracts;
-using Notescrib.Notes.Application.Features.Workspaces;
-using Notescrib.Notes.Application.Models.Configuration;
-using Notescrib.Notes.Application.Services;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Workspaces;
+using Notescrib.Notes.Models.Configuration;
+using Notescrib.Notes.Services;
+using Notescrib.Notes.Utils.Mediatr;
 
-namespace Notescrib.Notes.Application;
+namespace Notescrib.Notes;
 
 public static class ServicesExtensions
 {
@@ -16,7 +17,7 @@ public static class ServicesExtensions
     
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddMediatR(ThisAssembly).AddFluentValidation(new[] { ThisAssembly });
+        services.AddMediatR().AddFluentValidation(new[] { ThisAssembly });
 
         services.AddMongoDb(config);
 
@@ -26,6 +27,15 @@ public static class ServicesExtensions
             .AddScoped<IUserContextProvider, UserContextProvider>();
 
         services.AddMappers();
+        
+        return services;
+    }
+
+    private static IServiceCollection AddMediatR(this IServiceCollection services)
+    {
+        services.AddMediatR(ThisAssembly)
+            .AddScoped(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>))
+            .AddScoped(typeof(IPipelineBehavior<,>), typeof(SortingValidationBehavior<,,>));
         
         return services;
     }

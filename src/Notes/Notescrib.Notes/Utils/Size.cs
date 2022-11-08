@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Utils;
+﻿namespace Notescrib.Notes.Utils;
 
 public static class Size
 {

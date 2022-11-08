@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Application.Models.Enums;
+﻿namespace Notescrib.Notes.Models.Enums;
 
 public enum SortingDirection
 {
