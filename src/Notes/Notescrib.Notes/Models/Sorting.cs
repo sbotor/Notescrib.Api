@@ -1,29 +1,16 @@
-﻿using System.Globalization;
+﻿using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Models.Enums;
-using Notescrib.Notes.Models.Exceptions;
 
 namespace Notescrib.Notes.Models;
 
-public struct Sorting
+public class Sorting<TSort> where TSort : struct, Enum
 {
-    internal bool IsSafe { get; }
-    
-    public string OrderBy { get; internal set; }
+    public TSort OrderBy { get; }
     public SortingDirection Direction { get; }
 
-    public Sorting(string? orderBy, SortingDirection direction, string defaultSafeOrderBy)
+    public Sorting(TSort orderBy, SortingDirection direction)
     {
-        if (string.IsNullOrEmpty(orderBy))
-        {
-            OrderBy = defaultSafeOrderBy;
-            IsSafe = true;
-        }
-        else
-        {
-            OrderBy = orderBy;
-            IsSafe = false;
-        }
-        
+        OrderBy = orderBy;
         Direction = direction;
     }
 }

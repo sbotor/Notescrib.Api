@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
+using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Models.Enums;
 using Notescrib.Notes.Utils;
@@ -8,10 +9,12 @@ namespace Notescrib.Notes.Extensions;
 
 public static class PagingExtensions
 {
-    public static async Task<PagedList<T>> FindPagedAsync<T>(this IMongoCollection<T> source,
+    public static async Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
         Expression<Func<T, bool>> filter,
         Paging paging,
-        Sorting sorting)
+        Sorting<TSort> sorting,
+        ISortingProvider<TSort> sortingProvider)
+        where TSort : struct, Enum
     {
         var countFacet = AggregateFacet.Create("count",
             PipelineDefinition<T, AggregateCountResult>.Create(new[]
@@ -22,7 +25,7 @@ public static class PagingExtensions
         var dataFacet = AggregateFacet.Create("data",
             PipelineDefinition<T, T>.Create(new[]
             {
-                PipelineStageDefinitionBuilder.Sort(GetSortDefinition<T>(sorting)),
+                PipelineStageDefinitionBuilder.Sort(GetSortDefinition<T, TSort>(sorting, sortingProvider)),
                 PipelineStageDefinitionBuilder.Skip<T>(PagingHelper.CalculateSkipCount(paging)),
                 PipelineStageDefinitionBuilder.Limit<T>(paging.PageSize)
             }));
@@ -43,9 +46,10 @@ public static class PagingExtensions
         return new PagedList<T>(data, paging.PageNumber, paging.PageSize, (int)count);
     }
     
-    private static SortDefinition<T> GetSortDefinition<T>(Sorting sorting)
+    private static SortDefinition<T> GetSortDefinition<T, TSort>(Sorting<TSort> sorting, ISortingProvider<TSort> sortingProvider)
+        where TSort : struct, Enum
     {
-        var fieldDefinition = new StringFieldDefinition<T>(sorting.OrderBy);
+        var fieldDefinition = new StringFieldDefinition<T>(sortingProvider.GetSortName(sorting.OrderBy));
 
         return sorting.Direction == SortingDirection.Ascending
             ? Builders<T>.Sort.Ascending(fieldDefinition)

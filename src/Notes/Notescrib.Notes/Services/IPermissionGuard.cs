@@ -2,7 +2,7 @@
 
 namespace Notescrib.Notes.Services;
 
-public interface ISharingGuard
+public interface IPermissionGuard
 {
     bool CanEdit(string ownerId);
     void GuardCanEdit(string ownerId);

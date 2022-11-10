@@ -4,11 +4,11 @@ using Notescrib.Notes.Models.Exceptions;
 
 namespace Notescrib.Notes.Services;
 
-internal class SharingGuard : ISharingGuard
+internal class PermissionGuard : IPermissionGuard
 {
     private readonly IUserContextProvider _userContext;
 
-    public SharingGuard(IUserContextProvider userContext)
+    public PermissionGuard(IUserContextProvider userContext)
     {
         _userContext = userContext;
     }

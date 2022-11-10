@@ -2,8 +2,8 @@
 
 namespace Notescrib.Notes.Api.Contracts;
 
-public interface ISortingRequest
+public interface ISortingRequest<TSort> where TSort : struct, Enum
 {
-    string? OrderBy { get; set; }
+    TSort OrderBy { get; set; }
     SortingDirection SortingDirection { get; set; }
 }

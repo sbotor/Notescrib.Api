@@ -3,18 +3,18 @@ using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Contracts;
 
-internal interface IPagingSortingRequest<TEntity, out TResponse> : IPagingRequest<TResponse>, ISortingRequest<TEntity, TResponse>
-    where TEntity : class
+internal interface IPagingSortingRequest<TSort, TResponse> : IPagingRequest<TResponse>, ISortingRequest<TSort, TResponse>
+    where TSort : struct, Enum
 {
 }
 
-internal interface IPagingRequest<out TResponse> : IRequest<TResponse>
+internal interface IPagingRequest<TResponse> : IRequest<PagedList<TResponse>>
 {
     Paging Paging { get; }
 }
 
-internal interface ISortingRequest<TEntity, out TResponse> : IRequest<TResponse>
-    where TEntity : class
+internal interface ISortingRequest<TSort, out TResponse> : IRequest<TResponse>
+    where TSort : struct, Enum
 {
-    Sorting Sorting { get; }
+    Sorting<TSort> Sorting { get; }
 }

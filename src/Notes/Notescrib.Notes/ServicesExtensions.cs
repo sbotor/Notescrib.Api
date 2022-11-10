@@ -23,10 +23,12 @@ public static class ServicesExtensions
 
         services
             .AddHttpContextAccessor()
-            .AddScoped<ISharingGuard, SharingGuard>()
+            .AddScoped<IPermissionGuard, PermissionGuard>()
             .AddScoped<IUserContextProvider, UserContextProvider>();
 
-        services.AddMappers();
+        services
+            .AddMappers()
+            .AddAll(typeof(ISortingProvider<>));
         
         return services;
     }
@@ -34,8 +36,7 @@ public static class ServicesExtensions
     private static IServiceCollection AddMediatR(this IServiceCollection services)
     {
         services.AddMediatR(ThisAssembly)
-            .AddScoped(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>))
-            .AddScoped(typeof(IPipelineBehavior<,>), typeof(SortingValidationBehavior<,,>));
+            .AddScoped(typeof(IPipelineBehavior<,>), typeof(PagingValidationBehavior<,>));
         
         return services;
     }
@@ -60,13 +61,14 @@ public static class ServicesExtensions
         });
 
     private static IServiceCollection AddMappers(this IServiceCollection services)
-    {
-        services.Scan(scan
+        => services.AddAll(typeof(IMapper<,>));
+
+    private static IServiceCollection AddAll(this IServiceCollection services,
+        Type parentType,
+        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        => services.Scan(scan
             => scan.FromAssemblies(ThisAssembly)
-                .AddClasses(classes => classes.AssignableTo(typeof(IMapper<,>)))
+                .AddClasses(classes => classes.AssignableTo(parentType))
                 .AsImplementedInterfaces()
-                .WithSingletonLifetime());
-        
-        return services;
-    }
+                .WithLifetime(lifetime));
 }

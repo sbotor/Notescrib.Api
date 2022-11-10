@@ -4,10 +4,11 @@ using Notescrib.Notes.Models.Enums;
 
 namespace Notescrib.Notes.Api.Models;
 
-public class PagingSortingRequest : IPagingRequest, ISortingRequest
+public abstract class PagingSortingRequest<TSort> : IPagingRequest, ISortingRequest<TSort>
+    where TSort : struct, Enum
 {
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = Paging.DefaultPageSize;
-    public string? OrderBy { get; set; }
+    public TSort OrderBy { get; set; }
     public SortingDirection SortingDirection { get; set; } = SortingDirection.Ascending;
 }

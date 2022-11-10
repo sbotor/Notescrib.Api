@@ -11,4 +11,9 @@ public static class Size
     {
         public const int Max = 10;
     }
+
+    public static class Counts
+    {
+        public const int MaxFolders = 50;
+    }
 }
