@@ -1,7 +1,8 @@
-﻿using Microsoft.Net.Http.Headers;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 
-namespace Notescrib.Notes.Api.Extensions;
+namespace Notescrib.Core.Api.Extensions;
 
 public static class SwaggerExtensions
 {

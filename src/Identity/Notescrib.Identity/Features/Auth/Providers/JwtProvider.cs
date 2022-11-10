@@ -13,11 +13,6 @@ internal class JwtProvider : IJwtProvider
     public JwtProvider(IOptions<JwtSettings> options)
     {
         _settings = options.Value;
-
-        if (string.IsNullOrEmpty(_settings.Key))
-        {
-            throw new InvalidOperationException("No JWT key provided.");
-        }
     }
 
     public string GenerateToken(string userId, string userEmail)

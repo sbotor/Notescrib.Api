@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Identity.Exceptions;
+﻿namespace Notescrib.Core.Models.Exceptions;
 
 public class AppException : Exception
 {

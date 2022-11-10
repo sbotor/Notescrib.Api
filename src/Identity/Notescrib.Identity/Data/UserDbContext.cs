@@ -5,9 +5,9 @@ using Notescrib.Identity.Features.Users;
 
 namespace Notescrib.Identity.Data;
 
-internal class UserDbContext : IdentityDbContext<AppUser>
+public class UserDbContext : IdentityDbContext<AppUser>
 {
-    internal const string DefaultConStrName = "UserDb";
+    internal const string DefaultConStrName = "NotescribUserDb";
     
     public UserDbContext(DbContextOptions<UserDbContext> options)
         : base(options)

@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Models;
+﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Models;
 using Notescrib.Notes.Models.Enums;
-using Notescrib.Notes.Models.Exceptions;
 
 namespace Notescrib.Notes.Services;
 

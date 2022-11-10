@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
-using Notescrib.Identity.Exceptions;
 using Notescrib.Identity.Features.Auth.Models;
 using Notescrib.Identity.Features.Auth.Providers;
 using Notescrib.Identity.Features.Users.Mappers;

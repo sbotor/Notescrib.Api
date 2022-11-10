@@ -2,7 +2,8 @@
 
 public class JwtSettings
 {
-    public string Key { get; set; } = string.Empty;
-    public TimeSpan TokenLifetime { get; set; } = TimeSpan.FromHours(1);
-    public string Issuer { get; set; } = "Notescrib";
+    public TimeSpan TokenLifetime { get; } = TimeSpan.FromHours(1);
+    public string Key { get; set; } = null!;
+    public string Issuer { get; set; } = null!;
+    public IDictionary<string, string> Audiences { get; set; } = null!;
 }

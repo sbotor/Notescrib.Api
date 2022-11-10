@@ -1,5 +1,5 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Models.Exceptions;
+﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
 
 namespace Notescrib.Notes.Models;
 

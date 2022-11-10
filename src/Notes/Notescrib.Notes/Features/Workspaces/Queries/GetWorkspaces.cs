@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using MongoDB.Driver;
+using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Workspaces.Models;
 using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Models;
-using Notescrib.Notes.Models.Exceptions;
 using Notescrib.Notes.Services;
 
 namespace Notescrib.Notes.Features.Workspaces.Queries;

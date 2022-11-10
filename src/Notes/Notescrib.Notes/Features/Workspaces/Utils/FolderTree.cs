@@ -1,4 +1,4 @@
-﻿using Notescrib.Notes.Models.Exceptions;
+﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Workspaces.Utils;

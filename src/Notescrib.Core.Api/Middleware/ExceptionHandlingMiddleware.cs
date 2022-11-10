@@ -1,7 +1,9 @@
 ﻿using System.Net;
-using Notescrib.Notes.Models.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Notescrib.Core.Models.Exceptions;
 
-namespace Notescrib.Notes.Api.Middleware;
+namespace Notescrib.Core.Api.Middleware;
 
 public class ExceptionHandlingMiddleware
 {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notescrib.Core.Extensions;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Providers;
 using Notescrib.Identity.Features.Auth.Queries;
@@ -17,14 +18,17 @@ public static class ServicesExtensions
 {
     private static readonly Assembly ThisAssembly = typeof(Authenticate).Assembly;
     
-    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddMediatR(ThisAssembly);
         services.AddFluentValidation(new[] { ThisAssembly });
 
         services.AddTransient<IJwtProvider, JwtProvider>();
-
+        services.ConfigureSettings<JwtSettings>(config);
+        
         services.AddTransient<IUserMapper, UserMapper>();
+        
+        services.AddIdentityServices(config);
         
         return services;
     }

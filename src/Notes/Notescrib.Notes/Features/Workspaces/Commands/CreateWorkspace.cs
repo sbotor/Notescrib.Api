@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using MongoDB.Driver;
+using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Models;
-using Notescrib.Notes.Models.Exceptions;
 using Notescrib.Notes.Services;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;

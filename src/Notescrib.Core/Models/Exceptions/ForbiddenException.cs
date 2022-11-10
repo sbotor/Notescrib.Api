@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Models.Exceptions;
+﻿namespace Notescrib.Core.Models.Exceptions;
 
 public class ForbiddenException : AppException
 {
