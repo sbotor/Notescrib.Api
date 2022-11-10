@@ -48,7 +48,7 @@ public static class CreateUser
 
             return new TokenResponse
             {
-                Token = _jwtProvider.GenerateToken(user.Id, user.Email),
+                Token = _jwtProvider.GenerateToken(user.Id, user.Email!),
                 User = _mapper.MapToDetails(user)
             };
         }

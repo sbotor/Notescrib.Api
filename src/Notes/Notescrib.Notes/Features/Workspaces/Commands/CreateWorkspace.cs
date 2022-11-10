@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Models;
@@ -6,7 +7,7 @@ using Notescrib.Notes.Services;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
-public static class AddWorkspace
+public static class CreateWorkspace
 {
     public record Command(string Name, SharingInfo? SharingInfo) : IRequest<string>;
 

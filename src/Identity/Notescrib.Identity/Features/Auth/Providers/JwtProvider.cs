@@ -28,6 +28,7 @@ internal class JwtProvider : IJwtProvider
 
         var descriptor = new JwtSecurityToken(
             issuer: _settings.Issuer,
+            audience: _settings.Audience,
             claims: claims,
             expires: DateTime.Now + _settings.TokenLifetime,
             signingCredentials: credentials);

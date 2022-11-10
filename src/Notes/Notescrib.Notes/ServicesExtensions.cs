@@ -8,6 +8,7 @@ using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Models.Configuration;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils.Mediatr;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes;
 
@@ -49,6 +50,8 @@ public static class ServicesExtensions
 
         services.AddMongoCollection<Workspace>(x => x.Workspaces);
 
+        MongoDbClassMaps.Register();
+        
         return services;
     }
 

@@ -41,7 +41,7 @@ public static class Authenticate
                 throw new AppException();
             }
             
-            var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash!, request.Password);
         
             switch (result)
             {
@@ -50,13 +50,13 @@ public static class Authenticate
                     throw new ForbiddenException();
             
                 case PasswordVerificationResult.SuccessRehashNeeded:
-                    await _userManager.ChangePasswordAsync(user, user.PasswordHash, request.Password);
+                    await _userManager.ChangePasswordAsync(user, user.PasswordHash!, request.Password);
                     break;
             }
             
             return new TokenResponse
             {
-                Token = _jwtProvider.GenerateToken(user.Id, user.Email),
+                Token = _jwtProvider.GenerateToken(user.Id, user.Email!),
                 User = _mapper.MapToDetails(user)
             };
         }

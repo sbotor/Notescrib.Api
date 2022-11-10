@@ -15,5 +15,5 @@ internal class UserMapper : IUserMapper
         };
 
     public UserDetails MapToDetails(AppUser item)
-        => new() { Email = item.Email, IsActive = item.IsActive, Id = item.Id };
+        => new() { Email = item.Email!, IsActive = item.IsActive, Id = item.Id };
 }
