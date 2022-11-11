@@ -23,16 +23,15 @@ internal class PermissionGuard : IPermissionGuard
         }
     }
 
-    public bool CanView(string ownerId, SharingInfo sharingInfo)
+    public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
     {
         var userId = _userContext.UserId;
-        if (sharingInfo.Visibility == VisibilityLevel.Public
-            || userId == ownerId)
+        if (userId == ownerId || sharingInfo?.Visibility == VisibilityLevel.Public)
         {
             return true;
         }
 
-        if (sharingInfo.Visibility == VisibilityLevel.Hidden)
+        if (sharingInfo?.Visibility == VisibilityLevel.Hidden)
         {
             return userId != null
                 && sharingInfo.AllowedIds.Contains(userId);
@@ -41,7 +40,7 @@ internal class PermissionGuard : IPermissionGuard
         return false;
     }
 
-    public void GuardCanView(string ownerId, SharingInfo sharingInfo)
+    public void GuardCanView(string ownerId, SharingInfo? sharingInfo = null)
     {
         if (!CanView(ownerId, sharingInfo))
         {

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using MongoDB.Driver;
+using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 
@@ -7,7 +8,7 @@ namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateFolder
 {
-    public record Command(string WorkspaceId, string Name, string? Parent, SharingInfo? SharingInfo) : IRequest;
+    public record Command(string WorkspaceId, string Name, string? Parent) : IRequest;
 
     internal class Handler : IRequestHandler<Command>
     {
@@ -25,17 +26,17 @@ public static class CreateFolder
             var workspace = await _collection
                 .Find(x => x.Id == request.WorkspaceId)
                 .FirstOrDefaultAsync(cancellationToken);
+            if (workspace == null)
+            {
+                throw new NotFoundException<Workspace>(request.WorkspaceId);
+            }
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
             var folder = new Folder { Name = request.Name };
-            var node = workspace.FolderTree.Add(folder, request.Parent);
+            workspace.FolderTree.Add(folder, request.Parent);
 
-            folder.SharingInfo = request.SharingInfo
-                                 ?? node.Parent?.Item.SharingInfo
-                                 ?? workspace.SharingInfo;
-            
-            await _collection.FindOneAndReplaceAsync(x => x.Id == workspace.Id, workspace,
+            await _collection.ReplaceOneAsync(x => x.Id == workspace.Id, workspace,
                 cancellationToken: cancellationToken);
 
             return Unit.Value;

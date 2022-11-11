@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Models;
@@ -9,7 +8,7 @@ namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateWorkspace
 {
-    public record Command(string Name, SharingInfo? SharingInfo) : IRequest<string>;
+    public record Command(string Name) : IRequest<string>;
 
     internal class Handler : IRequestHandler<Command, string>
     {
@@ -33,8 +32,7 @@ public static class CreateWorkspace
             var workspace = new Workspace
             {
                 Name = request.Name,
-                OwnerId = ownerId,
-                SharingInfo = request.SharingInfo ?? new()
+                OwnerId = ownerId
             };
             await _collection.InsertOneAsync(workspace, cancellationToken: cancellationToken);
 

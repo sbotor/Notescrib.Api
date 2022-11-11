@@ -10,7 +10,6 @@ public class WorkspaceMapper : IMapper<Workspace, WorkspaceOverview>
         {
             Id = item.Id,
             OwnerId = item.OwnerId,
-            Name = item.Name,
-            SharingInfo = item.SharingInfo
+            Name = item.Name
         };
 }

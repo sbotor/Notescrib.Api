@@ -3,7 +3,10 @@ using MediatR;
 using MediatR.Extensions.FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using Notescrib.Core.Extensions;
 using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Models.Configuration;
 using Notescrib.Notes.Services;
@@ -44,24 +47,17 @@ public static class ServicesExtensions
 
     private static IServiceCollection AddMongoDb(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<MongoDbSettings>(config.GetSection(nameof(MongoDbSettings)));
-
-        services.AddSingleton<IMongoCollectionProvider, MongoCollectionProvider>();
-
-        services.AddMongoCollection<Workspace>(x => x.Workspaces);
-
         MongoDbClassMaps.Register();
         
+        var settings = config.GetSettings<MongoDbSettings>()!;
+        var db = new MongoClient(settings.ConnectionUri)
+            .GetDatabase(settings.DatabaseName);
+        
+        services.AddSingleton(db.GetCollection<Workspace>(settings.Collections.Workspaces));
+        services.AddSingleton(db.GetCollection<Note>(settings.Collections.Notes));
+
         return services;
     }
-
-    private static IServiceCollection AddMongoCollection<T>(this IServiceCollection services, Func<CollectionNames, string> nameResolver)
-        where T : class
-        => services.AddScoped(serviceProvider =>
-        {
-            var collectionProvider = serviceProvider.GetRequiredService<IMongoCollectionProvider>();
-            return collectionProvider.GetCollection<T>(nameResolver.Invoke(collectionProvider.CollectionNames));
-        });
 
     private static IServiceCollection AddMappers(this IServiceCollection services)
         => services.AddAll(typeof(IMapper<,>));
