@@ -1,18 +1,19 @@
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Notescrib.Api.Models;
 using Notescrib.Core.Api.Extensions;
+using Notescrib.Core.Api.Middleware;
 using Notescrib.Core.Extensions;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
+using Notescrib.Notes;
+using Notescrib.Notes.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-    .AddJsonFile("ocelot.json")
-    .AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", true, true);
+builder.Services.AddControllers().ConfigureSerialization();
 
-builder.Services.AddOcelot();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.ConfigureSwagger();
+}
 
 var jwtSettings = builder.Configuration.GetSettings<JwtSettings>()!;
 builder.Services.ConfigureJwtAuth(x =>
@@ -25,19 +26,28 @@ builder.Services.ConfigureJwtAuth(x =>
     x.ValidAudience = jwtSettings.Audience;
     x.ValidateLifetime = true;
 });
-
-var allowedOrigins = builder.Configuration.GetSettings<string[]>("AllowedOrigins");
-builder.Services.AddCors(options =>
-    options.AddDefaultPolicy(policy => policy
-        // .AllowAnyOrigin()
-        .WithOrigins(allowedOrigins!)
-        // .AllowAnyMethod()
-        .WithMethods("GET", "POST", "PUT", "DELETE")
-        .AllowAnyHeader()));
+        
+builder.Services.AddRequiredServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseCors();
-await app.UseOcelot();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+}
+        
+app.UseHttpsRedirection();
+        
+app.UseAuthentication();
+app.UseAuthorization();
+        
+app.MapControllers();
 
 app.Run();
