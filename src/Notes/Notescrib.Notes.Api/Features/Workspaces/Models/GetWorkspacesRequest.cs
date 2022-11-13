@@ -7,5 +7,5 @@ namespace Notescrib.Notes.Api.Features.Workspaces.Models;
 public class GetWorkspacesRequest : PagingSortingRequest<WorkspacesSorting>
 {
     public GetWorkspaces.Query ToQuery()
-        => new(new(PageNumber, PageSize), new(OrderBy, SortingDirection));
+        => new(new(Page, PageSize), new(OrderBy, SortingDirection));
 }

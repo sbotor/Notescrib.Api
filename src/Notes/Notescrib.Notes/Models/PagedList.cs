@@ -6,16 +6,16 @@ public class PagedList<T>
 {
     public IList<T> Data { get; }
 
-    public int PageNumber { get; }
+    public int Page { get; }
     public int TotalPageCount { get; }
     public int PageSize { get; }
     public int TotalCount { get; }
 
-    public PagedList(IEnumerable<T> data, int pageNumber, int pageSize, int totalCount)
+    public PagedList(IEnumerable<T> data, int page, int pageSize, int totalCount)
     {
         Data = data.ToArray();
 
-        PageNumber = pageNumber;
+        Page = page;
         TotalCount = totalCount;
         PageSize = pageSize;
 
@@ -25,7 +25,7 @@ public class PagedList<T>
     public PagedList<TDest> Map<TDest>(Func<T, TDest> mappingFunction)
         => new(
             Data.Select(mappingFunction),
-            PageNumber,
+            Page,
             PageSize,
             TotalCount);
 }

@@ -43,7 +43,7 @@ public static class PagingExtensions
         var data = facets.First(x => x.Name == dataFacet.Name)
             .Output<T>();
 
-        return new PagedList<T>(data, paging.PageNumber, paging.PageSize, (int)count);
+        return new PagedList<T>(data, paging.Page, paging.PageSize, (int)count);
     }
     
     private static SortDefinition<T> GetSortDefinition<T, TSort>(Sorting<TSort> sorting, ISortingProvider<TSort> sortingProvider)
