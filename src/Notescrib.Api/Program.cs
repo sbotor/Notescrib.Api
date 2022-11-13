@@ -26,8 +26,18 @@ builder.Services.ConfigureJwtAuth(x =>
     x.ValidateLifetime = true;
 });
 
+var allowedOrigins = builder.Configuration.GetSettings<string[]>("AllowedOrigins");
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(policy => policy
+        // .AllowAnyOrigin()
+        .WithOrigins(allowedOrigins!)
+        // .AllowAnyMethod()
+        .WithMethods("GET", "POST", "PUT", "DELETE")
+        .AllowAnyHeader()));
+
 var app = builder.Build();
 
+app.UseCors();
 await app.UseOcelot();
 
 app.Run();

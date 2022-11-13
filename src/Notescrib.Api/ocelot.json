@@ -19,7 +19,7 @@
       "Priority": 0
     },
     {
-      "DownstreamPathTemplate": "/api/users/{everything}",
+      "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -27,7 +27,7 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/api/identity/users/{everything}",
+      "UpstreamPathTemplate": "/api/identity/{everything}",
       "UpstreamHttpMethod": [
         "Get",
         "Post"
@@ -50,7 +50,7 @@
       "UpstreamHttpMethod": [
         "Post"
       ],
-      "Priority": 1
+      "Priority": 2
     }
   ],
   "GlobalConfiguration": {
