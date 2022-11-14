@@ -40,18 +40,19 @@ public class ExceptionHandlingMiddleware
             {
                 case NotFoundException notFound:
                     statusCode = HttpStatusCode.BadRequest;
-                    message = !string.IsNullOrEmpty(notFound.Message)
-                        ? notFound.Message
-                        : "The resource was not found.";
+                    message = GetMessageOrDefault(notFound, "The resource was not found.");
                     break;
                 
                 case ForbiddenException forbidden:
                     statusCode = HttpStatusCode.Forbidden;
-                    message = !string.IsNullOrEmpty(forbidden.Message)
-                        ? forbidden.Message
-                        : "Invalid permissions.";
+                    message = GetMessageOrDefault(forbidden, "Invalid permissions.");
                     break;
                 
+                case DuplicationException duplication:
+                    statusCode = HttpStatusCode.BadRequest;
+                    message = GetMessageOrDefault(duplication, "The resource already exists.");
+                    break;
+
                 default:
                     statusCode = HttpStatusCode.BadRequest;
                     break;
@@ -61,4 +62,9 @@ public class ExceptionHandlingMiddleware
         context.Response.StatusCode = (int)statusCode;
         await context.Response.WriteAsJsonAsync(message);
     }
+
+    private static string GetMessageOrDefault(AppException exception, string message)
+        => !string.IsNullOrEmpty(exception.Message)
+            ? exception.Message
+            : message;
 }

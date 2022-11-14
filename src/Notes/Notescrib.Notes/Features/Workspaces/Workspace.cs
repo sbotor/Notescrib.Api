@@ -1,6 +1,4 @@
-﻿using Notescrib.Notes.Features.Workspaces.Utils;
-
-namespace Notescrib.Notes.Features.Workspaces;
+﻿namespace Notescrib.Notes.Features.Workspaces;
 
 public class Workspace
 {

@@ -11,7 +11,8 @@
       ],
       "UpstreamPathTemplate": "/api/{everything}",
       "UpstreamHttpMethod": [
-        "Get"
+        "Get",
+        "Post"
       ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"

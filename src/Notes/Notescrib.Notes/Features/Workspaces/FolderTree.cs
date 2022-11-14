@@ -1,7 +1,8 @@
 ﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Utils;
 
-namespace Notescrib.Notes.Features.Workspaces.Utils;
+namespace Notescrib.Notes.Features.Workspaces;
 
 public class FolderTree
 {
@@ -10,16 +11,16 @@ public class FolderTree
     private int? _count;
     public int Count => _count ??= AsEnumerable().Count();
 
-    public TreeChildNode<Folder> Add(Folder item, string? parent)
+    public TreeNode<Folder> Add(Folder item, string? parent)
     {
-        if (AsEnumerable().Any(x => x.Item.Name == item.Name))
+        if (AsEnumerable().Any(x => x.Name == item.Name))
         {
             throw new DuplicationException<Folder>();
         }
         
         if (!string.IsNullOrEmpty(parent))
         {
-            var parentNode = AsEnumerable().FirstOrDefault(x => x.Item.Name == parent);
+            var parentNode = AsNodeEnumerable().FirstOrDefault(x => x.Item.Name == parent);
             if (parentNode == null)
             {
                 throw new NotFoundException<Folder>(parent);
@@ -30,14 +31,14 @@ public class FolderTree
         }
         
         AddCore(Folders, item);
-        return new(item, null);
+        return new(item, 0);
     }
 
     public bool Exists(string? name)
         => name == null
-           || AsEnumerable().Any(x => x.Item.Name == name);
+           || AsEnumerable().Any(x => x.Name == name);
 
-    private TreeChildNode<Folder> Add(Folder item, TreeNode<Folder> parent)
+    private TreeNode<Folder> Add(Folder item, TreeNode<Folder> parent)
     {
         if (!parent.CanNestChildren)
         {
@@ -45,12 +46,15 @@ public class FolderTree
         }
 
         AddCore(parent.Item.Children, item);
-        return new(item, parent);
+        return new(item, parent.Level + 1);
     }
 
-    private IEnumerable<TreeNode<Folder>> AsEnumerable()
+    private IEnumerable<TreeNode<Folder>> AsNodeEnumerable()
+        => new TreeNodeEnumerable(Folders);
+
+    private IEnumerable<Folder> AsEnumerable()
         => new TreeEnumerable(Folders);
-    
+
     private void AddCore(ICollection<Folder> target, Folder item)
     {
         if (Count >= Size.Counts.MaxFolders)
@@ -62,10 +66,20 @@ public class FolderTree
         _count++;
     }
 
+    private class TreeNodeEnumerable : TreeEnumerable<Folder, TreeNode<Folder>>
+    {
+        public TreeNodeEnumerable(IEnumerable<Folder> rootItems)
+            : base(rootItems)
+        {
+        }
+
+        protected override TreeNode<Folder> GetDestinationItem(Folder source, int level) => new(source, level);
+        protected override IEnumerable<Folder> GetChildren(Folder item) => item.Children;
+    }
+
     private class TreeEnumerable : TreeEnumerable<Folder>
     {
-        public TreeEnumerable(IEnumerable<Folder> rootItems)
-            : base(rootItems)
+        public TreeEnumerable(IEnumerable<Folder> rootItems) : base(rootItems)
         {
         }
 

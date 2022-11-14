@@ -16,6 +16,6 @@ public class NotFoundException<T> : NotFoundException
 
     private static string FormatMsg(string name, string? id)
         => id != null
-            ? $"'{name}' with Id '{id}' not found."
-            : $"'{name}' not found.";
+            ? $"{name} with Id {id} not found."
+            : $"{name} not found.";
 }

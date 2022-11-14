@@ -2,7 +2,7 @@
 
 public class DuplicationException : AppException
 {
-    public DuplicationException(string? message = null)
+    public DuplicationException(string? message = null) : base(message)
     {
     }
 }
@@ -10,7 +10,7 @@ public class DuplicationException : AppException
 public class DuplicationException<TEntity> : DuplicationException
 {
     public DuplicationException()
-        : base($"'{typeof(TEntity).Name}' already exists.")
+        : base($"{typeof(TEntity).Name} already exists.")
     {
     }
 }

@@ -29,9 +29,7 @@ builder.Services.ConfigureJwtAuth(x =>
 var allowedOrigins = builder.Configuration.GetSettings<string[]>("AllowedOrigins");
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy
-        // .AllowAnyOrigin()
         .WithOrigins(allowedOrigins!)
-        // .AllowAnyMethod()
         .WithMethods("GET", "POST", "PUT", "DELETE")
         .AllowAnyHeader()));
 

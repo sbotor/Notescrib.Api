@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Notes.Api.Features.Workspaces.Models;
 using Notescrib.Notes.Features.Workspaces.Models;
+using Notescrib.Notes.Features.Workspaces.Queries;
 using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Api.Features.Workspaces;
@@ -28,6 +29,11 @@ public class WorkspacesController : ControllerBase
     public async Task<IActionResult> CreateWorkspace(CreateWorkspaceRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(WorkspaceDetails), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWorkspace(string id)
+        => Ok(await _mediator.Send(new GetWorkspaceDetails.Query(id)));
+    
     [HttpPost("{id}")]
     public async Task<IActionResult> CreateFolder(string id, CreateFolderRequest request)
     {

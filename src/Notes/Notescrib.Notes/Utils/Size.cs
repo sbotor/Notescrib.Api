@@ -9,7 +9,7 @@ public static class Size
 
     public static class NestingLevel
     {
-        public const int Max = 10;
+        public const int Max = 4;
     }
 
     public static class Counts

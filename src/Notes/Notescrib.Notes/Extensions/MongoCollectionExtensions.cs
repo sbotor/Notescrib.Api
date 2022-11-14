@@ -10,28 +10,22 @@ namespace Notescrib.Notes.Extensions;
 public static class PagingExtensions
 {
     public static async Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
-        Expression<Func<T, bool>> filter,
+        IEnumerable<Expression<Func<T, bool>>> filters,
         Paging paging,
         Sorting<TSort> sorting,
         ISortingProvider<TSort> sortingProvider)
         where TSort : struct, Enum
     {
-        var countFacet = AggregateFacet.Create("count",
-            PipelineDefinition<T, AggregateCountResult>.Create(new[]
-            {
-                PipelineStageDefinitionBuilder.Count<T>()
-            }));
+        var countFacet = GetCountFacet<T>();
+        var dataFacet = GetDataFacet<T, TSort>(paging, sorting, sortingProvider);
 
-        var dataFacet = AggregateFacet.Create("data",
-            PipelineDefinition<T, T>.Create(new[]
-            {
-                PipelineStageDefinitionBuilder.Sort(GetSortDefinition<T, TSort>(sorting, sortingProvider)),
-                PipelineStageDefinitionBuilder.Skip<T>(PagingHelper.CalculateSkipCount(paging)),
-                PipelineStageDefinitionBuilder.Limit<T>(paging.PageSize)
-            }));
-
-        var aggregation = await source.Aggregate()
-            .Match(filter)
+        var query = source.Aggregate();
+        foreach (var filter in filters)
+        {
+            query = query.Match(filter);
+        }
+        
+        var aggregation = await query
             .Facet(countFacet, dataFacet)
             .ToListAsync();
 
@@ -45,7 +39,15 @@ public static class PagingExtensions
 
         return new PagedList<T>(data, paging.Page, paging.PageSize, (int)count);
     }
-    
+
+    public static Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
+        Expression<Func<T, bool>> filter,
+        Paging paging,
+        Sorting<TSort> sorting,
+        ISortingProvider<TSort> sortingProvider)
+        where TSort : struct, Enum
+        => source.FindPagedAsync(new[] { filter }, paging, sorting, sortingProvider);
+
     private static SortDefinition<T> GetSortDefinition<T, TSort>(Sorting<TSort> sorting, ISortingProvider<TSort> sortingProvider)
         where TSort : struct, Enum
     {
@@ -55,4 +57,24 @@ public static class PagingExtensions
             ? Builders<T>.Sort.Ascending(fieldDefinition)
             : Builders<T>.Sort.Descending(fieldDefinition);
     }
+    
+    private static AggregateFacet<T> GetCountFacet<T>()
+        => AggregateFacet.Create("count",
+            PipelineDefinition<T, AggregateCountResult>.Create(new[]
+            {
+                PipelineStageDefinitionBuilder.Count<T>()
+            }));
+
+    private static AggregateFacet<T, T> GetDataFacet<T, TSort>(
+        Paging paging,
+        Sorting<TSort> sorting,
+        ISortingProvider<TSort> sortingProvider)
+        where TSort : struct, Enum
+        => AggregateFacet.Create("data",
+            PipelineDefinition<T, T>.Create(new[]
+            {
+                PipelineStageDefinitionBuilder.Sort(GetSortDefinition<T, TSort>(sorting, sortingProvider)),
+                PipelineStageDefinitionBuilder.Skip<T>(PagingHelper.CalculateSkipCount(paging)),
+                PipelineStageDefinitionBuilder.Limit<T>(paging.PageSize)
+            }));
 }

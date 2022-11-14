@@ -1,4 +1,6 @@
-﻿using Notescrib.Core.Models.Exceptions;
+﻿using System.Linq.Expressions;
+using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Models.Enums;
 
@@ -23,6 +25,13 @@ internal class PermissionGuard : IPermissionGuard
         }
     }
 
+    public Expression<Func<T, bool>> ExpressionCanView<T>()
+        where T : IShareable
+        => x =>
+            (_userContext.UserId == x.OwnerId || x.SharingInfo.Visibility == VisibilityLevel.Public)
+            || (_userContext.UserId != null && x.SharingInfo.Visibility == VisibilityLevel.Hidden
+                                            && x.SharingInfo.AllowedIds.Contains(_userContext.UserId));
+
     public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
     {
         var userId = _userContext.UserId;
@@ -31,13 +40,9 @@ internal class PermissionGuard : IPermissionGuard
             return true;
         }
 
-        if (sharingInfo?.Visibility == VisibilityLevel.Hidden)
-        {
-            return userId != null
-                && sharingInfo.AllowedIds.Contains(userId);
-        }
-
-        return false;
+        return userId != null
+               && sharingInfo is { Visibility: VisibilityLevel.Hidden }
+               && sharingInfo.AllowedIds.Contains(userId);
     }
 
     public void GuardCanView(string ownerId, SharingInfo? sharingInfo = null)

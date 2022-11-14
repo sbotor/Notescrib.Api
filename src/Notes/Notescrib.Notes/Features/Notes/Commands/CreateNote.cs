@@ -65,7 +65,7 @@ public static class CreateNote
                 Name = request.Name,
                 OwnerId = ownerId,
                 WorkspaceId = request.WorkspaceId,
-                Folder = request.Folder,
+                Folder = request.Folder ?? string.Empty,
                 Content = new(),
                 SharingInfo = request.SharingInfo ?? new(),
             };

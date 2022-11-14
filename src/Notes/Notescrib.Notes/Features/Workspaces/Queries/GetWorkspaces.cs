@@ -12,7 +12,7 @@ namespace Notescrib.Notes.Features.Workspaces.Queries;
 
 public static class GetWorkspaces
 {
-    public record Query(Paging Paging, Sorting<WorkspacesSorting> Sorting) : IPagingSortingRequest<WorkspacesSorting, WorkspaceOverview>;
+    public record Query(Paging Paging, Sorting<WorkspacesSorting> Sorting) : IPagingSortingRequest<WorkspaceOverview, WorkspacesSorting>;
 
     internal class Handler : IRequestHandler<Query, PagedList<WorkspaceOverview>>
     {

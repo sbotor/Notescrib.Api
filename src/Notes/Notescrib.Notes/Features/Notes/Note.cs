@@ -1,13 +1,14 @@
-﻿using Notescrib.Notes.Models;
+﻿using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Features.Notes;
 
-public class Note
+public class Note : IShareable
 {
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string WorkspaceId { get; set; } = null!;
-    public string? Folder { get; set; }
+    public string Folder { get; set; } = null!;
     public NoteContent Content { get; set; } = null!;
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
