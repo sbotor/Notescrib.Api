@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Models;
@@ -11,9 +11,9 @@ namespace Notescrib.Identity.Features.Users.Commands;
 
 public static class CreateUser
 {
-    public record Command(string Email, string Password, string PasswordConfirmation) : IRequest<TokenResponse>;
+    public record Command(string Email, string Password, string PasswordConfirmation) : ICommand<TokenResponse>;
 
-    internal class Handler : IRequestHandler<Command, TokenResponse>
+    internal class Handler : ICommandHandler<Command, TokenResponse>
     {
         private readonly AppUserManager _userManager;
         private readonly IUserMapper _mapper;

@@ -3,14 +3,15 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Notescrib.Identity.Features.Auth.Providers;
 
-namespace Notescrib.Identity.Features.Auth.Providers;
+namespace Notescrib.Identity.Api.Features.Auth.Providers;
 
 internal class JwtProvider : IJwtProvider
 {
-    private readonly JwtSettings _settings;
+    private readonly IdentityJwtSettings _settings;
 
-    public JwtProvider(IOptions<JwtSettings> options)
+    public JwtProvider(IOptions<IdentityJwtSettings> options)
     {
         _settings = options.Value;
     }

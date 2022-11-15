@@ -23,9 +23,6 @@ public static class ServicesExtensions
         services.AddMediatR(ThisAssembly);
         services.AddFluentValidation(new[] { ThisAssembly });
 
-        services.AddTransient<IJwtProvider, JwtProvider>();
-        services.ConfigureSettings<JwtSettings>(config);
-        
         services.AddTransient<IUserMapper, UserMapper>();
         
         services.AddIdentityServices(config);

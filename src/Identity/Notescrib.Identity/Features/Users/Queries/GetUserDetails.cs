@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Users.Mappers;
@@ -8,9 +8,9 @@ namespace Notescrib.Identity.Features.Users.Queries;
 
 public static class GetUserDetails
 {
-    public record Query(string Id) : IRequest<UserDetails>;
+    public record Query(string Id) : IQuery<UserDetails>;
 
-    internal class Handler : IRequestHandler<Query, UserDetails>
+    internal class Handler : IQueryHandler<Query, UserDetails>
     {
         private readonly AppUserManager _userManager;
         private readonly IUserMapper _mapper;

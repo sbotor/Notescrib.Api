@@ -1,6 +1,4 @@
-﻿using Notescrib.Notes.Utils;
-
-namespace Notescrib.Notes.Features.Workspaces.Utils;
+﻿namespace Notescrib.Notes.Utils.Tree;
 
 public class TreeNode<T>
 {

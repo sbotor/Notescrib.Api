@@ -6,7 +6,7 @@ using Notescrib.Notes.Models;
 namespace Notescrib.Notes.Utils.Mediatr;
 
 internal class PagingValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, PagedList<TResponse>>
-    where TRequest : IPagingRequest<TResponse>
+    where TRequest : IPagingQuery<TResponse>
 {
     private readonly IValidator<Paging> _validator;
 

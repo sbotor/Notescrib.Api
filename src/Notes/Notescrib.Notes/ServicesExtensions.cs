@@ -7,7 +7,9 @@ using MongoDB.Driver;
 using Notescrib.Core.Extensions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Notes;
+using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
+using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Models.Configuration;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils.Mediatr;
@@ -55,6 +57,9 @@ public static class ServicesExtensions
         
         services.AddSingleton(db.GetCollection<Workspace>(settings.Collections.Workspaces));
         services.AddSingleton(db.GetCollection<Note>(settings.Collections.Notes));
+
+        services.AddScoped<IWorkspaceRepository, WorkspaceMongoRepository>();
+        services.AddScoped<INoteRepository, NoteMongoRepository>();
 
         return services;
     }

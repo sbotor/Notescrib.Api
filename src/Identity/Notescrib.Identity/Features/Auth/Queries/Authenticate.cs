@@ -1,6 +1,6 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Models;
@@ -11,9 +11,9 @@ namespace Notescrib.Identity.Features.Auth.Queries;
 
 public static class Authenticate
 {
-    public record Query(string Email, string Password) : IRequest<TokenResponse>;
+    public record Query(string Email, string Password) : IQuery<TokenResponse>;
 
-    internal class Handler : IRequestHandler<Query, TokenResponse>
+    internal class Handler : IQueryHandler<Query, TokenResponse>
     {
         private readonly AppUserManager _userManager;
         private readonly IJwtProvider _jwtProvider;

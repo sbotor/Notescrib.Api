@@ -9,17 +9,13 @@ public class Note : IShareable
     public string Name { get; set; } = null!;
     public string WorkspaceId { get; set; } = null!;
     public string Folder { get; set; } = null!;
-    public NoteContent Content { get; set; } = null!;
+    public IReadOnlyCollection<NoteSection> Contents { get; set; } = Array.Empty<NoteSection>();
+    public ICollection<string> Labels { get; set; } = new List<string>();
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
 }
 
-public class NoteContent
-{
-    public NoteSection? RootSection { get; set; } = null!;
-}
-
-public class NoteSection
+public class NoteSection : IChildrenCollectionTree<NoteSection>
 {
     public string Name { get; set; } = null!;
     public string Content { get; set; } = null!;

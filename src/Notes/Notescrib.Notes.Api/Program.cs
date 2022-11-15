@@ -1,10 +1,8 @@
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
+using Notescrib.Core.Api.Configuration;
 using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Api.Middleware;
 using Notescrib.Core.Extensions;
 using Notescrib.Notes;
-using Notescrib.Notes.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,16 +14,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 var jwtSettings = builder.Configuration.GetSettings<JwtSettings>()!;
-builder.Services.ConfigureJwtAuth(x =>
-{
-    x.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
-    x.ValidateIssuerSigningKey = true;
-    x.ValidateIssuer = true;
-    x.ValidIssuer = jwtSettings.Issuer;
-    x.ValidateAudience = true;
-    x.ValidAudience = jwtSettings.Audience;
-    x.ValidateLifetime = true;
-});
+builder.Services.ConfigureJwtAuth(jwtSettings);
         
 builder.Services.AddRequiredServices(builder.Configuration);
 

@@ -11,13 +11,12 @@ public static class PagingExtensions
 {
     public static async Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
         IEnumerable<Expression<Func<T, bool>>> filters,
-        Paging paging,
-        Sorting<TSort> sorting,
-        ISortingProvider<TSort> sortingProvider)
+        PagingSortingInfo<TSort> info,
+        CancellationToken cancellationToken = default)
         where TSort : struct, Enum
     {
         var countFacet = GetCountFacet<T>();
-        var dataFacet = GetDataFacet<T, TSort>(paging, sorting, sortingProvider);
+        var dataFacet = GetDataFacet<T, TSort>(info.Paging, info.Sorting, info.SortingProvider);
 
         var query = source.Aggregate();
         foreach (var filter in filters)
@@ -37,16 +36,15 @@ public static class PagingExtensions
         var data = facets.First(x => x.Name == dataFacet.Name)
             .Output<T>();
 
-        return new PagedList<T>(data, paging.Page, paging.PageSize, (int)count);
+        return new PagedList<T>(data, info.Paging.Page, info.Paging.PageSize, (int)count);
     }
 
     public static Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
         Expression<Func<T, bool>> filter,
-        Paging paging,
-        Sorting<TSort> sorting,
-        ISortingProvider<TSort> sortingProvider)
+        PagingSortingInfo<TSort> info,
+        CancellationToken cancellationToken = default)
         where TSort : struct, Enum
-        => source.FindPagedAsync(new[] { filter }, paging, sorting, sortingProvider);
+        => source.FindPagedAsync(new[] { filter }, info, cancellationToken);
 
     private static SortDefinition<T> GetSortDefinition<T, TSort>(Sorting<TSort> sorting, ISortingProvider<TSort> sortingProvider)
         where TSort : struct, Enum

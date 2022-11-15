@@ -1,31 +1,30 @@
 ﻿using MediatR;
-using MongoDB.Driver;
+using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Models;
+using Notescrib.Notes.Features.Workspaces.Repositories;
+using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Services;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateFolder
 {
-    public record Command(string WorkspaceId, string Name, string? Parent) : IRequest;
+    public record Command(string WorkspaceId, string Name, string? Parent) : ICommand;
 
-    internal class Handler : IRequestHandler<Command>
+    internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoCollection<Workspace> _collection;
+        private readonly IWorkspaceRepository _repository;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoCollection<Workspace> collection, IPermissionGuard permissionGuard)
+        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard)
         {
-            _collection = collection;
+            _repository = repository;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _collection
-                .Find(x => x.Id == request.WorkspaceId)
-                .FirstOrDefaultAsync(cancellationToken);
+            var workspace = await _repository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
             if (workspace == null)
             {
                 throw new NotFoundException<Workspace>(request.WorkspaceId);
@@ -34,10 +33,12 @@ public static class CreateFolder
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
             var folder = new Folder { Name = request.Name };
-            workspace.FolderTree.Add(folder, request.Parent);
+            var tree = new FolderTree(workspace.Folders);
+            
+            tree.Add(folder, request.Parent);
+            workspace.Folders = tree.Roots.ToList();
 
-            await _collection.ReplaceOneAsync(x => x.Id == workspace.Id, workspace,
-                cancellationToken: cancellationToken);
+            await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
 
             return Unit.Value;
         }

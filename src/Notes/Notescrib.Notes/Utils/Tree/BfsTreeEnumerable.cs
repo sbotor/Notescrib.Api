@@ -1,12 +1,13 @@
 ﻿using System.Collections;
+using Notescrib.Notes.Contracts;
 
-namespace Notescrib.Notes.Features.Workspaces.Utils;
+namespace Notescrib.Notes.Utils.Tree;
 
-public abstract class TreeEnumerable<TSource, TDest> : IEnumerable<TDest>
+public abstract class BfsTreeEnumerable<TSource, TDest> : IEnumerable<TDest>
 {
     private readonly IEnumerable<TSource> _rootItems;
 
-    protected TreeEnumerable(IEnumerable<TSource> rootItems)
+    protected BfsTreeEnumerable(IEnumerable<TSource> rootItems)
     {
         _rootItems = rootItems;
     }
@@ -47,11 +48,25 @@ public abstract class TreeEnumerable<TSource, TDest> : IEnumerable<TDest>
     protected abstract IEnumerable<TSource> GetChildren(TSource item);
 }
 
-public abstract class TreeEnumerable<T> : TreeEnumerable<T, T>
+public class BfsTreeEnumerable<T> : BfsTreeEnumerable<T, T>
+    where T : IChildrenTree<IEnumerable<T>, T>
 {
-    protected TreeEnumerable(IEnumerable<T> rootItems) : base(rootItems)
+    public BfsTreeEnumerable(IEnumerable<T> rootItems) : base(rootItems)
     {
     }
 
     protected override T GetDestinationItem(T source, int level) => source;
+    protected override IEnumerable<T> GetChildren(T item) => item.Children;
+}
+
+public class BfsTreeNodeEnumerable<T> : BfsTreeEnumerable<T, TreeNode<T>>
+    where T : IChildrenTree<IEnumerable<T>, T>
+{
+    public BfsTreeNodeEnumerable(IEnumerable<T> rootItems)
+        : base(rootItems)
+    {
+    }
+
+    protected override TreeNode<T> GetDestinationItem(T source, int level) => new(source, level);
+    protected override IEnumerable<T> GetChildren(T item) => item.Children;
 }

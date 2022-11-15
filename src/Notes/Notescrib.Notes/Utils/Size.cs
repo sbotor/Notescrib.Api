@@ -15,5 +15,6 @@ public static class Size
     public static class Counts
     {
         public const int MaxFolders = 50;
+        public const int MaxNoteLength = 10_000;
     }
 }

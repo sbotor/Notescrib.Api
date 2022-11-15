@@ -1,23 +1,22 @@
-﻿using MediatR;
-using MongoDB.Driver;
+﻿using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Models;
+using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateWorkspace
 {
-    public record Command(string Name) : IRequest<string>;
+    public record Command(string Name) : ICommand<string>;
 
-    internal class Handler : IRequestHandler<Command, string>
+    internal class Handler : ICommandHandler<Command, string>
     {
-        private readonly IMongoCollection<Workspace> _collection;
+        private readonly IWorkspaceRepository _repository;
         private readonly IUserContextProvider _userContext;
 
-        public Handler(IMongoCollection<Workspace> collection, IUserContextProvider userContext)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext)
         {
-            _collection = collection;
+            _repository = repository;
             _userContext = userContext;
         }
 
@@ -29,12 +28,17 @@ public static class CreateWorkspace
                 throw new AppException("No user context found.");
             }
 
+            if (await _repository.ExistsAsync(request.Name, cancellationToken))
+            {
+                throw new DuplicationException<Workspace>();
+            }
+            
             var workspace = new Workspace
             {
                 Name = request.Name,
                 OwnerId = ownerId
             };
-            await _collection.InsertOneAsync(workspace, cancellationToken: cancellationToken);
+            await _repository.AddWorkspaceAsync(workspace, cancellationToken);
 
             return workspace.Id;
         }
