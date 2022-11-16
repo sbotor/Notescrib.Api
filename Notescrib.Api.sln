@@ -1,16 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "src\Identity\Notescrib.Identity\Notescrib.Identity.csproj", "{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "src\Identity\src\Notescrib.Identity\Notescrib.Identity.csproj", "{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes", "src\Notes\Notescrib.Notes\Notescrib.Notes.csproj", "{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes", "src\Notes\src\Notescrib.Notes\Notescrib.Notes.csproj", "{FAC7FEB8-AF48-42EB-AB1F-3137E584FF65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Api", "src\Notes\Notescrib.Notes.Api\Notescrib.Notes.Api.csproj", "{F7694EA6-FAF7-4341-878C-E3E88825CFAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Api", "src\Notes\src\Notescrib.Notes.Api\Notescrib.Notes.Api.csproj", "{F7694EA6-FAF7-4341-878C-E3E88825CFAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity.Api", "src\Identity\Notescrib.Identity.Api\Notescrib.Identity.Api.csproj", "{67D19CD3-A999-4F38-AD2C-A746D54AFAC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity.Api", "src\Identity\src\Notescrib.Identity.Api\Notescrib.Identity.Api.csproj", "{67D19CD3-A999-4F38-AD2C-A746D54AFAC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core.Api", "src\Notescrib.Core.Api\Notescrib.Core.Api.csproj", "{EA2379BA-4331-4559-97F4-DC4996FB7DFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core.Api", "src\Core\src\Notescrib.Core.Api\Notescrib.Core.Api.csproj", "{EA2379BA-4331-4559-97F4-DC4996FB7DFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core", "src\Notescrib.Core\Notescrib.Core.csproj", "{384BA102-B547-47E1-85DA-BF7EB8529AA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core", "src\Core\src\Notescrib.Core\Notescrib.Core.csproj", "{384BA102-B547-47E1-85DA-BF7EB8529AA0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{369B9FBE-A86B-4733-838E-B70D6206F25A}"
 EndProject
@@ -19,6 +19,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{9A76BB36-CB0B-49B9-B231-9AE1BD698602}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Api", "src\Notescrib.Api\Notescrib.Api.csproj", "{963136DE-60A4-4F4C-A438-4EF1AABF3CD7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8BFC73EE-B7C8-45E3-BDFE-5E67C92B1805}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Tests", "src\Notes\tests\Notescrib.Notes.Tests\Notescrib.Notes.Tests.csproj", "{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +58,10 @@ Global
 		{963136DE-60A4-4F4C-A438-4EF1AABF3CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{963136DE-60A4-4F4C-A438-4EF1AABF3CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{963136DE-60A4-4F4C-A438-4EF1AABF3CD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3D2B00DD-675F-4808-B7FD-F9E1FBDEA43D} = {369B9FBE-A86B-4733-838E-B70D6206F25A}
@@ -62,5 +70,7 @@ Global
 		{F7694EA6-FAF7-4341-878C-E3E88825CFAC} = {1E4E36F9-B745-43FE-A6B8-6AFE09059BBA}
 		{384BA102-B547-47E1-85DA-BF7EB8529AA0} = {9A76BB36-CB0B-49B9-B231-9AE1BD698602}
 		{EA2379BA-4331-4559-97F4-DC4996FB7DFE} = {9A76BB36-CB0B-49B9-B231-9AE1BD698602}
+		{8BFC73EE-B7C8-45E3-BDFE-5E67C92B1805} = {1E4E36F9-B745-43FE-A6B8-6AFE09059BBA}
+		{2A8DA8E0-DA50-4750-8C12-F4D33F8E2007} = {8BFC73EE-B7C8-45E3-BDFE-5E67C92B1805}
 	EndGlobalSection
 EndGlobal
