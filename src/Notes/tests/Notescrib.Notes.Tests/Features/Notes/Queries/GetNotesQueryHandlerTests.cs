@@ -57,7 +57,7 @@ public class GetNotesQueryHandlerTests
         {
             Name = $"Note {Counter}",
             WorkspaceId = workspaceId,
-            Folder = folder,
+            FolderId = folder,
             Id = Counter++.ToString(),
             OwnerId = ownerId,
             SharingInfo = sharingInfo ?? new()

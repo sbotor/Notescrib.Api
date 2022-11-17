@@ -30,7 +30,7 @@ public static class CreateWorkspace
                 throw new AppException("No user context found.");
             }
 
-            if (await _repository.ExistsAsync(request.Name, cancellationToken))
+            if (await _repository.ExistsAsync(ownerId, request.Name, cancellationToken))
             {
                 throw new DuplicationException<Workspace>();
             }
@@ -52,7 +52,7 @@ public static class CreateWorkspace
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.Max);
+                .MaximumLength(Size.Name.MaxLength);
         }
     }
 }

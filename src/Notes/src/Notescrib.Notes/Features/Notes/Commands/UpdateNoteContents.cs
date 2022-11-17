@@ -27,7 +27,7 @@ public static class UpdateNoteContents
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _repository.GetByIdAsync(request.Id, cancellationToken);
+            var note = await _repository.GetNoteByIdAsync(request.Id, cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException<Note>();

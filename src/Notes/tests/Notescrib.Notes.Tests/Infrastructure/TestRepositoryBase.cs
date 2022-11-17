@@ -35,4 +35,10 @@ public class TestRepositoryBase<T, TSort> where TSort : struct, Enum
     
     protected Task<T?> GetSingleOrDefault(Func<T, bool> predicate)
         => Task.FromResult(Items.SingleOrDefault(predicate));
+
+    protected Task Delete(Func<T, bool> predicate)
+    {
+        Items = Items.Except(Items.Where(predicate)).ToList();
+        return Task.CompletedTask;
+    }
 }

@@ -7,10 +7,10 @@ public class CreateNoteRequest
 {
     public string Name { get; set; } = null!;
     public string WorkspaceId { get; set; } = null!;
-    public string? Folder { get; set; }
+    public string? FolderId { get; set; }
     public SharingInfo? SharingInfo { get; set; }
     public IReadOnlyCollection<string> Labels { get; set; } = Array.Empty<string>();
 
     public CreateNote.Command ToCommand()
-        => new(Name, WorkspaceId, Folder ?? string.Empty, Labels, SharingInfo ?? new());
+        => new(Name, WorkspaceId, FolderId ?? string.Empty, Labels, SharingInfo ?? new());
 }

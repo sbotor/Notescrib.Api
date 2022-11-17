@@ -32,7 +32,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
     [Fact]
     public Task Handle_WhenParentFolderDoesNotExist_ThrowsNotFoundException()
         => Assert.ThrowsAnyAsync<NotFoundException>(
-            () => _sut.Handle(new("1", "Folder 2.0", "Folder 2"), default));
+            () => _sut.Handle(new("1", "Folder 2.0", "F2"), default));
 
     [Fact]
     public Task Handle_WhenFolderAlreadyExist_ThrowsDuplicationException()
@@ -51,12 +51,12 @@ public class CreateFolderWorkspaceCommandHandlerTests
     [Fact]
     public async Task Handle_WhenNestingIsTooDeep_ThrowsAppException()
     {
-        var folder = new Folder { Name = "Nested 0" };
+        var folder = new Folder { Id = "N0", Name = "Nested 0" };
         var tempFolder = folder;
 
         for (var i = 1; i <= Size.NestingLevel.Max; i++)
         {
-            var newFolder = new Folder { Name = $"Nested {i}" };
+            var newFolder = new Folder { Id = "N{i}", Name = $"Nested {i}" };
             tempFolder.Children = new List<Folder> { newFolder };
             tempFolder = newFolder;
         }
@@ -67,7 +67,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
             () => _sut.Handle(new(
                     "1",
                     $"Nested {Size.NestingLevel.Max + 1}",
-                    $"Nested {Size.NestingLevel.Max}"),
+                    $"N{Size.NestingLevel.Max}"),
                 default));
     }
 

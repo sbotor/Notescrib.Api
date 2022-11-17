@@ -1,5 +1,4 @@
 ﻿using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
 
 namespace Notescrib.Notes.Tests.Features.Workspaces;
 
@@ -13,8 +12,24 @@ public static class WorkspaceDataSetup
             Name = "Workspace",
             Folders = new List<Folder>
             {
-                new() { Name = "Folder 0", Children = new List<Folder> { new() { Name = "Folder 0.0" } } },
-                new() { Name = "Folder 1" }
+                new()
+                {
+                    Id = "F0",
+                    Name = "Folder 0",
+                    Children = new List<Folder>
+                    { 
+                        new()
+                        {
+                            Id = "F0.0",
+                            Name = "Folder 0.0"
+                        }
+                    }
+                },
+                new()
+                {
+                    Id = "F1",
+                    Name = "Folder 1"
+                }
             }
         });
 }

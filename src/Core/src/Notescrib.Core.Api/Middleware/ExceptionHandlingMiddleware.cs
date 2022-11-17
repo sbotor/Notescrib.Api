@@ -26,55 +26,52 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An unhandled exception occured.");
             await HandleException(e, context);
         }
     }
 
-    private static async Task HandleException(Exception exception, HttpContext context)
+    private async Task HandleException(Exception exception, HttpContext context)
     {
         var statusCode = HttpStatusCode.InternalServerError;
         var message = "An unexpected error occured.";
 
         if (exception is AppException appException)
         {
-            switch (appException)
-            {
-                case NotFoundException notFound:
-                    statusCode = HttpStatusCode.BadRequest;
-                    message = GetMessageOrDefault(notFound, "The resource was not found.");
-                    break;
-                
-                case ForbiddenException forbidden:
-                    statusCode = HttpStatusCode.Forbidden;
-                    message = GetMessageOrDefault(forbidden, "Invalid permissions.");
-                    break;
-                
-                case DuplicationException duplication:
-                    statusCode = HttpStatusCode.BadRequest;
-                    message = GetMessageOrDefault(duplication, "The resource already exists.");
-                    break;
-
-                default:
-                    statusCode = HttpStatusCode.BadRequest;
-                    break;
-            }
+            HandleAppException(appException, out message);
         }
-        else if (exception is ValidationException validation)
+        else
         {
-            statusCode = HttpStatusCode.BadRequest;
-            
-            var errors = validation.Errors.GroupBy(x => x.PropertyName)
-                .ToDictionary(
-                    x => x.Key,
-                    g => g.Distinct()
-                        .SelectMany(x => x.ErrorMessage).ToArray());
-
-            message = JsonSerializer.Serialize(errors);
+            _logger.LogError(exception, "An unhandled exception occured.");
         }
 
         context.Response.StatusCode = (int)statusCode;
         await context.Response.WriteAsJsonAsync(message);
+    }
+
+    private HttpStatusCode HandleAppException(AppException exception, out string message)
+    {
+        switch (exception)
+        {
+            case NotFoundException notFound:
+                message = GetMessageOrDefault(notFound, "The resource was not found.");
+                return HttpStatusCode.BadRequest;
+                
+            case ForbiddenException forbidden:
+                message = GetMessageOrDefault(forbidden, "Invalid permissions.");
+                return HttpStatusCode.Forbidden;
+                
+            case DuplicationException duplication:
+                message = GetMessageOrDefault(duplication, "The resource already exists.");
+                return HttpStatusCode.BadRequest;
+            
+            case RequestValidationException validation:
+                message = validation.ToErrorModel().Serialize();
+                return HttpStatusCode.BadRequest;
+
+            default:
+                message = "Invalid request.";
+                return HttpStatusCode.BadRequest;
+        }
     }
 
     private static string GetMessageOrDefault(AppException exception, string message)

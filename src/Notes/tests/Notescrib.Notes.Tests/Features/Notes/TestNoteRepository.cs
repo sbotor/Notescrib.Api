@@ -12,14 +12,14 @@ public class TestNoteRepository : TestRepositoryBase<Note, NotesSorting>, INoteR
 {
     public Task<PagedList<Note>> GetNotesAsync(
         string? workspaceId,
-        string? folder,
+        string? folderId,
         IPermissionGuard permissionGuard,
         PagingSortingInfo<NotesSorting> info,
         CancellationToken cancellationToken = default)
     {
         bool Filter(Note x)
             => (workspaceId == null || x.WorkspaceId == workspaceId)
-               && (folder == null || x.Folder == folder)
+               && (folderId == null || x.FolderId == folderId)
                && permissionGuard.ExpressionCanView<Note>()
                 .Compile().Invoke(x);
 
@@ -31,14 +31,18 @@ public class TestNoteRepository : TestRepositoryBase<Note, NotesSorting>, INoteR
 
     public Task<bool> ExistsAsync(
         string workspaceId,
-        string folder,
+        string folderId,
         string name,
         CancellationToken cancellationToken = default)
-        => Exists(x => x.WorkspaceId == workspaceId && x.Folder == folder && x.Name == name);
+        => Exists(x => x.WorkspaceId == workspaceId && x.FolderId == folderId && x.Name == name);
 
-    public Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public Task<Note?> GetNoteByIdAsync(string id, CancellationToken cancellationToken = default)
         => GetSingleOrDefault(x => x.Id == id);
 
     public Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default)
         => Update(note, x => x.Id == note.Id);
+
+    public Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null, CancellationToken cancellationToken = default)
+        => Delete(x => x.WorkspaceId == workspaceId
+            && (folderIds == null || folderIds.Contains(x.FolderId)));
 }

@@ -12,7 +12,7 @@ public class NoteDetailsMapper : IMapper<Note, NoteDetails>
             Id = item.Id,
             Name = item.Name,
             WorkspaceId = item.WorkspaceId,
-            Folder = item.Folder,
+            FolderId = item.FolderId,
             Labels = item.Labels,
             OwnerId = item.OwnerId,
             SharingInfo = item.SharingInfo,

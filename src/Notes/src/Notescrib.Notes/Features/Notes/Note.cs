@@ -8,7 +8,7 @@ public class Note : IShareable
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string WorkspaceId { get; set; } = null!;
-    public string Folder { get; set; } = null!;
+    public string FolderId { get; set; } = null!;
     public IReadOnlyCollection<NoteSection> Contents { get; set; } = Array.Empty<NoteSection>();
     public ICollection<string> Labels { get; set; } = new List<string>();
     public string OwnerId { get; set; } = null!;

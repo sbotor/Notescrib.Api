@@ -18,7 +18,7 @@ public class NoteMongoRepository : INoteRepository
 
     public Task<PagedList<Note>> GetNotesAsync(
         string? workspaceId,
-        string? folder,
+        string? folderId,
         IPermissionGuard permissionGuard,
         PagingSortingInfo<NotesSorting> info,
         CancellationToken cancellationToken = default)
@@ -26,7 +26,7 @@ public class NoteMongoRepository : INoteRepository
         var filters = new[]
         {
             x => (workspaceId == null || x.WorkspaceId == workspaceId)
-                 && (folder == null || x.Folder == folder),
+                 && (folderId == null || x.FolderId == folderId),
             permissionGuard.ExpressionCanView<Note>()
         };
 
@@ -41,24 +41,30 @@ public class NoteMongoRepository : INoteRepository
 
     public async Task<bool> ExistsAsync(
         string workspaceId,
-        string folder,
+        string folderId,
         string name,
         CancellationToken cancellationToken = default)
     {
         var found = await _collection.Find(
                 x => x.WorkspaceId == workspaceId
-                        && x.Folder == folder && x.Name == name)
+                        && x.FolderId == folderId && x.Name == name)
             .FirstOrDefaultAsync(cancellationToken);
 
         return found != null;
     }
 
-    public Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public Task<Note?> GetNoteByIdAsync(string id, CancellationToken cancellationToken = default)
         => _collection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken)!;
 
     public Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default)
         => _collection.FindOneAndReplaceAsync(
             x => x.Id == note.Id,
             note,
+            cancellationToken: cancellationToken);
+
+    public Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null, CancellationToken cancellationToken = default)
+        => _collection.DeleteManyAsync(
+            x => x.WorkspaceId == workspaceId
+                && (folderIds == null || folderIds.Contains(x.FolderId)),
             cancellationToken: cancellationToken);
 }

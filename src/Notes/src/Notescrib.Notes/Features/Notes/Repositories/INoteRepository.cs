@@ -9,7 +9,7 @@ public interface INoteRepository
 {
     Task<PagedList<Note>> GetNotesAsync(
         string? workspaceId,
-        string? folder,
+        string? folderId,
         IPermissionGuard permissionGuard,
         PagingSortingInfo<NotesSorting> info,
         CancellationToken cancellationToken = default);
@@ -18,11 +18,13 @@ public interface INoteRepository
 
     Task<bool> ExistsAsync(
         string workspaceId,
-        string folder,
+        string folderId,
         string name,
         CancellationToken cancellationToken = default);
 
-    Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<Note?> GetNoteByIdAsync(string id, CancellationToken cancellationToken = default);
     
     Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default);
+    
+    Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null, CancellationToken cancellationToken = default);
 }

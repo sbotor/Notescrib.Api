@@ -7,7 +7,7 @@ public class NoteOverview
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string WorkspaceId { get; set; } = null!;
-    public string Folder { get; set; } = null!;
+    public string FolderId { get; set; } = null!;
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
 }

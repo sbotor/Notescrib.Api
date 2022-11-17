@@ -15,5 +15,6 @@ public interface IWorkspaceRepository
 
     Task AddWorkspaceAsync(Workspace workspace, CancellationToken cancellationToken = default);
     Task UpdateWorkspaceAsync(Workspace workspace, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(string ownerId, string name, CancellationToken cancellationToken = default);
+    Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default);
 }

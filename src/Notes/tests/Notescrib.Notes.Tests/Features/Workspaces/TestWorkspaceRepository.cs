@@ -24,6 +24,9 @@ public class TestWorkspaceRepository : TestRepositoryBase<Workspace, WorkspacesS
     public Task UpdateWorkspaceAsync(Workspace workspace, CancellationToken cancellationToken = default)
         => Update(workspace, x => x.Id == workspace.Id);
 
-    public Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default)
-        => Exists(x => x.Name == name);
+    public Task<bool> ExistsAsync(string ownerId, string name, CancellationToken cancellationToken = default)
+        => Exists(x => x.OwnerId == ownerId && x.Name == name);
+
+    public Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default)
+        => Delete(x => x.Id == workspaceId);
 }

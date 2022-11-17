@@ -12,7 +12,7 @@ namespace Notescrib.Notes.Features.Notes.Commands;
 
 public static class CreateNote
 {
-    public record Command(string Name, string WorkspaceId, string Folder, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
+    public record Command(string Name, string WorkspaceId, string FolderId, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
         : ICommand<string>;
 
     internal class Handler : ICommandHandler<Command, string>
@@ -50,13 +50,13 @@ public static class CreateNote
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            if (!string.IsNullOrEmpty(request.Folder)
-                && workspace.Folders.All(x => x.Name != request.Folder))
+            if (!string.IsNullOrEmpty(request.FolderId)
+                && workspace.Folders.All(x => x.Id != request.FolderId))
             {
                 throw new NotFoundException<Folder>();
             }
             
-            if (await _noteRepository.ExistsAsync(request.WorkspaceId, request.Folder, request.Name, cancellationToken))
+            if (await _noteRepository.ExistsAsync(request.WorkspaceId, request.FolderId, request.Name, cancellationToken))
             {
                 throw new DuplicationException<Note>();
             }
@@ -66,9 +66,9 @@ public static class CreateNote
                 Name = request.Name,
                 OwnerId = ownerId,
                 WorkspaceId = request.WorkspaceId,
-                Folder = request.Folder,
+                FolderId = request.FolderId,
                 Contents = Array.Empty<NoteSection>(),
-                SharingInfo = request.SharingInfo ?? new(),
+                SharingInfo = request.SharingInfo,
                 Labels = request.Labels.ToArray()
             };
 
@@ -84,12 +84,12 @@ public static class CreateNote
             RuleFor(x => x.WorkspaceId)
                 .NotEmpty();
 
-            RuleFor(x => x.Folder)
+            RuleFor(x => x.FolderId)
                 .NotNull();
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.Max);
+                .MaximumLength(Size.Name.MaxLength);
 
             RuleFor(x => x.Labels.Count)
                 .LessThanOrEqualTo(Size.Note.MaxLabelCount);

@@ -36,12 +36,15 @@ public class WorkspaceMongoRepository : IWorkspaceRepository
             workspace,
             cancellationToken: cancellationToken);
 
-    public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(string ownerId, string name, CancellationToken cancellationToken = default)
     {
         var found = await _collection
-            .Find(x => x.Name == name)
+            .Find(x => x.OwnerId == ownerId && x.Name == name)
             .FirstOrDefaultAsync(cancellationToken);
 
         return found != null;
     }
+
+    public Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default)
+        => _collection.DeleteManyAsync(x => x.Id == workspaceId, cancellationToken);
 }

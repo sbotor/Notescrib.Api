@@ -27,7 +27,7 @@ public static class GetNote
 
         public async Task<NoteDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var found = await _repository.GetByIdAsync(request.Id, cancellationToken);
+            var found = await _repository.GetNoteByIdAsync(request.Id, cancellationToken);
             if (found == null)
             {
                 throw new NotFoundException<Note>();

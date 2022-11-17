@@ -11,7 +11,7 @@ public class NoteOverviewMapper : IMapper<Note, NoteOverview>
             Id = item.Id,
             Name = item.Name,
             WorkspaceId = item.WorkspaceId,
-            Folder = item.Folder,
+            FolderId = item.FolderId,
             OwnerId = item.OwnerId,
             SharingInfo = item.SharingInfo
         };

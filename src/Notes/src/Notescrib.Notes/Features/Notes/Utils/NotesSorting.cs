@@ -4,8 +4,7 @@ namespace Notescrib.Notes.Features.Notes.Utils;
 
 public enum NotesSorting
 {
-    Name,
-    Folder
+    Name
 }
 
 internal class NotesSortingProvider : ISortingProvider<NotesSorting>
@@ -14,7 +13,6 @@ internal class NotesSortingProvider : ISortingProvider<NotesSorting>
         => value switch
         {
             NotesSorting.Name => nameof(Note.Name),
-            NotesSorting.Folder => nameof(Note.Folder),
             _ => throw new NotSupportedException()
         };
 }

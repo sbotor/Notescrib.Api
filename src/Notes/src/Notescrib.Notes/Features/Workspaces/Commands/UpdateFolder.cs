@@ -9,9 +9,9 @@ using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
-public static class CreateFolder
+public static class UpdateFolder
 {
-    public record Command(string WorkspaceId, string Name, string? ParentId) : ICommand;
+    public record Command(string WorkspaceId, string Id, string Name, string? ParentId) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
@@ -29,23 +29,16 @@ public static class CreateFolder
             var workspace = await _repository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>(request.WorkspaceId);
+                throw new NotFoundException<Workspace>();
             }
             
-            _permissionGuard.GuardCanEdit(workspace.OwnerId);
+            _permissionGuard.GuardCanEdit(request.WorkspaceId);
 
-            var folder = new Folder
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = request.Name,
-            };
             var tree = new FolderTree(workspace.Folders);
-            
-            tree.Add(folder, request.ParentId);
-            workspace.Folders = tree.Roots.ToList();
+            tree.Move(request.Id, request.ParentId);
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
-
+            
             return Unit.Value;
         }
     }
@@ -54,6 +47,9 @@ public static class CreateFolder
     {
         public Validator()
         {
+            RuleFor(x => x.Id)
+                .NotEmpty();
+            
             RuleFor(x => x.WorkspaceId)
                 .NotEmpty();
 

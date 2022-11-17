@@ -20,5 +20,5 @@ public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>
         => source.MapTree(MapFolderOverview).ToList();
 
     private static FolderOverview MapFolderOverview(Folder item)
-        => new() { Name = item.Name, Children = new List<FolderOverview>() };
+        => new() { Id = item.Id, Name = item.Name, Children = new List<FolderOverview>() };
 }
