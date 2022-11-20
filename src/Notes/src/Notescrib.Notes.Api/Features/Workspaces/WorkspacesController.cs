@@ -26,11 +26,15 @@ public class WorkspacesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserWorkspaces([FromQuery] GetWorkspacesRequest request, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
-    
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateWorkspace(CreateWorkspaceRequest request, CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
+    public async Task<IActionResult> CreateWorkspace(CreateWorkspaceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var id = await _mediator.Send(request.ToCommand(), cancellationToken);
+        return CreatedAtAction(nameof(GetWorkspace), new { id }, null);
+    }
 
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -55,7 +59,7 @@ public class WorkspacesController : ControllerBase
     public async Task<IActionResult> CreateFolder(string id, CreateFolderRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(request.ToCommand(id), cancellationToken);
-        return CreatedAtAction(nameof(GetUserWorkspaces), null);
+        return CreatedAtAction(nameof(GetWorkspace),  new { id }, null);
     }
     
     [HttpPut("{id}/folder/{folderId}")]

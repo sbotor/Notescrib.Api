@@ -4,12 +4,12 @@ using Notescrib.Core.Models.Exceptions;
 
 namespace Notescrib.Core.Cqrs.Behaviors;
 
-public class RequestLoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
-    private readonly ILogger<RequestLoggingBehavior<TRequest, TResponse>> _logger;
+    private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
-    public RequestLoggingBehavior(ILogger<RequestLoggingBehavior<TRequest, TResponse>> logger)
+    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
     {
         _logger = logger;
     }
@@ -28,12 +28,12 @@ public class RequestLoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
         }
         catch (AppException e)
         {
-            _logger.LogWarning(e, "Exception when executing {reqName}", reqName);
+            _logger.LogWarning(e, "Exception when executing {reqName}.", reqName);
             throw;
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Finished executing {reqName} with unexpected exception.", reqName);
+            _logger.LogError(e, "unexpected exception when executing {reqName}.", reqName);
             throw;
         }
     }

@@ -37,7 +37,7 @@ public class ExceptionHandlingMiddleware
 
         if (exception is AppException appException)
         {
-            HandleAppException(appException, out message);
+            statusCode = HandleAppException(appException, out message);
         }
         else
         {
@@ -62,7 +62,7 @@ public class ExceptionHandlingMiddleware
                 
             case DuplicationException duplication:
                 message = GetMessageOrDefault(duplication, "The resource already exists.");
-                return HttpStatusCode.BadRequest;
+                return HttpStatusCode.UnprocessableEntity;
             
             case RequestValidationException validation:
                 message = validation.ToErrorModel().Serialize();

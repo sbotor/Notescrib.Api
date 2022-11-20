@@ -62,9 +62,13 @@ public class NoteMongoRepository : INoteRepository
             note,
             cancellationToken: cancellationToken);
 
-    public Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null, CancellationToken cancellationToken = default)
-        => _collection.DeleteManyAsync(
-            x => x.WorkspaceId == workspaceId
-                && (folderIds == null || folderIds.Contains(x.FolderId)),
+    public Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null,
+        CancellationToken cancellationToken = default)
+    => folderIds != null
+        ? _collection.DeleteManyAsync(
+            x => x.WorkspaceId == workspaceId && folderIds.Contains(x.FolderId),
+            cancellationToken: cancellationToken)
+        : _collection.DeleteManyAsync(
+            x => x.WorkspaceId == workspaceId,
             cancellationToken: cancellationToken);
 }

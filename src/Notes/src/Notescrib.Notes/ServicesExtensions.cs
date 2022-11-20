@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Notes;
@@ -26,6 +27,8 @@ public static class ServicesExtensions
     {
         services.AddMongoDb(config);
 
+        services.AddMediatR();
+        
         services
             .AddHttpContextAccessor()
             .AddScoped<IPermissionGuard, PermissionGuard>()
@@ -41,6 +44,7 @@ public static class ServicesExtensions
     private static IServiceCollection AddMediatR(this IServiceCollection services)
     {
         services.AddMediatrWithValidation(ThisAssembly)
+            .AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddPipelineBehavior(typeof(PagingValidationBehavior<,>));
         
         return services;
