@@ -1,0 +1,24 @@
+version: '3.5'
+
+services:
+  
+  identity-api:
+    image: identity.api
+    build:
+      context: src
+      dockerfile: Services/Identity/Notescrib.Identity.Api/Dockerfile
+
+  notes-api:
+    image: notes-api
+    build:
+      context: src
+      dockerfile: Services/Notes/Notescrib.Notes.Api/Dockerfile
+
+  api-gateway:
+    image: api-gateway
+    build:
+      context: src
+      dockerfile: Notescrib.ApiGateway/Dockerfile
+    depends_on:
+      - identity-api
+      - notes-api

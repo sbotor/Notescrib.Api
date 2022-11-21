@@ -34,9 +34,9 @@ public static class ServicesExtensions
     {
         services.AddDbContext<UserDbContext>(options =>
         {
-            options.UseSqlServer(config.GetConnectionString(UserDbContext.DefaultConStrName));
+            options.UseNpgsql(config.GetConnectionString(UserDbContext.DefaultConStrName));
         });
-
+        
         services.AddIdentityCore<AppUser>(ConfigureIdentityOptions)
             .AddEntityFrameworkStores<UserDbContext>()
             .AddUserManager<AppUserManager>();

@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Notescrib.Notes\Notescrib.Notes.csproj" />
+      <ProjectReference Include="..\Notescrib.Notes\Notescrib.Notes.csproj" />
     </ItemGroup>
 
 </Project>

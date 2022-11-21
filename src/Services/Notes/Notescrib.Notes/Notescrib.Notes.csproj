@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Core\src\Notescrib.Core\Notescrib.Core.csproj" />
+      <ProjectReference Include="..\..\..\Core\Notescrib.Core\Notescrib.Core.csproj" />
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,7 @@ using Notescrib.Notes;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().ConfigureSerialization();
+builder.Services.AddHealthChecks();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -27,6 +28,8 @@ if (app.Environment.IsDevelopment())
 
     app.UseDeveloperExceptionPage();
 }
+
+app.UseHealthChecks("health");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

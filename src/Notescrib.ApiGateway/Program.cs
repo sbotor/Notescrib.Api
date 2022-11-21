@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Notescrib.Core.Api.Configuration;
 using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Extensions;
@@ -15,6 +16,8 @@ builder.Services.AddOcelot();
 var jwtSettings = builder.Configuration.GetSettings<JwtSettings>()!;
 builder.Services.ConfigureJwtAuth(jwtSettings);
 
+builder.Services.AddHealthChecks();
+
 var allowedOrigins = builder.Configuration.GetSettings<string[]>("AllowedOrigins");
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy
@@ -25,6 +28,9 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors();
+
+app.UseHealthChecks("/health");
+
 await app.UseOcelot();
 
 app.Run();
