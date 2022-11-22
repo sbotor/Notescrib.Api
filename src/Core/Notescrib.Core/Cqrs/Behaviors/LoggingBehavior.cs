@@ -20,21 +20,11 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         CancellationToken cancellationToken)
     {
         var reqName = typeof(TRequest).FullName;
-        _logger.LogInformation("Executing request {reqName}.", reqName);
+        _logger.LogInformation("Executing request {req}.", reqName);
 
-        try
-        {
-            return await next.Invoke();
-        }
-        catch (AppException e)
-        {
-            _logger.LogWarning(e, "Exception when executing {reqName}.", reqName);
-            throw;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "unexpected exception when executing {reqName}.", reqName);
-            throw;
-        }
+        var result = await next.Invoke();
+        _logger.LogInformation("Executed request {req}.", reqName);
+
+        return result;
     }
 }

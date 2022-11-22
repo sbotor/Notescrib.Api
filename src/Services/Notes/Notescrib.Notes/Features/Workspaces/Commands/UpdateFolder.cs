@@ -11,7 +11,7 @@ namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class UpdateFolder
 {
-    public record Command(string WorkspaceId, string Id, string Name, string? ParentId) : ICommand;
+    public record Command(string WorkspaceId, string FolderId, string Name, string? ParentId) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
@@ -35,7 +35,14 @@ public static class UpdateFolder
             _permissionGuard.GuardCanEdit(request.WorkspaceId);
 
             var tree = new FolderTree(workspace.Folders);
-            tree.Move(request.Id, request.ParentId);
+            var found = tree.FindWithParent(x => x.Id == request.FolderId);
+            if (found == null)
+            {
+                throw new NotFoundException<Folder>();
+            }
+
+            found.Item.Name = request.Name;
+            tree.Move(found, request.ParentId);
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
             
@@ -47,7 +54,7 @@ public static class UpdateFolder
     {
         public Validator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.FolderId)
                 .NotEmpty();
             
             RuleFor(x => x.WorkspaceId)

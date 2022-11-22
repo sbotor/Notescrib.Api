@@ -33,50 +33,32 @@ public class FolderTree : BfsTree<Folder>
         return new(item, 0);
     }
 
-    public void Move(string id, string? newParentId)
+    public void Move(TreeChildNode<Folder> node, string? newParentId)
     {
-        var found = FindWithParent(x => x.Id == id);
-        if (found == null)
-        {
-            throw new NotFoundException<Folder>();
-        }
-
-        if (found.Parent?.Id == newParentId)
-        {
-            return;
-        }
-        
         if (newParentId == null)
         {
-            Roots.Add(found.Item);
+            if (Roots.Any(x => x.Name == node.Item.Name))
+            {
+                throw new DuplicationException<Folder>();
+            }
+
+            Roots.Add(node.Item);
             return;
         }
 
-        if (found.Item.EnumerateChildren().Any(x => x.Id == newParentId))
+        if (node.Item.EnumerateChildren().Any(x => x.Id == newParentId))
         {
             throw new AppException("Cannot move folder to its own child.");
         }
-        
+
         var newParent = this.First(x => x.Id == newParentId);
-
-        RemoveCore(found.Parent?.Children, found.Item, false);
-        newParent.Children.Add(found.Item);
-    }
-
-    public TreeChildNode<Folder>? FindWithParent(Func<Folder, bool> predicate)
-    {
-        foreach (var folder in this)
+        if (newParent.Children.Any(x => x.Name == node.Item.Name))
         {
-            var found = folder.Children.SingleOrDefault(predicate);
-            if (found == null)
-            {
-                continue;
-            }
-            
-            return new(found, folder);
+            throw new DuplicationException<Folder>();
         }
 
-        return null;
+        RemoveCore(node.Parent?.Children, node.Item, false);
+        newParent.Children.Add(node.Item);
     }
 
     public void Remove(TreeChildNode<Folder> folder)

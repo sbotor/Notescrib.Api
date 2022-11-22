@@ -37,6 +37,7 @@ public class ExceptionHandlingMiddleware
 
         if (exception is AppException appException)
         {
+            _logger.LogWarning(exception, "An exception occured.");
             statusCode = HandleAppException(appException, out message);
         }
         else

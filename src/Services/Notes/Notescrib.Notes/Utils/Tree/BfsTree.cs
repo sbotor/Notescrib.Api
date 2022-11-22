@@ -24,6 +24,30 @@ public abstract class BfsTree<T> : IEnumerable<T>
     {
         Roots = new List<T>();
     }
+    
+    public TreeChildNode<T>? FindWithParent(Func<T, bool> predicate)
+    {
+        var items = this.ToArray();
+        
+        var foundRoot = items.Take(Roots.Count).FirstOrDefault(predicate);
+        if (foundRoot != null)
+        {
+            return new(foundRoot, default);
+        }
+        
+        foreach (var item in items.Skip(Roots.Count))
+        {
+            var found = item.Children.SingleOrDefault(predicate);
+            if (found == null)
+            {
+                continue;
+            }
+            
+            return new(found, item);
+        }
+
+        return null;
+    }
 
     protected IEnumerable<TreeNode<T>> AsNodeEnumerable()
         => new BfsTreeNodeEnumerable<T>(Roots);
