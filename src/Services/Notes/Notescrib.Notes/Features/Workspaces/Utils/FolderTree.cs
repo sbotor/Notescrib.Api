@@ -37,7 +37,7 @@ public class FolderTree : BfsTree<Folder>
     {
         if (newParentId == null)
         {
-            if (Roots.Any(x => x.Name == node.Item.Name))
+            if (IsDuplicated(Roots, node.Item))
             {
                 throw new DuplicationException<Folder>();
             }
@@ -52,7 +52,7 @@ public class FolderTree : BfsTree<Folder>
         }
 
         var newParent = this.First(x => x.Id == newParentId);
-        if (newParent.Children.Any(x => x.Name == node.Item.Name))
+        if (IsDuplicated(newParent.Children, node.Item))
         {
             throw new DuplicationException<Folder>();
         }
@@ -63,6 +63,9 @@ public class FolderTree : BfsTree<Folder>
 
     public void Remove(TreeChildNode<Folder> folder)
         => RemoveCore(folder.Parent?.Children, folder.Item, true);
+
+    private static bool IsDuplicated(IEnumerable<Folder> folders, Folder folder)
+        => folders.FirstOrDefault(x => x.Name == folder.Name && x.Id != folder.Id) != null;
 
     private void RemoveCore(ICollection<Folder>? target, Folder folder, bool decrementCount)
     {

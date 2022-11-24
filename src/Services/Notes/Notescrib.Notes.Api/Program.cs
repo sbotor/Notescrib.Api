@@ -29,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHealthChecks("health");
+app.UseHealthChecks("/health");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

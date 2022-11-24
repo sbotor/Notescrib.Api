@@ -33,7 +33,8 @@ public static class UpdateWorkspace
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            if (await _repository.ExistsAsync(workspace.OwnerId, request.Name, cancellationToken))
+            if (workspace.Name != request.Name
+                && await _repository.ExistsAsync(workspace.OwnerId, request.Name, cancellationToken))
             {
                 throw new DuplicationException<Workspace>();
             }
