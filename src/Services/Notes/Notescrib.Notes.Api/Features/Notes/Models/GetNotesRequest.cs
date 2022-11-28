@@ -8,12 +8,12 @@ namespace Notescrib.Notes.Api.Features.Notes.Models;
 public class GetNotesRequest : PagingSortingRequest<NotesSorting>
 {
     public string? WorkspaceId { get; set; }
-    public string? Folder { get; set; }
+    public string? FolderId { get; set; }
 
     public GetNotes.Query ToQuery()
         => new(
             WorkspaceId,
-            Folder,
+            FolderId,
             new(Page, PageSize),
             new(OrderBy, SortingDirection));
 }

@@ -34,10 +34,8 @@ if (app.Environment.IsDevelopment())
 
     app.UseDeveloperExceptionPage();
 }
-else
-{
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
-}
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
         
 app.UseHttpsRedirection();
         

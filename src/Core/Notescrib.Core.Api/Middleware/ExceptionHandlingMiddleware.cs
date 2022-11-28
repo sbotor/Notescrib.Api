@@ -70,7 +70,7 @@ public class ExceptionHandlingMiddleware
                 return HttpStatusCode.BadRequest;
 
             default:
-                message = "Invalid request.";
+                message = GetMessageOrDefault(exception, "Invalid request.");
                 return HttpStatusCode.BadRequest;
         }
     }

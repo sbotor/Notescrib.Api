@@ -35,7 +35,7 @@ public static class CreateUser
 
             if (await _userManager.ExistsByEmailAsync(request.Email))
             {
-                throw new NotFoundException("User with this email already exists.");
+                throw new DuplicationException("User with this email already exists.");
             }
 
             var user = _mapper.MapToEntity(request);
@@ -44,24 +44,33 @@ public static class CreateUser
             CheckResultOrThrow(result);
 
             result = await _userManager.AddPasswordAsync(user, request.Password);
-            CheckResultOrThrow(result);
 
-            return new TokenResponse
+            if (result.Succeeded)
             {
-                Token = _jwtProvider.GenerateToken(user.Id, user.Email!),
-                User = _mapper.MapToDetails(user)
-            };
+                return new TokenResponse
+                {
+                    Token = _jwtProvider.GenerateToken(user.Id, user.Email!), User = _mapper.MapToDetails(user)
+                };
+            }
+
+            await _userManager.DeleteAsync(user);
+            throw new AppException(SerializeErrors(result));
         }
 
-        private void CheckResultOrThrow(IdentityResult result)
+        private static void CheckResultOrThrow(IdentityResult result)
         {
             if (result.Succeeded)
             {
                 return;
             }
+            
+            throw new AppException(SerializeErrors(result));
+        }
 
+        private static string SerializeErrors(IdentityResult result)
+        {
             var errors = result.Errors.ToDictionary(x => x.Code, x => x.Description);
-            throw new AppException(JsonSerializer.Serialize(errors));
+            return JsonSerializer.Serialize(errors);
         }
     }
 }

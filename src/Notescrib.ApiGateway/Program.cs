@@ -1,17 +1,14 @@
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Notescrib.Core.Api.Configuration;
 using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Extensions;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-    .AddJsonFile("ocelot.json")
-    .AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", true, true);
-
-builder.Services.AddOcelot();
+var yarpConfig = new ConfigurationBuilder()
+    .AddJsonFile("yarp.json", true, true)
+    .AddJsonFile($"yarp.{builder.Environment.EnvironmentName}.json", true, true)
+    .Build();
+builder.Services.AddReverseProxy().LoadFromConfig(yarpConfig);
 
 var jwtSettings = builder.Configuration.GetSettings<JwtSettings>()!;
 builder.Services.ConfigureJwtAuth(jwtSettings);
@@ -31,6 +28,6 @@ app.UseCors();
 
 app.UseHealthChecks("/health");
 
-await app.UseOcelot();
+app.MapReverseProxy();
 
 app.Run();

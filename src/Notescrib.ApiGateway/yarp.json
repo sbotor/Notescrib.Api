@@ -1,0 +1,78 @@
+﻿{
+  "Routes": {
+    "auth": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/api/identity/auth",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "POST" ]
+      },
+      "Transforms": [
+        { "PathSet": "/auth" }
+      ]
+    },
+    "users": {
+      "ClusterId": "identity",
+      "AuthorizationPolicy": "Default",
+      "Match": {
+        "Path": "/api/identity/users/{**rest}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET", "POST" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/users/{**rest}" }
+      ]
+    },
+    "create_user": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/api/identity/users",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "POST" ]
+      },
+      "Transforms": [
+        { "PathSet": "/users" }
+      ]
+    },
+    "workspaces": {
+      "ClusterId": "notes",
+      "AuthorizationPolicy": "Default",
+      "Match": {
+        "Path": "/api/workspaces/{**rest}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/workspaces/{**rest}" }
+      ]
+    },
+    "notes": {
+      "ClusterId": "notes",
+      "AuthorizationPolicy": "Default",
+      "Match": {
+        "Path": "/api/notes/{**rest}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/notes/{**rest}" }
+      ]
+    }
+  },
+  "Clusters": {
+    "identity": {
+      "Destinations": {
+        "identity_api": {
+          "Address": "https://localhost:5001/api"
+        }
+      }
+    },
+    "notes": {
+      "Destinations": {
+        "notes_api": {
+          "Address": "https://localhost:5002/api"
+        }
+      }
+    }
+  }
+}

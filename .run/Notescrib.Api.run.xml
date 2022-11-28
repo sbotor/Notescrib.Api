@@ -1,0 +1,8 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Notescrib.Api" type="CompoundRunConfigurationType">
+    <toRun name="Notescrib.ApiGateway" type="LaunchSettings" />
+    <toRun name="Notescrib.Identity.Api" type="LaunchSettings" />
+    <toRun name="Notescrib.Notes.Api" type="LaunchSettings" />
+    <method v="2" />
+  </configuration>
+</component>
