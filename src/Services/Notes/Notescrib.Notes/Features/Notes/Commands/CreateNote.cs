@@ -53,7 +53,7 @@ public static class CreateNote
             if (!string.IsNullOrEmpty(request.FolderId)
                 && workspace.Folders.All(x => x.Id != request.FolderId))
             {
-                throw new NotFoundException<Folder>();
+                throw new NotFoundException<Folder>(request.FolderId);
             }
             
             if (await _noteRepository.ExistsAsync(request.WorkspaceId, request.FolderId, request.Name, cancellationToken))

@@ -28,7 +28,7 @@ public static class UpdateWorkspace
             var workspace = await _repository.GetWorkspaceByIdAsync(request.Id, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException<Workspace>(request.Id);
             }
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);

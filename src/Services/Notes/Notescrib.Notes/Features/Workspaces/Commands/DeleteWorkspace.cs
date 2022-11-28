@@ -30,7 +30,7 @@ public static class DeleteWorkspace
             var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.Id, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException<Workspace>(request.Id);
             }
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);

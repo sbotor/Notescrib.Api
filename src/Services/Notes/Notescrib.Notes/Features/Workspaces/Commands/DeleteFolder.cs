@@ -28,10 +28,10 @@ public static class DeleteFolder
         
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.Id, cancellationToken);
+            var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException<Workspace>(request.WorkspaceId);
             }
 
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
@@ -41,13 +41,15 @@ public static class DeleteFolder
             var foundFolder = tree.FindWithParent(x => x.Id == request.Id);
             if (foundFolder == null)
             {
-                throw new NotFoundException<Folder>();
+                throw new NotFoundException<Folder>(request.Id);
             }
 
             var removedFolderIds = foundFolder.Item.EnumerateChildren().Select(x => x.Id).Append(foundFolder.Item.Id);
             
             await _noteRepository.DeleteNotesFromWorkspaceAsync(workspace.Id, removedFolderIds, cancellationToken);
+            
             tree.Remove(foundFolder);
+            workspace.Folders = tree.Roots.ToArray();
             await _workspaceRepository.UpdateWorkspaceAsync(workspace, cancellationToken);
             
             return Unit.Value;

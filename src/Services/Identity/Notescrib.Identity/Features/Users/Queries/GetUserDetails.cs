@@ -26,7 +26,7 @@ public static class GetUserDetails
             var found = await _userManager.FindByIdAsync(request.Id);
             if (found == null)
             {
-                throw new NotFoundException<AppUser>();
+                throw new NotFoundException<AppUser>(request.Id);
             }
 
             return _mapper.MapToDetails(found);

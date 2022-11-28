@@ -42,7 +42,7 @@ public static class CreateFolder
             var tree = new FolderTree(workspace.Folders);
             
             tree.Add(folder, request.ParentId);
-            workspace.Folders = tree.Roots.ToList();
+            workspace.Folders = tree.Roots.ToArray();
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
 

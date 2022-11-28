@@ -30,7 +30,7 @@ public static class GetNote
             var found = await _repository.GetNoteByIdAsync(request.Id, cancellationToken);
             if (found == null)
             {
-                throw new NotFoundException<Note>();
+                throw new NotFoundException<Note>(request.Id);
             }
             
             _permissionGuard.GuardCanView(found.OwnerId, found.SharingInfo);

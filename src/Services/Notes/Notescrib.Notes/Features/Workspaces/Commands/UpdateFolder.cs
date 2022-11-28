@@ -29,7 +29,7 @@ public static class UpdateFolder
             var workspace = await _repository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException<Workspace>(request.WorkspaceId);
             }
             
             _permissionGuard.GuardCanEdit(request.WorkspaceId);
@@ -38,11 +38,12 @@ public static class UpdateFolder
             var found = tree.FindWithParent(x => x.Id == request.FolderId);
             if (found == null)
             {
-                throw new NotFoundException<Folder>();
+                throw new NotFoundException<Folder>(request.FolderId);
             }
 
             found.Item.Name = request.Name;
             tree.Move(found, request.ParentId);
+            workspace.Folders = tree.Roots.ToArray();
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
             

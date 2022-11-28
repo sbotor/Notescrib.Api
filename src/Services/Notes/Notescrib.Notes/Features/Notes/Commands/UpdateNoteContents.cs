@@ -30,7 +30,7 @@ public static class UpdateNoteContents
             var note = await _repository.GetNoteByIdAsync(request.Id, cancellationToken);
             if (note == null)
             {
-                throw new NotFoundException<Note>();
+                throw new NotFoundException<Note>(request.Id);
             }
 
             _permissionGuard.GuardCanEdit(note.WorkspaceId);

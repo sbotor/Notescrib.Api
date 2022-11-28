@@ -55,7 +55,7 @@ public class ExceptionHandlingMiddleware
         {
             case NotFoundException notFound:
                 message = GetMessageOrDefault(notFound, "The resource was not found.");
-                return HttpStatusCode.BadRequest;
+                return HttpStatusCode.NotFound;
                 
             case ForbiddenException forbidden:
                 message = GetMessageOrDefault(forbidden, "Invalid permissions.");

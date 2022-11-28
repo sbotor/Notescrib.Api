@@ -19,7 +19,7 @@ public class FolderTree : BfsTree<Folder>
         
         if (!string.IsNullOrEmpty(parentId))
         {
-            var parentNode = AsNodeEnumerable().FirstOrDefault(x => x.Item.Name == parentId);
+            var parentNode = AsNodeEnumerable().FirstOrDefault(x => x.Item.Id == parentId);
             if (parentNode == null)
             {
                 throw new NotFoundException<Folder>(parentId);

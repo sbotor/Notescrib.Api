@@ -40,7 +40,7 @@ public static class UpdateNote
             var note = await _noteRepository.GetNoteByIdAsync(request.Id, cancellationToken);
             if (note == null)
             {
-                throw new NotFoundException<Note>();
+                throw new NotFoundException<Note>(request.Id);
             }
 
             _permissionGuard.GuardCanEdit(note.OwnerId);
@@ -53,12 +53,12 @@ public static class UpdateNote
             var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(note.WorkspaceId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException<Workspace>(note.WorkspaceId);
             }
 
             if (new FolderTree(workspace.Folders).All(x => x.Id != request.FolderId))
             {
-                throw new NotFoundException<Folder>();
+                throw new NotFoundException<Folder>(request.FolderId);
             }
 
             note.Name = request.Name;
