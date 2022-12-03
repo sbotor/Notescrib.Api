@@ -2,6 +2,8 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Workspaces.Models;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Services;
@@ -11,20 +13,22 @@ namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateFolder
 {
-    public record Command(string WorkspaceId, string Name, string? ParentId) : ICommand;
+    public record Command(string WorkspaceId, string Name, string? ParentId) : ICommand<FolderOverview>;
 
-    internal class Handler : ICommandHandler<Command>
+    internal class Handler : ICommandHandler<Command, FolderOverview>
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IMapper<Folder, FolderOverview> _mapper;
 
-        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard)
+        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard, IMapper<Folder, FolderOverview> mapper)
         {
             _repository = repository;
             _permissionGuard = permissionGuard;
+            _mapper = mapper;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<FolderOverview> Handle(Command request, CancellationToken cancellationToken)
         {
             var workspace = await _repository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
             if (workspace == null)
@@ -46,7 +50,7 @@ public static class CreateFolder
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
 
-            return Unit.Value;
+            return _mapper.Map(folder);
         }
     }
 

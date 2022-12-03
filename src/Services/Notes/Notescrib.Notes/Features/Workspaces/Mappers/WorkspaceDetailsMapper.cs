@@ -5,7 +5,7 @@ using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Workspaces.Mappers;
 
-public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>
+public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>, IMapper<Folder, FolderOverview>
 {
     public WorkspaceDetails Map(Workspace item)
         => new()
@@ -16,9 +16,9 @@ public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>
             FolderTree = MapFolders(item.Folders)
         };
 
-    private static IReadOnlyCollection<FolderOverview> MapFolders(IEnumerable<Folder> source)
-        => source.MapTree(MapFolderOverview).ToList();
+    private IReadOnlyCollection<FolderOverview> MapFolders(IEnumerable<Folder> source)
+        => source.MapTree(Map).ToList();
 
-    private static FolderOverview MapFolderOverview(Folder item)
+    public FolderOverview Map(Folder item)
         => new() { Id = item.Id, Name = item.Name, Children = new List<FolderOverview>() };
 }

@@ -1,4 +1,5 @@
 ﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Workspaces.Mappers;
 using Notescrib.Notes.Tests.Infrastructure;
 using static Notescrib.Notes.Features.Workspaces.Commands.CreateWorkspace;
 
@@ -13,7 +14,7 @@ public class CreateWorkspaceCommandHandlerTests
     
     public CreateWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, _userContext);
+        _sut = new(_repository, _userContext, new WorkspaceDetailsMapper());
     }
 
     [Fact]

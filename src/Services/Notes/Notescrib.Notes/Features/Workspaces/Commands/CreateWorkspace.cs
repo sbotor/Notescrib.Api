@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Workspaces.Models;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -9,20 +11,22 @@ namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateWorkspace
 {
-    public record Command(string Name) : ICommand<string>;
+    public record Command(string Name) : ICommand<WorkspaceDetails>;
 
-    internal class Handler : ICommandHandler<Command, string>
+    internal class Handler : ICommandHandler<Command, WorkspaceDetails>
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IUserContextProvider _userContext;
+        private readonly IMapper<Workspace, WorkspaceDetails> _mapper;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext, IMapper<Workspace, WorkspaceDetails> mapper)
         {
             _repository = repository;
             _userContext = userContext;
+            _mapper = mapper;
         }
 
-        public async Task<string> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<WorkspaceDetails> Handle(Command request, CancellationToken cancellationToken)
         {
             var ownerId = _userContext.UserId;
             if (ownerId == null)
@@ -42,7 +46,7 @@ public static class CreateWorkspace
             };
             await _repository.AddWorkspaceAsync(workspace, cancellationToken);
 
-            return workspace.Id;
+            return _mapper.Map(workspace);
         }
     }
 

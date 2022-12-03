@@ -28,13 +28,12 @@ public class WorkspacesController : ControllerBase
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(WorkspaceDetails),StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateWorkspace(CreateWorkspaceRequest request,
         CancellationToken cancellationToken)
-    {
-        var id = await _mediator.Send(request.ToCommand(), cancellationToken);
-        return CreatedAtAction(nameof(GetWorkspace), new { id }, null);
-    }
+        => StatusCode(
+            StatusCodes.Status201Created,
+            await _mediator.Send(request.ToCommand(), cancellationToken));
 
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,14 +52,14 @@ public class WorkspacesController : ControllerBase
     [ProducesResponseType(typeof(WorkspaceDetails), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteWorkspace(string id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteWorkspace.Command(id), cancellationToken));
-    
+
     [HttpPost("{id}/folder")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateFolder(string id, CreateFolderRequest request, CancellationToken cancellationToken)
-    {
-        await _mediator.Send(request.ToCommand(id), cancellationToken);
-        return CreatedAtAction(nameof(GetWorkspace),  new { id }, null);
-    }
+    [ProducesResponseType(typeof(FolderOverview), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateFolder(string id, CreateFolderRequest request,
+        CancellationToken cancellationToken)
+        => StatusCode(
+            StatusCodes.Status201Created,
+            await _mediator.Send(request.ToCommand(id), cancellationToken));
     
     [HttpPut("{id}/folder/{folderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

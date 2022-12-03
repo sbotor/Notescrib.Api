@@ -1,5 +1,6 @@
 ﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Workspaces;
+using Notescrib.Notes.Features.Workspaces.Mappers;
 using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
@@ -17,7 +18,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
 
     public CreateFolderWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, new PermissionGuard(_userContext));
+        _sut = new(_repository, new PermissionGuard(_userContext), new WorkspaceDetailsMapper());
 
         _userContext.UserId = "1";
 
