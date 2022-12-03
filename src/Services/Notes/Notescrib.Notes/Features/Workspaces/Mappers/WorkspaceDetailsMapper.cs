@@ -1,7 +1,6 @@
 ﻿using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Workspaces.Models;
-using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Workspaces.Mappers;
 
@@ -13,12 +12,27 @@ public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>, IMap
             Id = item.Id,
             Name = item.Name,
             OwnerId = item.OwnerId,
-            FolderTree = MapFolders(item.Folders)
+            FolderTree = MapFolders(item.Folders),
+            Created = item.Created,
+            Edited = item.Edited
         };
 
     private IReadOnlyCollection<FolderOverview> MapFolders(IEnumerable<Folder> source)
-        => source.MapTree(Map).ToList();
+        => source.MapTree(Map, new Comparer()).ToList();
 
     public FolderOverview Map(Folder item)
-        => new() { Id = item.Id, Name = item.Name, Children = new List<FolderOverview>() };
+        => new()
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Children = new List<FolderOverview>(),
+            Created = item.Created,
+            Edited = item.Edited
+        };
+
+    private class Comparer : IComparer<Folder>
+    {
+        public int Compare(Folder? x, Folder? y)
+            => string.CompareOrdinal(x?.Name.ToLowerInvariant(), y?.Name.ToLowerInvariant());
+    }
 }

@@ -18,12 +18,16 @@ public static class PagingExtensions
         var countFacet = GetCountFacet<T>();
         var dataFacet = GetDataFacet<T, TSort>(info.Paging, info.Sorting, info.SortingProvider);
 
-        var query = source.Aggregate();
+        var query = source.Aggregate(new()
+        {
+            Collation = new("en", strength: CollationStrength.Secondary)
+        });
+        
         foreach (var filter in filters)
         {
             query = query.Match(filter);
         }
-        
+
         var aggregation = await query
             .Facet(countFacet, dataFacet)
             .ToListAsync(cancellationToken);

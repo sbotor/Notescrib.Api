@@ -37,6 +37,8 @@ public static class ServicesExtensions
         services
             .AddMappers()
             .AddAll(typeof(ISortingProvider<>));
+
+        services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
         
         return services;
     }

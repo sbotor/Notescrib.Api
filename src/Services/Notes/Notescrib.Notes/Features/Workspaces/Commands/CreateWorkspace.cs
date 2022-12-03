@@ -18,12 +18,15 @@ public static class CreateWorkspace
         private readonly IWorkspaceRepository _repository;
         private readonly IUserContextProvider _userContext;
         private readonly IMapper<Workspace, WorkspaceDetails> _mapper;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext, IMapper<Workspace, WorkspaceDetails> mapper)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext,
+            IMapper<Workspace, WorkspaceDetails> mapper, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _userContext = userContext;
             _mapper = mapper;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<WorkspaceDetails> Handle(Command request, CancellationToken cancellationToken)
@@ -34,16 +37,9 @@ public static class CreateWorkspace
                 throw new AppException("No user context found.");
             }
 
-            if (await _repository.ExistsAsync(ownerId, request.Name, cancellationToken))
-            {
-                throw new DuplicationException<Workspace>();
-            }
-            
-            var workspace = new Workspace
-            {
-                Name = request.Name,
-                OwnerId = ownerId
-            };
+            // TODO: Workspace count limit.
+
+            var workspace = new Workspace { Name = request.Name, OwnerId = ownerId, Created = _dateTimeProvider.Now };
             await _repository.AddWorkspaceAsync(workspace, cancellationToken);
 
             return _mapper.Map(workspace);

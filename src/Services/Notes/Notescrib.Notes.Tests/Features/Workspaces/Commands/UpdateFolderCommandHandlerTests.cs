@@ -18,7 +18,7 @@ public class UpdateFolderCommandHandlerTests
     {
         WorkspaceDataSetup.SetupWorkspace(_repository);
         
-        _sut = new(_repository, new PermissionGuard(_userContext));
+        _sut = new(_repository, new PermissionGuard(_userContext), new UtcDateTimeProvider());
     }
     
     [Fact]

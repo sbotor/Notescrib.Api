@@ -18,12 +18,14 @@ public static class DeleteFolder
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository workspaceRepository, INoteRepository noteRepository, IPermissionGuard permissionGuard)
+        public Handler(IWorkspaceRepository workspaceRepository, INoteRepository noteRepository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _workspaceRepository = workspaceRepository;
             _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
+            _dateTimeProvider = dateTimeProvider;
         }
         
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -50,6 +52,8 @@ public static class DeleteFolder
             
             tree.Remove(foundFolder);
             workspace.Folders = tree.Roots.ToArray();
+            workspace.Edited = _dateTimeProvider.Now;
+            
             await _workspaceRepository.UpdateWorkspaceAsync(workspace, cancellationToken);
             
             return Unit.Value;

@@ -1,5 +1,6 @@
 ﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Workspaces.Mappers;
+using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
 using static Notescrib.Notes.Features.Workspaces.Commands.CreateWorkspace;
 
@@ -14,7 +15,7 @@ public class CreateWorkspaceCommandHandlerTests
     
     public CreateWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, _userContext, new WorkspaceDetailsMapper());
+        _sut = new(_repository, _userContext, new WorkspaceDetailsMapper(), new UtcDateTimeProvider());
     }
 
     [Fact]
@@ -26,20 +27,5 @@ public class CreateWorkspaceCommandHandlerTests
 
         Assert.Single(_repository.Items);
         Assert.True(_repository.Items.First().OwnerId == "1");
-    }
-    
-    [Fact]
-    public async Task Handle_WhenWorkspaceExists_ThrowsDuplicationException()
-    {
-        _repository.Items.Add(new()
-        {
-            Name = "Workspace",
-            OwnerId = "1"
-        });
-        
-        _userContext.UserId = "1";
-
-        await Assert.ThrowsAnyAsync<DuplicationException>(
-            () => _sut.Handle(new("Workspace"), default));
     }
 }

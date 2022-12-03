@@ -18,7 +18,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
 
     public CreateFolderWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, new PermissionGuard(_userContext), new WorkspaceDetailsMapper());
+        _sut = new(_repository, new PermissionGuard(_userContext), new WorkspaceDetailsMapper(), new UtcDateTimeProvider());
 
         _userContext.UserId = "1";
 
@@ -74,8 +74,8 @@ public class CreateFolderWorkspaceCommandHandlerTests
 
     [Theory]
     [InlineData("Folder 2", null)]
-    [InlineData("Folder 1.0", "Folder 1")]
-    [InlineData("Folder 0.0.0", "Folder 0.0")]
+    [InlineData("Folder 1.0", "F1")]
+    [InlineData("Folder 0.0.0", "F0.0")]
     public async Task Handle_ForCorrectCircumstances_CreatesFolder(string name, string? parent)
     {
         await _sut.Handle(new("1", name, parent), default);

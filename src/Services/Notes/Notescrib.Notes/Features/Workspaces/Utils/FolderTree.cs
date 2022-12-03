@@ -12,11 +12,6 @@ public class FolderTree : BfsTree<Folder>
 
     public TreeNode<Folder> Add(Folder item, string? parentId)
     {
-        if (this.Any(x => x.Name == item.Name))
-        {
-            throw new DuplicationException<Folder>();
-        }
-        
         if (!string.IsNullOrEmpty(parentId))
         {
             var parentNode = AsNodeEnumerable().FirstOrDefault(x => x.Item.Id == parentId);
@@ -25,8 +20,13 @@ public class FolderTree : BfsTree<Folder>
                 throw new NotFoundException<Folder>(parentId);
             }
             
-            var node = Add(item, parentNode);
-            return node;
+            if (!parentNode.CanNestChildren)
+            {
+                throw new AppException();
+            }
+
+            AddCore(parentNode.Item.Children, item);
+            return new(item, parentNode.Level + 1);
         }
         
         AddCore(Roots, item);
@@ -77,22 +77,11 @@ public class FolderTree : BfsTree<Folder>
         }
     }
 
-    private TreeNode<Folder> Add(Folder item, TreeNode<Folder> parent)
-    {
-        if (!parent.CanNestChildren)
-        {
-            throw new AppException();
-        }
-
-        AddCore(parent.Item.Children, item);
-        return new(item, parent.Level + 1);
-    }
-
     private void AddCore(ICollection<Folder> target, Folder item)
     {
         if (Count >= Size.Folder.MaxCount)
         {
-            throw new AppException();
+            throw new AppException("Cannot add more folders.");
         }
         
         target.Add(item);

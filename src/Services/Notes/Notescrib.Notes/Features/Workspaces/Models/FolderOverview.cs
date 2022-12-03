@@ -7,4 +7,7 @@ public class FolderOverview : IChildrenCollectionTree<FolderOverview>
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public ICollection<FolderOverview> Children { get; set; } = Array.Empty<FolderOverview>();
+    
+    public DateTime Created { get; set; }
+    public DateTime? Edited { get; set; }
 }

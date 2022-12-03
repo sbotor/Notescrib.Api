@@ -17,11 +17,13 @@ public static class UpdateFolder
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard)
+        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _permissionGuard = permissionGuard;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -42,6 +44,11 @@ public static class UpdateFolder
             }
 
             found.Item.Name = request.Name;
+
+            var now = _dateTimeProvider.Now;
+            workspace.Edited = now;
+            found.Item.Edited = now;
+
             tree.Move(found, request.ParentId);
             workspace.Folders = tree.Roots.ToArray();
 

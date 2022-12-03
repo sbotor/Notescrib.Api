@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
@@ -20,12 +19,15 @@ public static class CreateFolder
         private readonly IWorkspaceRepository _repository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Folder, FolderOverview> _mapper;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard, IMapper<Folder, FolderOverview> mapper)
+        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard,
+            IMapper<Folder, FolderOverview> mapper, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _permissionGuard = permissionGuard;
             _mapper = mapper;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<FolderOverview> Handle(Command request, CancellationToken cancellationToken)
@@ -35,16 +37,15 @@ public static class CreateFolder
             {
                 throw new NotFoundException<Workspace>(request.WorkspaceId);
             }
-            
+
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            var folder = new Folder
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = request.Name,
-            };
-            var tree = new FolderTree(workspace.Folders);
+            var now = _dateTimeProvider.Now;
+            workspace.Edited = now;
             
+            var folder = new Folder { Id = Guid.NewGuid().ToString(), Name = request.Name, Created = now };
+            var tree = new FolderTree(workspace.Folders);
+
             tree.Add(folder, request.ParentId);
             workspace.Folders = tree.Roots.ToArray();
 

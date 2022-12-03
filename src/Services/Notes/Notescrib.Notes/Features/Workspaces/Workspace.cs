@@ -10,6 +10,9 @@ public class Workspace
     public string OwnerId { get; set; } = null!;
     public string Name { get; set; } = null!;
     public IReadOnlyCollection<Folder> Folders { get; set; } = Array.Empty<Folder>();
+
+    public DateTime Created { get; set; }
+    public DateTime? Edited { get; set; }
 }
 
 public class Folder : IChildrenCollectionTree<Folder>
@@ -17,6 +20,9 @@ public class Folder : IChildrenCollectionTree<Folder>
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public ICollection<Folder> Children { get; set; } = new List<Folder>();
+    
+    public DateTime Created { get; set; }
+    public DateTime? Edited { get; set; }
     
     public IEnumerable<Folder> EnumerateChildren() => new BfsTreeEnumerable<Folder>(Children);
 }
