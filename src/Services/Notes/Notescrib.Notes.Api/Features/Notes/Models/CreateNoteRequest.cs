@@ -1,4 +1,5 @@
 ﻿using Notescrib.Notes.Features.Notes.Commands;
+using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Api.Features.Notes.Models;
@@ -12,5 +13,5 @@ public class CreateNoteRequest
     public IReadOnlyCollection<string> Labels { get; set; } = Array.Empty<string>();
 
     public CreateNote.Command ToCommand()
-        => new(Name, WorkspaceId, FolderId ?? string.Empty, Labels, SharingInfo ?? new());
+        => new(Name, WorkspaceId, FolderId ?? Folder.RootId, Labels, SharingInfo ?? new());
 }

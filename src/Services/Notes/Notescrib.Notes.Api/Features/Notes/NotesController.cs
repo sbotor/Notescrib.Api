@@ -22,6 +22,7 @@ public class NotesController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(NoteOverview), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateNote(CreateNoteRequest request)
     {
         var result = await _mediator.Send(request.ToCommand());

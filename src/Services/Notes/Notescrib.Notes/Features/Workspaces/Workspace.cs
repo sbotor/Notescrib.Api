@@ -16,6 +16,8 @@ public class Workspace
 
 public class Folder : IChildrenCollectionTree<Folder>
 {
+    public const string RootId = "*";
+    
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public ICollection<Folder> Children { get; set; } = new List<Folder>();

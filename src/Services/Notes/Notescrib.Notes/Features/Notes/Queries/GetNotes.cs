@@ -13,7 +13,7 @@ namespace Notescrib.Notes.Features.Notes.Queries;
 
 public static class GetNotes
 {
-    public record Query(string? WorkspaceId, string? Folder, Paging Paging, Sorting<NotesSorting> Sorting)
+    public record Query(string? WorkspaceId, string? FolderId, Paging Paging, Sorting<NotesSorting> Sorting)
         : IPagingSortingQuery<NoteOverview, NotesSorting>;
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteOverview>>
@@ -39,7 +39,7 @@ public static class GetNotes
         {
             var notes = await _repository.GetNotesAsync(
                 request.WorkspaceId,
-                request.Folder,
+                request.FolderId,
                 _permissionGuard,
                 new(request.Paging, request.Sorting, _sortingProvider),
                 cancellationToken);
@@ -54,11 +54,11 @@ public static class GetNotes
         {
             RuleFor(x => x.WorkspaceId)
                 .NotEmpty()
-                .When(x => x.WorkspaceId != null || string.IsNullOrEmpty(x.Folder));
+                .When(x => x.WorkspaceId != null || string.IsNullOrEmpty(x.FolderId));
 
-            RuleFor(x => x.Folder)
+            RuleFor(x => x.FolderId)
                 .NotEmpty()
-                .When(x => x.Folder != null);
+                .When(x => x.FolderId != null);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
@@ -13,28 +15,31 @@ namespace Notescrib.Notes.Features.Notes.Commands;
 public static class CreateNote
 {
     public record Command(string Name, string WorkspaceId, string FolderId, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
-        : ICommand<string>;
+        : ICommand<NoteOverview>;
 
-    internal class Handler : ICommandHandler<Command, string>
+    internal class Handler : ICommandHandler<Command, NoteOverview>
     {
         private readonly INoteRepository _noteRepository;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IUserContextProvider _userContext;
+        private readonly IMapper<Note, NoteOverview> _mapper;
 
         public Handler(
             INoteRepository noteRepository,
             IWorkspaceRepository workspaceRepository,
             IPermissionGuard permissionGuard,
-            IUserContextProvider userContext)
+            IUserContextProvider userContext,
+            IMapper<Note, NoteOverview> mapper)
         {
             _noteRepository = noteRepository;
             _workspaceRepository = workspaceRepository;
             _permissionGuard = permissionGuard;
             _userContext = userContext;
+            _mapper = mapper;
         }
 
-        public async Task<string> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<NoteOverview> Handle(Command request, CancellationToken cancellationToken)
         {
             var ownerId = _userContext.UserId;
             if (ownerId == null)
@@ -73,7 +78,7 @@ public static class CreateNote
             };
 
             await _noteRepository.AddNote(note, cancellationToken);
-            return note.Id;
+            return _mapper.Map(note);
         }
     }
 
