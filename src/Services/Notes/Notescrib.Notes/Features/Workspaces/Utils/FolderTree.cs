@@ -10,6 +10,10 @@ public class FolderTree : BfsTree<Folder>
     {
     }
 
+    public FolderTree(Workspace workspace) : base(workspace.Folders)
+    {
+    }
+
     public TreeNode<Folder> Add(Folder item, string? parentId)
     {
         if (!string.IsNullOrEmpty(parentId))
@@ -22,7 +26,7 @@ public class FolderTree : BfsTree<Folder>
             
             if (!parentNode.CanNestChildren)
             {
-                throw new AppException();
+                throw new AppException("The parent folder cannot nest children.");
             }
 
             AddCore(parentNode.Item.Children, item);
@@ -37,11 +41,6 @@ public class FolderTree : BfsTree<Folder>
     {
         if (newParentId == null)
         {
-            if (IsDuplicated(Roots, node.Item))
-            {
-                throw new DuplicationException<Folder>();
-            }
-
             Roots.Add(node.Item);
             return;
         }
@@ -52,10 +51,6 @@ public class FolderTree : BfsTree<Folder>
         }
 
         var newParent = this.First(x => x.Id == newParentId);
-        if (IsDuplicated(newParent.Children, node.Item))
-        {
-            throw new DuplicationException<Folder>();
-        }
 
         RemoveCore(node.Parent?.Children, node.Item, false);
         newParent.Children.Add(node.Item);
@@ -63,9 +58,6 @@ public class FolderTree : BfsTree<Folder>
 
     public void Remove(TreeChildNode<Folder> folder)
         => RemoveCore(folder.Parent?.Children, folder.Item, true);
-
-    private static bool IsDuplicated(IEnumerable<Folder> folders, Folder folder)
-        => folders.FirstOrDefault(x => x.Name == folder.Name && x.Id != folder.Id) != null;
 
     private void RemoveCore(ICollection<Folder>? target, Folder folder, bool decrementCount)
     {

@@ -14,7 +14,7 @@ public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>, IMap
             OwnerId = item.OwnerId,
             FolderTree = MapFolders(item.Folders),
             Created = item.Created,
-            Edited = item.Edited
+            Updated = item.Updated
         };
 
     private IReadOnlyCollection<FolderOverview> MapFolders(IEnumerable<Folder> source)
@@ -27,7 +27,7 @@ public class WorkspaceDetailsMapper : IMapper<Workspace, WorkspaceDetails>, IMap
             Name = item.Name,
             Children = new List<FolderOverview>(),
             Created = item.Created,
-            Edited = item.Edited
+            Updated = item.Updated
         };
 
     private class Comparer : IComparer<Folder>

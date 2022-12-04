@@ -9,5 +9,5 @@ public class FolderOverview : IChildrenCollectionTree<FolderOverview>
     public ICollection<FolderOverview> Children { get; set; } = Array.Empty<FolderOverview>();
     
     public DateTime Created { get; set; }
-    public DateTime? Edited { get; set; }
+    public DateTime? Updated { get; set; }
 }

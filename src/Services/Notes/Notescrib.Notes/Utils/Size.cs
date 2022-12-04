@@ -23,4 +23,9 @@ public static class Size
     {
         public const int MaxCount = 50;
     }
+
+    public static class Workspace
+    {
+        public const int MaxCount = 10;
+    }
 }

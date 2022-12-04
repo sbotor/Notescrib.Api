@@ -20,6 +20,11 @@ public abstract class BfsTree<T> : IEnumerable<T>
         Roots = roots.ToList();
     }
     
+    protected BfsTree(ICollection<T> roots)
+    {
+        Roots = roots;
+    }
+    
     protected BfsTree()
     {
         Roots = new List<T>();

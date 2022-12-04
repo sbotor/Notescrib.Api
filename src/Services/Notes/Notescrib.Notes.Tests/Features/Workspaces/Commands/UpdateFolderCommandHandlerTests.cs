@@ -37,24 +37,4 @@ public class UpdateFolderCommandHandlerTests
                 new("1", "Folder", "Name", "Parent"),
                 default));
     }
-    
-    [Theory]
-    [InlineData(null)]
-    [InlineData("F0")]
-    public async Task Handle_WhenFolderAlreadyExists_ThrowsDuplicationException(string? parentId)
-    {
-        var workspace = _repository.Items.First();
-        var parent = workspace.Folders.First(x => x.Id == "F0");
-        var newFolder1 = new Folder { Id = "new1", Name = "New folder" };
-        var newFolder2 = new Folder { Id = "new2", Name = "New folder" };
-        var folder = workspace.Folders.Skip(1).First();
-        
-        parent.Children.Add(newFolder1);
-        workspace.Folders = workspace.Folders.Append(newFolder2).ToArray();
-
-        await Assert.ThrowsAnyAsync<DuplicationException>(
-            () => _sut.Handle(
-                new("1", folder.Id, newFolder1.Name, parentId),
-                default));
-    }
 }

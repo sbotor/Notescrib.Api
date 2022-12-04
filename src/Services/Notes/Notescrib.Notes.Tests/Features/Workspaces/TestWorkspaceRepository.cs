@@ -29,4 +29,7 @@ public class TestWorkspaceRepository : TestRepositoryBase<Workspace, WorkspacesS
 
     public Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default)
         => Delete(x => x.Id == workspaceId);
+
+    public Task<long> CountAsync(string ownerId, CancellationToken cancellationToken = default)
+        => Count(x => x.OwnerId == ownerId);
 }

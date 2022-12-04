@@ -41,13 +41,11 @@ public static class CreateFolder
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
             var now = _dateTimeProvider.Now;
-            workspace.Edited = now;
+            workspace.Updated = now;
             
             var folder = new Folder { Id = Guid.NewGuid().ToString(), Name = request.Name, Created = now };
-            var tree = new FolderTree(workspace.Folders);
-
+            var tree = new FolderTree(workspace);
             tree.Add(folder, request.ParentId);
-            workspace.Folders = tree.Roots.ToArray();
 
             await _repository.UpdateWorkspaceAsync(workspace, cancellationToken);
 

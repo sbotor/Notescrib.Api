@@ -37,7 +37,11 @@ public static class CreateWorkspace
                 throw new AppException("No user context found.");
             }
 
-            // TODO: Workspace count limit.
+            var existingCount = await _repository.CountAsync(ownerId, cancellationToken);
+            if (existingCount >= Size.Workspace.MaxCount)
+            {
+                throw new AppException("Maximum workspace count reached.");
+            }
 
             var workspace = new Workspace { Name = request.Name, OwnerId = ownerId, Created = _dateTimeProvider.Now };
             await _repository.AddWorkspaceAsync(workspace, cancellationToken);

@@ -20,14 +20,15 @@ public static class DeleteFolder
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository workspaceRepository, INoteRepository noteRepository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(IWorkspaceRepository workspaceRepository, INoteRepository noteRepository,
+            IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _workspaceRepository = workspaceRepository;
             _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
-        
+
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
@@ -37,9 +38,8 @@ public static class DeleteFolder
             }
 
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
-            
-            var tree = new FolderTree(workspace.Folders);
-            
+
+            var tree = new FolderTree(workspace);
             var foundFolder = tree.FindWithParent(x => x.Id == request.Id);
             if (foundFolder == null)
             {
@@ -47,15 +47,13 @@ public static class DeleteFolder
             }
 
             var removedFolderIds = foundFolder.Item.EnumerateChildren().Select(x => x.Id).Append(foundFolder.Item.Id);
-            
             await _noteRepository.DeleteNotesFromWorkspaceAsync(workspace.Id, removedFolderIds, cancellationToken);
-            
+
             tree.Remove(foundFolder);
-            workspace.Folders = tree.Roots.ToArray();
-            workspace.Edited = _dateTimeProvider.Now;
-            
+            workspace.Updated = _dateTimeProvider.Now;
+
             await _workspaceRepository.UpdateWorkspaceAsync(workspace, cancellationToken);
-            
+
             return Unit.Value;
         }
     }

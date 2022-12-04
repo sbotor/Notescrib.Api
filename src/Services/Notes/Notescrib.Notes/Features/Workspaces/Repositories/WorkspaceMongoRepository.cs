@@ -47,4 +47,7 @@ public class WorkspaceMongoRepository : IWorkspaceRepository
 
     public Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default)
         => _collection.DeleteManyAsync(x => x.Id == workspaceId, cancellationToken);
+
+    public Task<long> CountAsync(string ownerId, CancellationToken cancellationToken = default)
+        => _collection.Find(x => x.OwnerId == ownerId).CountDocumentsAsync(cancellationToken);
 }

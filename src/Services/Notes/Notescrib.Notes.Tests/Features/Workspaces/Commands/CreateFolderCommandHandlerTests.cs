@@ -36,11 +36,6 @@ public class CreateFolderWorkspaceCommandHandlerTests
             () => _sut.Handle(new("1", "Folder 2.0", "F2"), default));
 
     [Fact]
-    public Task Handle_WhenFolderAlreadyExist_ThrowsDuplicationException()
-        => Assert.ThrowsAnyAsync<DuplicationException>(
-            () => _sut.Handle(new("1", "Folder 0", null), default));
-
-    [Fact]
     public async Task Handle_WhenUserCannotEditWorkspace_ThrowsForbiddenException()
     {
         _userContext.UserId = "asdf";
@@ -76,13 +71,13 @@ public class CreateFolderWorkspaceCommandHandlerTests
     [InlineData("Folder 2", null)]
     [InlineData("Folder 1.0", "F1")]
     [InlineData("Folder 0.0.0", "F0.0")]
-    public async Task Handle_ForCorrectCircumstances_CreatesFolder(string name, string? parent)
+    public async Task Handle_ForCorrectCircumstances_CreatesFolder(string name, string? parentId)
     {
-        await _sut.Handle(new("1", name, parent), default);
+        await _sut.Handle(new("1", name, parentId), default);
 
         var tree = new FolderTree(_repository.Items.First().Folders);
 
-        Assert.Single(tree, x => (parent == null && x.Name == name)
-            || (x.Name == parent&& x.Children.SingleOrDefault(c => c.Name == name) != null));
+        Assert.Single(tree, x => (parentId == null && x.Name == name)
+            || (x.Id == parentId && x.Children.SingleOrDefault(c => c.Name == name) != null));
     }
 }

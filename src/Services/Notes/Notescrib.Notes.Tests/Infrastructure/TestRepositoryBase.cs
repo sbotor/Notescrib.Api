@@ -41,4 +41,7 @@ public class TestRepositoryBase<T, TSort> where TSort : struct, Enum
         Items = Items.Except(Items.Where(predicate)).ToList();
         return Task.CompletedTask;
     }
+
+    protected Task<long> Count(Func<T, bool> predicate)
+        => Task.FromResult(Items.LongCount(predicate));
 }

@@ -9,5 +9,5 @@ public class WorkspaceOverview
     public string Name { get; set; } = null!;
     
     public DateTime Created { get; set; }
-    public DateTime? Edited { get; set; }
+    public DateTime? Updated { get; set; }
 }
