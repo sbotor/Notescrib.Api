@@ -71,7 +71,7 @@ public class FolderTree : BfsTree<Folder>
 
     private void AddCore(ICollection<Folder> target, Folder item)
     {
-        if (Count >= Size.Folder.MaxCount)
+        if (Count >= Notescrib.Notes.Utils.Counts.Folder.MaxCount)
         {
             throw new AppException("Cannot add more folders.");
         }

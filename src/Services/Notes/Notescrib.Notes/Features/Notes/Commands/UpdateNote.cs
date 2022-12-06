@@ -84,10 +84,10 @@ public static class UpdateNote
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.MaxLength);
+                .MaximumLength(Counts.Name.MaxLength);
 
             RuleFor(x => x.Labels.Count)
-                .LessThanOrEqualTo(Size.Note.MaxLabelCount);
+                .LessThanOrEqualTo(Counts.Note.MaxLabelCount);
             RuleForEach(x => x.Labels)
                 .NotEmpty();
 

@@ -56,7 +56,7 @@ public static class UpdateWorkspace
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.MaxLength);
+                .MaximumLength(Counts.Name.MaxLength);
         }
     }
 }

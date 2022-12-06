@@ -50,7 +50,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
         var folder = new Folder { Id = "N0", Name = "Nested 0" };
         var tempFolder = folder;
 
-        for (var i = 1; i <= Size.NestingLevel.Max; i++)
+        for (var i = 1; i <= Counts.NestingLevel.Max; i++)
         {
             var newFolder = new Folder { Id = "N{i}", Name = $"Nested {i}" };
             tempFolder.Children = new List<Folder> { newFolder };
@@ -62,8 +62,8 @@ public class CreateFolderWorkspaceCommandHandlerTests
         await Assert.ThrowsAnyAsync<AppException>(
             () => _sut.Handle(new(
                     "1",
-                    $"Nested {Size.NestingLevel.Max + 1}",
-                    $"N{Size.NestingLevel.Max}"),
+                    $"Nested {Counts.NestingLevel.Max + 1}",
+                    $"N{Counts.NestingLevel.Max}"),
                 default));
     }
 

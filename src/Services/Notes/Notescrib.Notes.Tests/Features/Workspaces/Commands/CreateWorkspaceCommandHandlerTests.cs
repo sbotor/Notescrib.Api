@@ -36,7 +36,7 @@ public class CreateWorkspaceCommandHandlerTests
     {
         _userContext.UserId = "1";
 
-        foreach (var i in Enumerable.Range(1, Size.Workspace.MaxCount))
+        foreach (var i in Enumerable.Range(1, Counts.Workspace.MaxCount))
         {
             _repository.Items.Add(new Workspace { Name = "name", Id = i.ToString(), OwnerId = "1" });
         }

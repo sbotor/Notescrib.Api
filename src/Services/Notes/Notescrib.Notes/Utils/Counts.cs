@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Notes.Utils;
 
-public static class Size
+public static class Counts
 {
     public static class Name
     {

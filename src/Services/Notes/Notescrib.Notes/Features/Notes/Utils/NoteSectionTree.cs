@@ -21,7 +21,7 @@ public class NoteSectionTree : BfsTree<NoteSection>
         
         foreach (var node in AsNodeEnumerable())
         {
-            if (node.Level >= Size.NestingLevel.Max)
+            if (node.Level >= Notescrib.Notes.Utils.Counts.NestingLevel.Max)
             {
                 throw new AppException();
             }
@@ -33,7 +33,7 @@ public class NoteSectionTree : BfsTree<NoteSection>
             nameSet.Add(node.Item.Name);
             
             charCount += node.Item.Content.Length;
-            if (charCount > Size.Note.MaxLength)
+            if (charCount > Notescrib.Notes.Utils.Counts.Note.MaxLength)
             {
                 throw new AppException("The note is too long.");
             }

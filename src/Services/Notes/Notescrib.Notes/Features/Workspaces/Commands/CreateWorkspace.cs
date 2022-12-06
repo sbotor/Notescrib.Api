@@ -38,7 +38,7 @@ public static class CreateWorkspace
             }
 
             var existingCount = await _repository.CountAsync(ownerId, cancellationToken);
-            if (existingCount >= Size.Workspace.MaxCount)
+            if (existingCount >= Counts.Workspace.MaxCount)
             {
                 throw new AppException("Maximum workspace count reached.");
             }
@@ -56,7 +56,7 @@ public static class CreateWorkspace
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.MaxLength);
+                .MaximumLength(Counts.Name.MaxLength);
         }
     }
 }

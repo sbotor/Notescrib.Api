@@ -62,7 +62,7 @@ public static class CreateFolder
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Size.Name.MaxLength);
+                .MaximumLength(Counts.Name.MaxLength);
 
             RuleFor(x => x.ParentId)
                 .NotEmpty()
