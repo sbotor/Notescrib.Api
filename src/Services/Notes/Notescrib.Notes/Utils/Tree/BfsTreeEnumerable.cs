@@ -5,20 +5,17 @@ namespace Notescrib.Notes.Utils.Tree;
 
 public abstract class BfsTreeEnumerable<TSource, TDest> : IEnumerable<TDest>
 {
-    private readonly IEnumerable<TSource> _rootItems;
+    private readonly TSource _root;
 
-    protected BfsTreeEnumerable(IEnumerable<TSource> rootItems)
+    protected BfsTreeEnumerable(TSource root)
     {
-        _rootItems = rootItems;
+        _root = root;
     }
     
     public IEnumerator<TDest> GetEnumerator()
     {
         var queue = new Queue<TSource>();
-        foreach (var item in _rootItems)
-        {
-            queue.Enqueue(item);
-        }
+        queue.Enqueue(_root);
 
         var level = 0;
 
@@ -51,7 +48,7 @@ public abstract class BfsTreeEnumerable<TSource, TDest> : IEnumerable<TDest>
 public class BfsTreeEnumerable<T> : BfsTreeEnumerable<T, T>
     where T : IChildrenTree<IEnumerable<T>, T>
 {
-    public BfsTreeEnumerable(IEnumerable<T> rootItems) : base(rootItems)
+    public BfsTreeEnumerable(T root) : base(root)
     {
     }
 
@@ -62,8 +59,8 @@ public class BfsTreeEnumerable<T> : BfsTreeEnumerable<T, T>
 public class BfsTreeNodeEnumerable<T> : BfsTreeEnumerable<T, TreeNode<T>>
     where T : IChildrenTree<IEnumerable<T>, T>
 {
-    public BfsTreeNodeEnumerable(IEnumerable<T> rootItems)
-        : base(rootItems)
+    public BfsTreeNodeEnumerable(T root)
+        : base(root)
     {
     }
 

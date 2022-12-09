@@ -25,4 +25,8 @@
       <ProjectReference Include="..\Notescrib.Notes\Notescrib.Notes.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\Workspaces\Queries" />
+    </ItemGroup>
+
 </Project>

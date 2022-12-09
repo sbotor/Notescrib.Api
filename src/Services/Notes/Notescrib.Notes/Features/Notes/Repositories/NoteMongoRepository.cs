@@ -16,8 +16,7 @@ public class NoteMongoRepository : INoteRepository
         _collection = collection;
     }
 
-    public Task<PagedList<Note>> GetNotesAsync(
-        string? workspaceId,
+    public Task<PagedList<Note>> GetAsync(
         string? folderId,
         IPermissionGuard permissionGuard,
         PagingSortingInfo<NotesSorting> info,
@@ -25,8 +24,7 @@ public class NoteMongoRepository : INoteRepository
     {
         var filters = new[]
         {
-            x => (workspaceId == null || x.WorkspaceId == workspaceId)
-                 && (folderId == null || x.FolderId == folderId),
+            x => folderId == null || x.FolderId == folderId,
             permissionGuard.ExpressionCanView<Note>()
         };
 
@@ -35,40 +33,36 @@ public class NoteMongoRepository : INoteRepository
             info,
             cancellationToken);
     }
+    
+    public Task<IReadOnlyCollection<Note>> GetAsync(
+        string? folderId,
+        IPermissionGuard permissionGuard,
+        CancellationToken cancellationToken = default)
+    {
+        var filters = new[]
+        {
+            x => folderId == null || x.FolderId == folderId,
+            permissionGuard.ExpressionCanView<Note>()
+        };
+
+        return _collection.FindAsync(filters, cancellationToken);
+    }
 
     public Task AddNote(Note note, CancellationToken cancellationToken = default)
         => _collection.InsertOneAsync(note, cancellationToken: cancellationToken);
 
-    public async Task<bool> ExistsAsync(
-        string workspaceId,
-        string folderId,
-        string name,
-        CancellationToken cancellationToken = default)
-    {
-        var found = await _collection.Find(
-                x => x.WorkspaceId == workspaceId
-                        && x.FolderId == folderId && x.Name == name)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return found != null;
-    }
-
-    public Task<Note?> GetNoteByIdAsync(string id, CancellationToken cancellationToken = default)
+    public Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         => _collection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken)!;
 
-    public Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(Note note, CancellationToken cancellationToken = default)
         => _collection.FindOneAndReplaceAsync(
             x => x.Id == note.Id,
             note,
             cancellationToken: cancellationToken);
 
-    public Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null,
+    public Task DeleteFromFoldersAsync(IEnumerable<string> folderIds,
         CancellationToken cancellationToken = default)
-    => folderIds != null
-        ? _collection.DeleteManyAsync(
-            x => x.WorkspaceId == workspaceId && folderIds.Contains(x.FolderId),
-            cancellationToken: cancellationToken)
-        : _collection.DeleteManyAsync(
-            x => x.WorkspaceId == workspaceId,
+        => _collection.DeleteManyAsync(
+            x => folderIds.Contains(x.FolderId),
             cancellationToken: cancellationToken);
 }

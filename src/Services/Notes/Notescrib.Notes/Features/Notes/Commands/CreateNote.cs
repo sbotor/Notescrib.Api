@@ -2,6 +2,7 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Features.Folders.Utils;
 using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
@@ -14,7 +15,7 @@ namespace Notescrib.Notes.Features.Notes.Commands;
 
 public static class CreateNote
 {
-    public record Command(string Name, string WorkspaceId, string FolderId, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
+    public record Command(string Name, string FolderId, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
         : ICommand<NoteOverview>;
 
     internal class Handler : ICommandHandler<Command, NoteOverview>
@@ -22,59 +23,48 @@ public static class CreateNote
         private readonly INoteRepository _noteRepository;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IUserContextProvider _userContext;
         private readonly IMapper<Note, NoteOverview> _mapper;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
             INoteRepository noteRepository,
             IWorkspaceRepository workspaceRepository,
             IPermissionGuard permissionGuard,
-            IUserContextProvider userContext,
-            IMapper<Note, NoteOverview> mapper)
+            IMapper<Note, NoteOverview> mapper,
+            IDateTimeProvider dateTimeProvider)
         {
             _noteRepository = noteRepository;
             _workspaceRepository = workspaceRepository;
             _permissionGuard = permissionGuard;
-            _userContext = userContext;
             _mapper = mapper;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<NoteOverview> Handle(Command request, CancellationToken cancellationToken)
         {
-            var ownerId = _userContext.UserId;
-            if (ownerId == null)
-            {
-                throw new AppException();
-            }
-
-            var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(request.WorkspaceId, cancellationToken);
+            var userId = _permissionGuard.UserContext.UserId;
+            var workspace = await _workspaceRepository.GetByOwnerIdAsync(userId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>(request.WorkspaceId);
+                throw new NotFoundException<Workspace>();
             }
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            if (!string.IsNullOrEmpty(request.FolderId)
-                && workspace.Folders.All(x => x.Id != request.FolderId))
+            if (new FolderTree(workspace).All(x => x.Id != request.FolderId))
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
-            
-            if (await _noteRepository.ExistsAsync(request.WorkspaceId, request.FolderId, request.Name, cancellationToken))
-            {
-                throw new DuplicationException<Note>();
-            }
-            
+
             var note = new Note
             {
                 Name = request.Name,
-                OwnerId = ownerId,
-                WorkspaceId = request.WorkspaceId,
+                OwnerId = userId,
                 FolderId = request.FolderId,
-                Contents = Array.Empty<NoteSection>(),
+                NoteSectionTree = Array.Empty<NoteSection>(),
                 SharingInfo = request.SharingInfo,
-                Labels = request.Labels.ToArray()
+                Labels = request.Labels.ToArray(),
+                Created = _dateTimeProvider.Now
             };
 
             await _noteRepository.AddNote(note, cancellationToken);
@@ -86,9 +76,6 @@ public static class CreateNote
     {
         public Validator()
         {
-            RuleFor(x => x.WorkspaceId)
-                .NotEmpty();
-
             RuleFor(x => x.FolderId)
                 .NotNull();
 

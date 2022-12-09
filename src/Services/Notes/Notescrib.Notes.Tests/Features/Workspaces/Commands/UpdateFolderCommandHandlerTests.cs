@@ -1,9 +1,7 @@
-﻿using MongoDB.Driver.Linq;
-using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
-using static Notescrib.Notes.Features.Workspaces.Commands.UpdateFolder;
+using static Notescrib.Notes.Features.Folders.Commands.UpdateFolder;
 
 namespace Notescrib.Notes.Tests.Features.Workspaces.Commands;
 
@@ -18,14 +16,14 @@ public class UpdateFolderCommandHandlerTests
     {
         WorkspaceDataSetup.SetupWorkspace(_repository);
         
-        _sut = new(_repository, new PermissionGuard(_userContext), new UtcDateTimeProvider());
+        _sut = new(_repository, new PermissionGuard(_userContext), new UtcDateTimeProvider(), _userContext);
     }
     
     [Fact]
     public Task Handle_WhenWorkspaceDoesNotExist_ThrowsNotFoundException()
         => Assert.ThrowsAnyAsync<NotFoundException>(
             () => _sut.Handle(
-                new("asdf", "Folder", "Name", "Parent"),
+                new("Folder", "Name", "Parent"),
                 default));
 
     [Fact]
@@ -34,7 +32,7 @@ public class UpdateFolderCommandHandlerTests
         _userContext.UserId = "asdf";
         await Assert.ThrowsAnyAsync<ForbiddenException>(
             () => _sut.Handle(
-                new("1", "Folder", "Name", "Parent"),
+                new("Folder", "Name", "Parent"),
                 default));
     }
 }

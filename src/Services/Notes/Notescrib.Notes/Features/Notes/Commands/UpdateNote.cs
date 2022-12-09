@@ -2,10 +2,10 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Folders.Utils;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
-using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -27,36 +27,37 @@ public static class UpdateNote
         private readonly INoteRepository _noteRepository;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(INoteRepository noteRepository, IWorkspaceRepository workspaceRepository, IPermissionGuard permissionGuard)
+        public Handler(
+            INoteRepository noteRepository,
+            IWorkspaceRepository workspaceRepository,
+            IPermissionGuard permissionGuard,
+            IDateTimeProvider dateTimeProvider)
         {
             _noteRepository = noteRepository;
             _workspaceRepository = workspaceRepository;
             _permissionGuard = permissionGuard;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _noteRepository.GetNoteByIdAsync(request.Id, cancellationToken);
+            var note = await _noteRepository.GetByIdAsync(request.Id, cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException<Note>(request.Id);
             }
 
             _permissionGuard.GuardCanEdit(note.OwnerId);
-            
-            if (await _noteRepository.ExistsAsync(note.WorkspaceId, request.FolderId, note.Name, cancellationToken))
-            {
-                throw new DuplicationException<Note>();
-            }
 
-            var workspace = await _workspaceRepository.GetWorkspaceByIdAsync(note.WorkspaceId, cancellationToken);
+            var workspace = await _workspaceRepository.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>(note.WorkspaceId);
+                throw new NotFoundException<Workspace>();
             }
 
-            if (new FolderTree(workspace.Folders).All(x => x.Id != request.FolderId))
+            if (new FolderTree(workspace).All(x => x.Id != request.FolderId))
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
@@ -65,8 +66,9 @@ public static class UpdateNote
             note.FolderId = request.FolderId;
             note.Labels = request.Labels.ToArray();
             note.SharingInfo = request.SharingInfo;
+            note.Updated = _dateTimeProvider.Now;
 
-            await _noteRepository.UpdateNoteAsync(note, cancellationToken);
+            await _noteRepository.UpdateAsync(note, cancellationToken);
             
             return Unit.Value;
         }

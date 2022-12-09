@@ -7,7 +7,7 @@ using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Extensions;
 
-public static class PagingExtensions
+public static class MongoCollectionExtensions
 {
     public static async Task<PagedList<T>> FindPagedAsync<T, TSort>(this IMongoCollection<T> source,
         IEnumerable<Expression<Func<T, bool>>> filters,
@@ -49,6 +49,23 @@ public static class PagingExtensions
         CancellationToken cancellationToken = default)
         where TSort : struct, Enum
         => source.FindPagedAsync(new[] { filter }, info, cancellationToken);
+    
+    public static async Task<IReadOnlyCollection<T>> FindAsync<T>(this IMongoCollection<T> source,
+        IEnumerable<Expression<Func<T, bool>>> filters,
+        CancellationToken cancellationToken = default)
+    {
+        var query = source.Aggregate(new()
+        {
+            Collation = new("en", strength: CollationStrength.Secondary)
+        });
+        
+        foreach (var filter in filters)
+        {
+            query = query.Match(filter);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
 
     private static SortDefinition<T> GetSortDefinition<T, TSort>(Sorting<TSort> sorting, ISortingProvider<TSort> sortingProvider)
         where TSort : struct, Enum

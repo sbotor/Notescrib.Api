@@ -6,11 +6,7 @@ namespace Notescrib.Notes.Features.Notes.Utils;
 
 public class NoteSectionTree : BfsTree<NoteSection>
 {
-    public NoteSectionTree(IEnumerable<NoteSection> roots) : base(roots)
-    {
-    }
-
-    public NoteSectionTree()
+    public NoteSectionTree(IEnumerable<NoteSection> roots) : base(NoteSection.CreateRoot(roots))
     {
     }
 
@@ -21,7 +17,7 @@ public class NoteSectionTree : BfsTree<NoteSection>
         
         foreach (var node in AsNodeEnumerable())
         {
-            if (node.Level >= Notescrib.Notes.Utils.Counts.NestingLevel.Max)
+            if (node.Level >= Counts.NestingLevel.Max)
             {
                 throw new AppException();
             }
@@ -33,7 +29,7 @@ public class NoteSectionTree : BfsTree<NoteSection>
             nameSet.Add(node.Item.Name);
             
             charCount += node.Item.Content.Length;
-            if (charCount > Notescrib.Notes.Utils.Counts.Note.MaxLength)
+            if (charCount > Counts.Note.MaxLength)
             {
                 throw new AppException("The note is too long.");
             }

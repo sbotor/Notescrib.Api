@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Identity.Clients;
+using Notescrib.Identity.Clients.Config;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Queries;
 using Notescrib.Identity.Features.Users;
@@ -26,6 +28,7 @@ public static class ServicesExtensions
         services.AddTransient<IUserMapper, UserMapper>();
         
         services.AddIdentityServices(config);
+        services.AddNotesIntegration(config);
         
         return services;
     }
@@ -56,5 +59,19 @@ public static class ServicesExtensions
             RequireNonAlphanumeric = true,
             RequiredLength = 6
         };
+    }
+
+    private static void AddNotesIntegration(this IServiceCollection services, IConfiguration config)
+    {
+        var section = config.GetSection(nameof(NotesApiSettings));
+        services.Configure<NotesApiSettings>(section);
+
+        services.AddScoped<INotesApiClient, NotesApiClient>();
+        
+        services.AddHttpClient(nameof(NotesApiClient), client =>
+        {
+            var settings = section.Get<NotesApiSettings>()!;
+            client.BaseAddress = settings.BaseUrl;
+        });
     }
 }

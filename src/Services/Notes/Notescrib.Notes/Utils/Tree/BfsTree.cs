@@ -13,34 +13,18 @@ public abstract class BfsTree<T> : IEnumerable<T>
         protected set => _count = value;
     }
     
-    public ICollection<T> Roots { get; }
+    public T Root { get; }
     
-    protected BfsTree(IEnumerable<T> roots)
+    protected BfsTree(T root)
     {
-        Roots = roots.ToList();
+        Root = root;
     }
-    
-    protected BfsTree(ICollection<T> roots)
-    {
-        Roots = roots;
-    }
-    
-    protected BfsTree()
-    {
-        Roots = new List<T>();
-    }
-    
+
     public TreeChildNode<T>? FindWithParent(Func<T, bool> predicate)
     {
         var items = this.ToArray();
-        
-        var foundRoot = items.Take(Roots.Count).FirstOrDefault(predicate);
-        if (foundRoot != null)
-        {
-            return new(foundRoot, default);
-        }
-        
-        foreach (var item in items.Skip(Roots.Count))
+
+        foreach (var item in items)
         {
             var found = item.Children.SingleOrDefault(predicate);
             if (found == null)
@@ -55,9 +39,9 @@ public abstract class BfsTree<T> : IEnumerable<T>
     }
 
     protected IEnumerable<TreeNode<T>> AsNodeEnumerable()
-        => new BfsTreeNodeEnumerable<T>(Roots);
+        => new BfsTreeNodeEnumerable<T>(Root);
 
-    public IEnumerator<T> GetEnumerator() => new BfsTreeEnumerable<T>(Roots).GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => new BfsTreeEnumerable<T>(Root).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

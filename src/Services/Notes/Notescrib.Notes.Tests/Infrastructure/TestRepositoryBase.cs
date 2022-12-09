@@ -4,14 +4,9 @@ using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Tests.Infrastructure;
 
-public class TestRepositoryBase<T, TSort> where TSort : struct, Enum
+public class TestRepositoryBase<T>
 {
     public List<T> Items { get; set; } = new();
-
-    protected Task<PagedList<T>> GetPaged(
-        Func<T, bool> filter,
-        PagingSortingInfo<TSort> info)
-        => Task.FromResult(Items.Where(filter).ToPagedList(info));
 
     protected Task Add(T item, Action<T> idGenerator)
     {
@@ -35,6 +30,9 @@ public class TestRepositoryBase<T, TSort> where TSort : struct, Enum
     
     protected Task<T?> GetSingleOrDefault(Func<T, bool> predicate)
         => Task.FromResult(Items.SingleOrDefault(predicate));
+    
+    protected Task<IReadOnlyCollection<T>> Get(Func<T, bool> predicate)
+        => Task.FromResult<IReadOnlyCollection<T>>(Items.Where(predicate).ToArray());
 
     protected Task Delete(Func<T, bool> predicate)
     {
@@ -44,4 +42,13 @@ public class TestRepositoryBase<T, TSort> where TSort : struct, Enum
 
     protected Task<long> Count(Func<T, bool> predicate)
         => Task.FromResult(Items.LongCount(predicate));
+}
+
+public class TestRepositoryBase<T, TSort> : TestRepositoryBase<T>
+    where TSort : struct, Enum
+{
+    protected Task<PagedList<T>> GetPaged(
+        Func<T, bool> filter,
+        PagingSortingInfo<TSort> info)
+        => Task.FromResult(Items.Where(filter).ToPagedList(info));
 }

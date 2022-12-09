@@ -1,11 +1,11 @@
 ﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Folders.Mappers;
+using Notescrib.Notes.Features.Folders.Utils;
 using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Mappers;
-using Notescrib.Notes.Features.Workspaces.Utils;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
 using Notescrib.Notes.Utils;
-using static Notescrib.Notes.Features.Workspaces.Commands.CreateFolder;
+using static Notescrib.Notes.Features.Folders.Commands.CreateFolder;
 
 namespace Notescrib.Notes.Tests.Features.Workspaces.Commands;
 
@@ -18,7 +18,8 @@ public class CreateFolderWorkspaceCommandHandlerTests
 
     public CreateFolderWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, new PermissionGuard(_userContext), new WorkspaceDetailsMapper(), new UtcDateTimeProvider());
+        _sut = new(_repository, new PermissionGuard(_userContext), new FolderOverviewMapper(),
+            new UtcDateTimeProvider());
 
         _userContext.UserId = "1";
 
@@ -28,12 +29,12 @@ public class CreateFolderWorkspaceCommandHandlerTests
     [Fact]
     public Task Handle_WhenWorkspaceDoesNotExist_ThrowsNotFoundException()
         => Assert.ThrowsAnyAsync<NotFoundException>(
-            () => _sut.Handle(new("asdf", "Folder 2", null), default));
+            () => _sut.Handle(new("Folder 2", Folder.RootId), default));
 
     [Fact]
     public Task Handle_WhenParentFolderDoesNotExist_ThrowsNotFoundException()
         => Assert.ThrowsAnyAsync<NotFoundException>(
-            () => _sut.Handle(new("1", "Folder 2.0", "F2"), default));
+            () => _sut.Handle(new("Folder 2.0", "F2"), default));
 
     [Fact]
     public async Task Handle_WhenUserCannotEditWorkspace_ThrowsForbiddenException()
@@ -41,7 +42,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
         _userContext.UserId = "asdf";
 
         await Assert.ThrowsAnyAsync<ForbiddenException>(
-            () => _sut.Handle(new("1", "Folder 2", null), default));
+            () => _sut.Handle(new("Folder 2", Folder.RootId), default));
     }
 
     [Fact]
@@ -57,13 +58,11 @@ public class CreateFolderWorkspaceCommandHandlerTests
             tempFolder = newFolder;
         }
 
-        _repository.Items.First().Folders = new[] { folder };
+        _repository.Items.First().FolderTree = Folder.CreateRoot(null, folder);
 
         await Assert.ThrowsAnyAsync<AppException>(
             () => _sut.Handle(new(
-                    "1",
-                    $"Nested {Counts.NestingLevel.Max + 1}",
-                    $"N{Counts.NestingLevel.Max}"),
+                    $"Nested {Counts.NestingLevel.Max + 1}", $"N{Counts.NestingLevel.Max}"),
                 default));
     }
 
@@ -73,11 +72,11 @@ public class CreateFolderWorkspaceCommandHandlerTests
     [InlineData("Folder 0.0.0", "F0.0")]
     public async Task Handle_ForCorrectCircumstances_CreatesFolder(string name, string? parentId)
     {
-        await _sut.Handle(new("1", name, parentId), default);
+        await _sut.Handle(new(name, parentId ?? Folder.RootId), default);
 
-        var tree = new FolderTree(_repository.Items.First().Folders);
+        var tree = new FolderTree(_repository.Items.First());
 
         Assert.Single(tree, x => (parentId == null && x.Name == name)
-            || (x.Id == parentId && x.Children.SingleOrDefault(c => c.Name == name) != null));
+                                 || (x.Id == parentId && x.Children.SingleOrDefault(c => c.Name == name) != null));
     }
 }

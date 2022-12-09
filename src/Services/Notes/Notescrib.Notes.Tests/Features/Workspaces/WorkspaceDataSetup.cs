@@ -9,27 +9,15 @@ public static class WorkspaceDataSetup
         {
             Id = "1",
             OwnerId = "1",
-            Name = "Workspace",
-            Folders = new List<Folder>
+            FolderTree = Folder.CreateRoot(new List<Folder>
             {
                 new()
                 {
                     Id = "F0",
                     Name = "Folder 0",
-                    Children = new List<Folder>
-                    { 
-                        new()
-                        {
-                            Id = "F0.0",
-                            Name = "Folder 0.0"
-                        }
-                    }
+                    Children = new List<Folder> { new() { Id = "F0.0", Name = "Folder 0.0" } }
                 },
-                new()
-                {
-                    Id = "F1",
-                    Name = "Folder 1"
-                }
-            }
+                new() { Id = "F1", Name = "Folder 1" }
+            })
         });
 }

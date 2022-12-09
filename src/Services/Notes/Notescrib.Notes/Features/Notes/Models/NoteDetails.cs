@@ -12,4 +12,6 @@ public class NoteDetails
     public ICollection<string> Labels { get; set; } = new List<string>();
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
+    public DateTime Created { get; set; }
+    public DateTime? Updated { get; set; }
 }

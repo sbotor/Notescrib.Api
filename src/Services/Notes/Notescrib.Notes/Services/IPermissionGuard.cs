@@ -11,6 +11,8 @@ public interface IPermissionGuard
     void GuardCanEdit(string ownerId);
     bool CanView(string ownerId, SharingInfo? sharingInfo = null);
     void GuardCanView(string ownerId, SharingInfo? sharingInfo = null);
+    
+    public IUserContextProvider UserContext { get; }
 
     Expression<Func<T, bool>> ExpressionCanView<T>()
         where T : IShareable;

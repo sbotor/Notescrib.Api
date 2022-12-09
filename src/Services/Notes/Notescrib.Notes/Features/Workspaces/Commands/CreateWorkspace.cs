@@ -1,62 +1,41 @@
-﻿using FluentValidation;
+﻿using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Workspaces.Models;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
 public static class CreateWorkspace
 {
-    public record Command(string Name) : ICommand<WorkspaceDetails>;
+    public record Command : ICommand;
 
-    internal class Handler : ICommandHandler<Command, WorkspaceDetails>
+    internal class Handler : ICommandHandler<Command>
     {
         private readonly IWorkspaceRepository _repository;
         private readonly IUserContextProvider _userContext;
-        private readonly IMapper<Workspace, WorkspaceDetails> _mapper;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext,
-            IMapper<Workspace, WorkspaceDetails> mapper, IDateTimeProvider dateTimeProvider)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _userContext = userContext;
-            _mapper = mapper;
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<WorkspaceDetails> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var ownerId = _userContext.UserId;
-            if (ownerId == null)
+            var userId = _userContext.UserId;
+            if (await _repository.GetByOwnerIdAsync(userId, cancellationToken) != null)
             {
-                throw new AppException("No user context found.");
+                throw new DuplicationException<Workspace>();
             }
 
-            var existingCount = await _repository.CountAsync(ownerId, cancellationToken);
-            if (existingCount >= Counts.Workspace.MaxCount)
-            {
-                throw new AppException("Maximum workspace count reached.");
-            }
+            var now = _dateTimeProvider.Now;
+            var workspace = new Workspace { OwnerId = userId, Created = now, FolderTree = Folder.CreateRoot(now) };
+            await _repository.AddAsync(workspace, cancellationToken);
 
-            var workspace = new Workspace { Name = request.Name, OwnerId = ownerId, Created = _dateTimeProvider.Now };
-            await _repository.AddWorkspaceAsync(workspace, cancellationToken);
-
-            return _mapper.Map(workspace);
-        }
-    }
-
-    internal class Validator : AbstractValidator<Command>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(Counts.Name.MaxLength);
+            return Unit.Value;
         }
     }
 }

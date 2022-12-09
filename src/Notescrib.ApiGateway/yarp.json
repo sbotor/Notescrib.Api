@@ -38,12 +38,12 @@
       "ClusterId": "notes",
       "AuthorizationPolicy": "Default",
       "Match": {
-        "Path": "/api/workspaces/{**rest}",
+        "Path": "/api/folders/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
       },
       "Transforms": [
-        { "PathPattern": "/workspaces/{**rest}" }
+        { "PathPattern": "/folders/{**rest}" }
       ]
     },
     "notes": {

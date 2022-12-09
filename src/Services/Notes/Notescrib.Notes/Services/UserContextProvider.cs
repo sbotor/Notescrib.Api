@@ -12,10 +12,9 @@ internal class UserContextProvider : IUserContextProvider
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? UserId => GetClaim(ClaimTypes.NameIdentifier);
-    public string? Email => GetClaim(ClaimTypes.Email);
+    public string UserId => GetClaim(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("No user ID found.");
+    public string Email => GetClaim(ClaimTypes.Email) ?? throw new InvalidOperationException("No user email found.");
 
     private string? GetClaim(string claimType)
-        => _httpContextAccessor.HttpContext?.User?.Claims
-            ?.FirstOrDefault(c => c.Type == claimType)?.Value;
+        => _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
 }

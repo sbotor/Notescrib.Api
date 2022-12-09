@@ -1,6 +1,5 @@
 ﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Mappers;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
 using Notescrib.Notes.Utils;
@@ -17,7 +16,7 @@ public class CreateWorkspaceCommandHandlerTests
 
     public CreateWorkspaceCommandHandlerTests()
     {
-        _sut = new(_repository, _userContext, new WorkspaceDetailsMapper(), new UtcDateTimeProvider());
+        _sut = new(_repository, _userContext, new UtcDateTimeProvider());
     }
 
     [Fact]
@@ -25,7 +24,7 @@ public class CreateWorkspaceCommandHandlerTests
     {
         _userContext.UserId = "1";
 
-        await _sut.Handle(new("Workspace"), default);
+        await _sut.Handle(new(), default);
 
         Assert.Single(_repository.Items);
         Assert.True(_repository.Items.First().OwnerId == "1");
@@ -38,9 +37,9 @@ public class CreateWorkspaceCommandHandlerTests
 
         foreach (var i in Enumerable.Range(1, Counts.Workspace.MaxCount))
         {
-            _repository.Items.Add(new Workspace { Name = "name", Id = i.ToString(), OwnerId = "1" });
+            _repository.Items.Add(new Workspace { Id = i.ToString(), OwnerId = "1" });
         }
 
-        await Assert.ThrowsAsync<AppException>(() => _sut.Handle(new("Workspace"), default));
+        await Assert.ThrowsAsync<AppException>(() => _sut.Handle(new(), default));
     }
 }

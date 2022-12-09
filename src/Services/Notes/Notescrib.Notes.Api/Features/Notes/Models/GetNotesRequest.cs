@@ -12,7 +12,6 @@ public class GetNotesRequest : PagingSortingRequest<NotesSorting>
 
     public GetNotes.Query ToQuery()
         => new(
-            WorkspaceId,
             FolderId,
             new(Page, PageSize),
             new(OrderBy, SortingDirection));

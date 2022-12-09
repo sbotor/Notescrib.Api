@@ -8,14 +8,14 @@ namespace Notescrib.Notes.Services;
 
 internal class PermissionGuard : IPermissionGuard
 {
-    private readonly IUserContextProvider _userContext;
-
     public PermissionGuard(IUserContextProvider userContext)
     {
-        _userContext = userContext;
+        UserContext = userContext;
     }
 
-    public bool CanEdit(string ownerId) => _userContext.UserId == ownerId;
+    public IUserContextProvider UserContext { get; }
+
+    public bool CanEdit(string ownerId) => UserContext.UserId == ownerId;
 
     public void GuardCanEdit(string ownerId)
     {
@@ -28,20 +28,19 @@ internal class PermissionGuard : IPermissionGuard
     public Expression<Func<T, bool>> ExpressionCanView<T>()
         where T : IShareable
         => x =>
-            (_userContext.UserId == x.OwnerId || x.SharingInfo.Visibility == VisibilityLevel.Public)
-            || (_userContext.UserId != null && x.SharingInfo.Visibility == VisibilityLevel.Hidden
-                                            && x.SharingInfo.AllowedIds.Contains(_userContext.UserId));
+            (UserContext.UserId == x.OwnerId || x.SharingInfo.Visibility == VisibilityLevel.Public)
+            || (x.SharingInfo.Visibility == VisibilityLevel.Hidden
+                && x.SharingInfo.AllowedIds.Contains(UserContext.UserId));
 
     public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
     {
-        var userId = _userContext.UserId;
+        var userId = UserContext.UserId;
         if (userId == ownerId || sharingInfo?.Visibility == VisibilityLevel.Public)
         {
             return true;
         }
 
-        return userId != null
-               && sharingInfo is { Visibility: VisibilityLevel.Hidden }
+        return sharingInfo is { Visibility: VisibilityLevel.Hidden }
                && sharingInfo.AllowedIds.Contains(userId);
     }
 

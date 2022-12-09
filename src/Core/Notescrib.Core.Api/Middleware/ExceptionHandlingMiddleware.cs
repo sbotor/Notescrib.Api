@@ -75,7 +75,7 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private static string GetMessageOrDefault(AppException exception, string message)
+    private static string GetMessageOrDefault(Exception exception, string message)
         => !string.IsNullOrEmpty(exception.Message)
             ? exception.Message
             : message;

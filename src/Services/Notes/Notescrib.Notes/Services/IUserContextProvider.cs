@@ -2,6 +2,5 @@
 
 public interface IUserContextProvider
 {
-    string? UserId { get; }
-    string? Email { get; }
+    string UserId { get; }
 }

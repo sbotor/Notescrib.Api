@@ -7,8 +7,7 @@ namespace Notescrib.Notes.Features.Notes.Repositories;
 
 public interface INoteRepository
 {
-    Task<PagedList<Note>> GetNotesAsync(
-        string? workspaceId,
+    Task<PagedList<Note>> GetAsync(
         string? folderId,
         IPermissionGuard permissionGuard,
         PagingSortingInfo<NotesSorting> info,
@@ -16,15 +15,15 @@ public interface INoteRepository
 
     Task AddNote(Note note, CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsAsync(
-        string workspaceId,
-        string folderId,
-        string name,
+    Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    
+    Task UpdateAsync(Note note, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Note>> GetAsync(
+        string? folderId,
+        IPermissionGuard permissionGuard,
         CancellationToken cancellationToken = default);
 
-    Task<Note?> GetNoteByIdAsync(string id, CancellationToken cancellationToken = default);
-    
-    Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default);
-    
-    Task DeleteNotesFromWorkspaceAsync(string workspaceId, IEnumerable<string>? folderIds = null, CancellationToken cancellationToken = default);
+    Task DeleteFromFoldersAsync(IEnumerable<string> folderIds,
+        CancellationToken cancellationToken = default);
 }

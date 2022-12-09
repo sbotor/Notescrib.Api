@@ -16,12 +16,11 @@ internal class JwtProvider : IJwtProvider
         _settings = options.Value;
     }
 
-    public string GenerateToken(string userId, string userEmail)
+    public string GenerateToken(string userId)
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userId),
-            new Claim(ClaimTypes.Email, userEmail)
+            new Claim(ClaimTypes.NameIdentifier, userId)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));

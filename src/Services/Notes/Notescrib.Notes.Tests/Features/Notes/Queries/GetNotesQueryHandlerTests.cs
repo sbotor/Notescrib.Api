@@ -41,7 +41,6 @@ public class GetNotesQueryHandlerTests
         var result = await _sut.Handle(
             new(
                 null,
-                null,
                 new(1, 10),
                 new()),
             default);
@@ -56,7 +55,6 @@ public class GetNotesQueryHandlerTests
         => new()
         {
             Name = $"Note {Counter}",
-            WorkspaceId = workspaceId,
             FolderId = folder,
             Id = Counter++.ToString(),
             OwnerId = ownerId,

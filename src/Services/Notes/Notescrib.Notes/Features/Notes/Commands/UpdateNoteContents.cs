@@ -27,20 +27,20 @@ public static class UpdateNoteContents
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _repository.GetNoteByIdAsync(request.Id, cancellationToken);
+            var note = await _repository.GetByIdAsync(request.Id, cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException<Note>(request.Id);
             }
 
-            _permissionGuard.GuardCanEdit(note.WorkspaceId);
+            _permissionGuard.GuardCanEdit(note.OwnerId);
 
             var tree = MapContents(request.Sections);
             tree.ValidateAndThrow();
 
-            note.Contents = tree.Roots.ToList();
+            note.NoteSectionTree = tree.Root.Children.ToList();
 
-            await _repository.UpdateNoteAsync(note, cancellationToken);
+            await _repository.UpdateAsync(note, cancellationToken);
             return Unit.Value;
         }
 

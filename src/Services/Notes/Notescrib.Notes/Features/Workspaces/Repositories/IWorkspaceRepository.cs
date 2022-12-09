@@ -1,21 +1,10 @@
-﻿using Notescrib.Notes.Features.Workspaces.Utils;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Utils;
-
-namespace Notescrib.Notes.Features.Workspaces.Repositories;
+﻿namespace Notescrib.Notes.Features.Workspaces.Repositories;
 
 public interface IWorkspaceRepository
 {
-    Task<Workspace?> GetWorkspaceByIdAsync(string id, CancellationToken cancellationToken = default);
-
-    Task<PagedList<Workspace>> GetWorkspacesByOwnerIdAsync(
-        string ownerId,
-        PagingSortingInfo<WorkspacesSorting> info,
-        CancellationToken cancellationToken = default);
-
-    Task AddWorkspaceAsync(Workspace workspace, CancellationToken cancellationToken = default);
-    Task UpdateWorkspaceAsync(Workspace workspace, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(string ownerId, string name, CancellationToken cancellationToken = default);
+    Task<Workspace?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<Workspace?> GetByOwnerIdAsync(string ownerId, CancellationToken cancellationToken = default);
+    Task AddAsync(Workspace workspace, CancellationToken cancellationToken = default);
+    Task UpdateAsync(Workspace workspace, CancellationToken cancellationToken = default);
     Task DeleteAsync(string workspaceId, CancellationToken cancellationToken = default);
-    Task<long> CountAsync(string ownerId, CancellationToken cancellationToken = default);
 }

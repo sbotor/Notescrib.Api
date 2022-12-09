@@ -11,16 +11,17 @@ public class NoteDetailsMapper : IMapper<Note, NoteDetails>
         {
             Id = item.Id,
             Name = item.Name,
-            WorkspaceId = item.WorkspaceId,
             FolderId = item.FolderId,
             Labels = item.Labels,
             OwnerId = item.OwnerId,
             SharingInfo = item.SharingInfo,
-            Contents = item.Contents.MapTree(x => new NoteContentsSection
+            Contents = item.NoteSectionTree.MapTree(x => new NoteContentsSection
             {
                 Name = x.Name,
                 Content = x.Content,
                 Children = new List<NoteContentsSection>()
-            }).ToArray()
+            }).ToArray(),
+            Created = item.Created,
+            Updated = item.Updated
         };
 }
