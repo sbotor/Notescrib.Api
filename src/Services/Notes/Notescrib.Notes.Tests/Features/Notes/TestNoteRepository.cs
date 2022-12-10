@@ -34,6 +34,9 @@ public class TestNoteRepository : TestRepositoryBase<Note, NotesSorting>, INoteR
     public Task DeleteFromFoldersAsync(IEnumerable<string> folderIds, CancellationToken cancellationToken = default)
         => Delete(x => folderIds.Contains(x.FolderId));
 
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+        => Delete(x => x.Id == id);
+
     private static Func<Note, bool> GetFilter(IPermissionGuard permissionGuard, string? folderId)
         => x => (folderId == null || x.FolderId == folderId)
            && permissionGuard.ExpressionCanView<Note>()

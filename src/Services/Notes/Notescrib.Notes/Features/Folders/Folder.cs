@@ -1,5 +1,4 @@
 ﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Folders;
 

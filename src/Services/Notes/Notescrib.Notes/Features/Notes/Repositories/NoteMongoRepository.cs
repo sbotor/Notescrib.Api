@@ -65,4 +65,7 @@ public class NoteMongoRepository : INoteRepository
         => _collection.DeleteManyAsync(
             x => folderIds.Contains(x.FolderId),
             cancellationToken: cancellationToken);
+
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+        => _collection.FindOneAndDeleteAsync(x => x.Id == id, cancellationToken: cancellationToken);
 }

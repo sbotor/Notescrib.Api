@@ -15,7 +15,7 @@ internal class SharingInfoValidator : AbstractValidator<SharingInfo>
     public SharingInfoValidator()
     {
         RuleFor(x => x.AllowedIds.Count)
-            .LessThanOrEqualTo(Counts.Note.MaxSharingCount);
+            .LessThanOrEqualTo(Consts.Note.MaxSharingCount);
         RuleForEach(x => x.AllowedIds)
             .NotEmpty();
     }

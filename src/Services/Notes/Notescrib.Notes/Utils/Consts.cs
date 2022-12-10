@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Notes.Utils;
 
-public static class Counts
+public static class Consts
 {
     public static class Name
     {
@@ -9,7 +9,9 @@ public static class Counts
 
     public static class Note
     {
-        public const int MaxLength = 10_000;
+        public const int MaxTotalLength = 100_000;
+        public const int MaxSectionLength = 10_000;
+        public const int MaxSectionCount = 10;
         public const int MaxLabelCount = 10;
         public const int MaxSharingCount = 10;
         public const int MaxNestingLevel = 2;
@@ -22,6 +24,7 @@ public static class Counts
 
     public static class Workspace
     {
-        public const int MaxCount = 10;
+        public const int MaxFolderCount = 32;
+        public const int MaxNoteCount = 128;
     }
 }

@@ -17,7 +17,8 @@ public static class CreateWorkspace
         private readonly IUserContextProvider _userContext;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext, IDateTimeProvider dateTimeProvider)
+        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext,
+            IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _userContext = userContext;

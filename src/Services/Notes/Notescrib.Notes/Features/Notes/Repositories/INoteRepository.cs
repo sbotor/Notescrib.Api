@@ -26,4 +26,6 @@ public interface INoteRepository
 
     Task DeleteFromFoldersAsync(IEnumerable<string> folderIds,
         CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

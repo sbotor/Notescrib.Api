@@ -50,10 +50,11 @@ public static class DeleteFolder
                 }
 
                 var removedFolderIds = x.Item.ToDfsEnumerable()
-                    .Select(n => n.Item.Id);
+                    .Select(n => n.Item.Id).ToArray();
                 
                 await _noteRepository.DeleteFromFoldersAsync(removedFolderIds, cancellationToken);
                 x.Parent!.Item.Children.Remove(x.Item);
+                workspace.FolderCount -= removedFolderIds.Length;
                 
                 return true;
             });
@@ -62,7 +63,7 @@ public static class DeleteFolder
             {
                 throw new NotFoundException<Folder>(request.Id);
             }
-            
+
             await _workspaceRepository.UpdateAsync(workspace, cancellationToken);
 
             return Unit.Value;

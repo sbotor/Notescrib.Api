@@ -49,8 +49,13 @@ public static class CreateNote
             {
                 throw new NotFoundException<Workspace>();
             }
-            
+
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
+
+            if (workspace.NoteCount >= Consts.Workspace.MaxNoteCount)
+            {
+                throw new AppException("Maximum note count reached.");
+            }
 
             if (workspace.FolderTree.ToBfsEnumerable()
                 .All(x => x.Item.Id != request.FolderId))
@@ -63,13 +68,16 @@ public static class CreateNote
                 Name = request.Name,
                 OwnerId = userId,
                 FolderId = request.FolderId,
-                NoteSectionTree = NoteSection.CreateRoot(),
+                SectionTree = NoteSection.CreateRoot(),
                 SharingInfo = request.SharingInfo,
                 Tags = request.Tags.ToArray(),
                 Created = _dateTimeProvider.Now
             };
 
+            workspace.NoteCount++;
             await _noteRepository.AddNote(note, cancellationToken);
+            await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
+            
             return _mapper.Map(note);
         }
     }
@@ -83,10 +91,10 @@ public static class CreateNote
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Counts.Name.MaxLength);
+                .MaximumLength(Consts.Name.MaxLength);
 
             RuleFor(x => x.Tags.Count)
-                .LessThanOrEqualTo(Counts.Note.MaxLabelCount);
+                .LessThanOrEqualTo(Consts.Note.MaxLabelCount);
             RuleForEach(x => x.Tags)
                 .NotEmpty();
 

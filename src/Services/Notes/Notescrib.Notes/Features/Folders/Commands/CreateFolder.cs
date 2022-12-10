@@ -41,6 +41,12 @@ public static class CreateFolder
             }
 
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
+            
+            if (workspace.FolderCount >= Consts.Workspace.MaxFolderCount)
+            {
+                throw new AppException("Maximum folder count reached.");
+            }
+            
             var now = _dateTimeProvider.Now;
             
             var folder = new Folder { Id = Guid.NewGuid().ToString(), Name = request.Name, Created = now };
@@ -53,14 +59,15 @@ public static class CreateFolder
                     return false;
                 }
 
-                if (x.Level >= Counts.Folder.MaxNestingLevel)
+                if (x.Level >= Consts.Folder.MaxNestingLevel)
                 {
                     throw new AppException("The parent cannot nest children.");
                 }
                     
                 x.Item.Children.Add(folder);
+                workspace.FolderCount++;
+                
                 return true;
-
             });
             
             if (!found)
@@ -80,7 +87,7 @@ public static class CreateFolder
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Counts.Name.MaxLength);
+                .MaximumLength(Consts.Name.MaxLength);
 
             RuleFor(x => x.ParentId)
                 .NotEmpty();

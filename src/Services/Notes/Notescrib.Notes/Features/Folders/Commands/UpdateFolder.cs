@@ -21,7 +21,11 @@ public static class UpdateFolder
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IUserContextProvider _userContextProvider;
 
-        public Handler(IWorkspaceRepository repository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider, IUserContextProvider userContextProvider)
+        public Handler(
+            IWorkspaceRepository repository,
+            IPermissionGuard permissionGuard,
+            IDateTimeProvider dateTimeProvider,
+            IUserContextProvider userContextProvider)
         {
             _repository = repository;
             _permissionGuard = permissionGuard;
@@ -68,7 +72,7 @@ public static class UpdateFolder
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(Counts.Name.MaxLength);
+                .MaximumLength(Consts.Name.MaxLength);
         }
     }
 }
