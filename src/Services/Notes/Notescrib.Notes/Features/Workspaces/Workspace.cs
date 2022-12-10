@@ -1,4 +1,6 @@
-﻿namespace Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Notes.Features.Folders;
+
+namespace Notescrib.Notes.Features.Workspaces;
 
 public class Workspace
 {

@@ -2,7 +2,8 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders.Utils;
+using Notescrib.Notes.Extensions;
+using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
@@ -15,7 +16,7 @@ namespace Notescrib.Notes.Features.Notes.Commands;
 
 public static class CreateNote
 {
-    public record Command(string Name, string FolderId, IReadOnlyCollection<string> Labels, SharingInfo SharingInfo)
+    public record Command(string Name, string FolderId, IReadOnlyCollection<string> Tags, SharingInfo SharingInfo)
         : ICommand<NoteOverview>;
 
     internal class Handler : ICommandHandler<Command, NoteOverview>
@@ -51,7 +52,8 @@ public static class CreateNote
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            if (new FolderTree(workspace).All(x => x.Id != request.FolderId))
+            if (workspace.FolderTree.ToBfsEnumerable()
+                .All(x => x.Item.Id != request.FolderId))
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
@@ -61,9 +63,9 @@ public static class CreateNote
                 Name = request.Name,
                 OwnerId = userId,
                 FolderId = request.FolderId,
-                NoteSectionTree = Array.Empty<NoteSection>(),
+                NoteSectionTree = NoteSection.CreateRoot(),
                 SharingInfo = request.SharingInfo,
-                Labels = request.Labels.ToArray(),
+                Tags = request.Tags.ToArray(),
                 Created = _dateTimeProvider.Now
             };
 
@@ -83,9 +85,9 @@ public static class CreateNote
                 .NotEmpty()
                 .MaximumLength(Counts.Name.MaxLength);
 
-            RuleFor(x => x.Labels.Count)
+            RuleFor(x => x.Tags.Count)
                 .LessThanOrEqualTo(Counts.Note.MaxLabelCount);
-            RuleForEach(x => x.Labels)
+            RuleForEach(x => x.Tags)
                 .NotEmpty();
 
             RuleFor(x => x.SharingInfo)

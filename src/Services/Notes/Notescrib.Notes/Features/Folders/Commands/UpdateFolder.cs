@@ -2,7 +2,7 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Features.Folders.Utils;
+using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
@@ -12,7 +12,7 @@ namespace Notescrib.Notes.Features.Folders.Commands;
 
 public static class UpdateFolder
 {
-    public record Command(string FolderId, string Name, string ParentId) : ICommand;
+    public record Command(string FolderId, string Name) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
@@ -40,22 +40,17 @@ public static class UpdateFolder
             
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
 
-            var tree = new FolderTree(workspace);
-            var found = tree.FindWithParent(x => x.Id == request.FolderId);
+            var found = workspace.FolderTree.ToDfsEnumerable()
+                .FirstOrDefault(x => x.Item.Id == request.FolderId)?.Item;
             if (found == null)
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
 
-            found.Item.Name = request.Name;
+            found.Name = request.Name;
 
             var now = _dateTimeProvider.Now;
-            found.Item.Updated = now;
-
-            if (found.Parent.Id != request.ParentId)
-            {
-                tree.Move(found, request.ParentId);
-            }
+            found.Updated = now;
 
             await _repository.UpdateAsync(workspace, cancellationToken);
             
@@ -74,9 +69,6 @@ public static class UpdateFolder
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .MaximumLength(Counts.Name.MaxLength);
-
-            RuleFor(x => x.ParentId)
-                .NotEmpty();
         }
     }
 }

@@ -12,10 +12,10 @@ public class NoteDetailsMapper : IMapper<Note, NoteDetails>
             Id = item.Id,
             Name = item.Name,
             FolderId = item.FolderId,
-            Labels = item.Labels,
+            Tags = item.Tags,
             OwnerId = item.OwnerId,
             SharingInfo = item.SharingInfo,
-            Contents = item.NoteSectionTree.MapTree(x => new NoteContentsSection
+            Contents = item.NoteSectionTree.Children.MapTree(x => new NoteContentsSection
             {
                 Name = x.Name,
                 Content = x.Content,

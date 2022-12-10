@@ -1,10 +1,10 @@
 ﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Folders.Mappers;
-using Notescrib.Notes.Features.Folders.Utils;
-using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Tests.Infrastructure;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.Tree;
 using static Notescrib.Notes.Features.Folders.Commands.CreateFolder;
 
 namespace Notescrib.Notes.Tests.Features.Workspaces.Commands;
@@ -51,7 +51,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
         var folder = new Folder { Id = "N0", Name = "Nested 0" };
         var tempFolder = folder;
 
-        for (var i = 1; i <= Counts.NestingLevel.Max; i++)
+        for (var i = 1; i <= Counts.Folder.MaxNestingLevel; i++)
         {
             var newFolder = new Folder { Id = "N{i}", Name = $"Nested {i}" };
             tempFolder.Children = new List<Folder> { newFolder };
@@ -62,7 +62,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
 
         await Assert.ThrowsAnyAsync<AppException>(
             () => _sut.Handle(new(
-                    $"Nested {Counts.NestingLevel.Max + 1}", $"N{Counts.NestingLevel.Max}"),
+                    $"Nested {Counts.Folder.MaxNestingLevel + 1}", $"N{Counts.Folder.MaxNestingLevel}"),
                 default));
     }
 
@@ -74,9 +74,9 @@ public class CreateFolderWorkspaceCommandHandlerTests
     {
         await _sut.Handle(new(name, parentId ?? Folder.RootId), default);
 
-        var tree = new FolderTree(_repository.Items.First());
+        var tree = new Tree<Folder>(_repository.Items.First().FolderTree);
 
-        Assert.Single(tree, x => (parentId == null && x.Name == name)
-                                 || (x.Id == parentId && x.Children.SingleOrDefault(c => c.Name == name) != null));
+        Assert.Single(tree.EnumerateBreadthFirst(), x => (parentId == null && x.Item.Name == name)
+                                 || (x.Item.Id == parentId && x.Item.Children.SingleOrDefault(c => c.Name == name) != null));
     }
 }

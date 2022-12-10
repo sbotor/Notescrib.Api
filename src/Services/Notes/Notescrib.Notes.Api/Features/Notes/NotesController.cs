@@ -37,8 +37,12 @@ public class NotesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetNote(string id)
         => Ok(await _mediator.Send(new GetNote.Query(id)));
-
-    [HttpPut("{id}/contents")]
-    public async Task<IActionResult> UpdateNoteContents(string id, UpdateNoteContentsRequest request)
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateNote(string id, UpdateNoteRequest request)
         => Ok(await _mediator.Send(request.ToCommand(id)));
+
+    // [HttpPut("{id}/section/{sectionId}")]
+    // public async Task<IActionResult> UpdateNoteContents(string id, string sectionId, UpdateNoteContentsRequest request)
+    //     => Ok(await _mediator.Send(request.ToCommand(id, sectionId)));
 }

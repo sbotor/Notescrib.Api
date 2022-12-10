@@ -1,12 +1,11 @@
 ﻿using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Utils.Tree;
 
-namespace Notescrib.Notes.Features.Workspaces;
+namespace Notescrib.Notes.Features.Folders;
 
 public class Folder : IChildrenCollectionTree<Folder>
 {
-    public const string RootName = "__root__";
-    public const string RootId = "_";
+    public const string RootId = "_root";
     
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
@@ -15,14 +14,12 @@ public class Folder : IChildrenCollectionTree<Folder>
     
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-    
-    public IEnumerable<Folder> EnumerateChildren() => new BfsTreeEnumerable<Folder>(CreateRoot(Children)).Skip(1);
 
     public static Folder CreateRoot(IEnumerable<Folder>? children = null, DateTime? created = null)
         => new()
         {
             Id = RootId,
-            Name = RootName,
+            Name = RootId,
             Children = children?.ToArray() ?? Array.Empty<Folder>(),
             Created = created ?? DateTime.MinValue
         };

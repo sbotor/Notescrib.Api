@@ -2,7 +2,8 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Features.Folders.Utils;
+using Notescrib.Notes.Extensions;
+using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
@@ -18,7 +19,7 @@ public static class UpdateNote
             string Id,
             string Name,
             string FolderId,
-            IReadOnlyCollection<string> Labels,
+            IReadOnlyCollection<string> Tags,
             SharingInfo SharingInfo)
         : ICommand;
 
@@ -51,36 +52,38 @@ public static class UpdateNote
 
             _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            var workspace = await _workspaceRepository.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId, cancellationToken);
+            var workspace =
+                await _workspaceRepository.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId, cancellationToken);
             if (workspace == null)
             {
                 throw new NotFoundException<Workspace>();
             }
 
-            if (new FolderTree(workspace).All(x => x.Id != request.FolderId))
+            if (workspace.FolderTree.ToBfsEnumerable()
+                .All(x => x.Item.Id != request.FolderId))
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
 
             note.Name = request.Name;
             note.FolderId = request.FolderId;
-            note.Labels = request.Labels.ToArray();
+            note.Tags = request.Tags.ToArray();
             note.SharingInfo = request.SharingInfo;
             note.Updated = _dateTimeProvider.Now;
 
             await _noteRepository.UpdateAsync(note, cancellationToken);
-            
+
             return Unit.Value;
         }
     }
-    
+
     internal class Validator : AbstractValidator<Command>
     {
         public Validator()
         {
             RuleFor(x => x.Id)
                 .NotEmpty();
-            
+
             RuleFor(x => x.FolderId)
                 .NotNull();
 
@@ -88,9 +91,9 @@ public static class UpdateNote
                 .NotEmpty()
                 .MaximumLength(Counts.Name.MaxLength);
 
-            RuleFor(x => x.Labels.Count)
+            RuleFor(x => x.Tags.Count)
                 .LessThanOrEqualTo(Counts.Note.MaxLabelCount);
-            RuleForEach(x => x.Labels)
+            RuleForEach(x => x.Tags)
                 .NotEmpty();
 
             RuleFor(x => x.SharingInfo)

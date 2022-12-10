@@ -3,11 +3,11 @@ using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Folders.Models;
-using Notescrib.Notes.Features.Folders.Utils;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -41,12 +41,32 @@ public static class CreateFolder
             }
 
             _permissionGuard.GuardCanEdit(workspace.OwnerId);
-
             var now = _dateTimeProvider.Now;
-
+            
             var folder = new Folder { Id = Guid.NewGuid().ToString(), Name = request.Name, Created = now };
-            var tree = new FolderTree(workspace);
-            tree.Add(folder, request.ParentId);
+            var tree = new Tree<Folder>(workspace.FolderTree);
+
+            var found = tree.VisitBreadthFirst(x =>
+            {
+                if (x.Item.Id != request.ParentId)
+                {
+                    return false;
+                }
+
+                if (x.Level >= Counts.Folder.MaxNestingLevel)
+                {
+                    throw new AppException("The parent cannot nest children.");
+                }
+                    
+                x.Item.Children.Add(folder);
+                return true;
+
+            });
+            
+            if (!found)
+            {
+                throw new NotFoundException<Folder>();
+            }
 
             await _repository.UpdateAsync(workspace, cancellationToken);
 

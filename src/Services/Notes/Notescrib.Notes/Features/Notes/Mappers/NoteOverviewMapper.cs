@@ -14,6 +14,7 @@ public class NoteOverviewMapper : IMapper<Note, NoteOverview>
             OwnerId = item.OwnerId,
             SharingInfo = item.SharingInfo,
             Updated = item.Updated,
-            Created = item.Created
+            Created = item.Created,
+            Tags = item.Tags.ToArray()
         };
 }

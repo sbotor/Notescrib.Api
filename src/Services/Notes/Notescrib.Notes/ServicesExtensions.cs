@@ -48,23 +48,6 @@ public static class ServicesExtensions
         services.AddMediatrWithValidation(ThisAssembly)
             .AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddPipelineBehavior(typeof(PagingValidationBehavior<,>));
-        
-        return services;
-    }
-
-    private static IServiceCollection AddMongoDb(this IServiceCollection services, IConfiguration config)
-    {
-        MongoDbClassMaps.Register();
-        
-        var settings = config.GetSettings<MongoDbSettings>()!;
-        var db = new MongoClient(settings.ConnectionUri)
-            .GetDatabase(settings.DatabaseName);
-        
-        services.AddSingleton(db.GetCollection<Workspace>(settings.Collections.Workspaces));
-        services.AddSingleton(db.GetCollection<Note>(settings.Collections.Notes));
-
-        services.AddScoped<IWorkspaceRepository, WorkspaceMongoRepository>();
-        services.AddScoped<INoteRepository, NoteMongoRepository>();
 
         return services;
     }

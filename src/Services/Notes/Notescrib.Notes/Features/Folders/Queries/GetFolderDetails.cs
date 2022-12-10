@@ -2,13 +2,13 @@
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Folders.Models;
-using Notescrib.Notes.Features.Folders.Utils;
 using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
+using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Folders.Queries;
 
@@ -44,7 +44,8 @@ public static class GetFolderDetails
                 throw new NotFoundException<Workspace>();
             }
             
-            var folder = new FolderTree(workspace).FirstOrDefault(x => x.Id == request.Id);
+            var folder = new Tree<Folder>(workspace.FolderTree).EnumerateBreadthFirst()
+                .FirstOrDefault(x => x.Item.Id == request.Id)?.Item;
             if (folder == null)
             {
                 throw new NotFoundException<Folder>(request.Id);

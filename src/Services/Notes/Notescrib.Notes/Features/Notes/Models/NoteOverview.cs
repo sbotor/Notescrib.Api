@@ -9,6 +9,7 @@ public class NoteOverview
     public string FolderId { get; set; } = null!;
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
+    public IReadOnlyCollection<string> Tags { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
 }
