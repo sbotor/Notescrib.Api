@@ -28,11 +28,6 @@ public class FoldersController : ControllerBase
             StatusCodes.Status201Created,
             await _mediator.Send(request.ToCommand(), cancellationToken));
 
-    [HttpGet]
-    [ProducesResponseType(typeof(FolderOverview), StatusCodes.Status201Created)]
-    public async Task<IActionResult> GetFolderTree(CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new GetFolderTree.Query(), cancellationToken));
-    
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateFolder(

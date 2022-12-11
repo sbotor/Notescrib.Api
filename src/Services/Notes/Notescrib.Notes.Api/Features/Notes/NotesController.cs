@@ -46,22 +46,4 @@ public class NotesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteNote(string id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteNote.Command(id), cancellationToken));
-
-    [HttpPost("{id}/section")]
-    public async Task<IActionResult> CreateNoteSection(string id, CreateNoteSectionRequest request,
-        CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
-
-    [HttpPut("{id}/section/{sectionId}")]
-    public async Task<IActionResult> UpdateNoteSection(
-        string id,
-        string sectionId,
-        UpdateNoteSectionRequest request,
-        CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToCommand(id, sectionId), cancellationToken));
-
-    [HttpDelete("{id}/section/{sectionId}")]
-    public async Task<IActionResult> CreateNoteSection(string id, string sectionId,
-        CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new DeleteNoteSection.Command(id, sectionId), cancellationToken));
 }

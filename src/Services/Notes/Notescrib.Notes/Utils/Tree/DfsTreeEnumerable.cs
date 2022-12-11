@@ -28,7 +28,7 @@ public class DfsTreeEnumerable<T> : IEnumerable<DfsNode<T>>
             var node = stack.Pop();
             yield return node;
 
-            var helperList = node.Item.Children.ToList();
+            var helperList = node.Item.ChildrenIds.ToList();
             if (_comparer != null)
             {
                 helperList.Sort(_comparer);

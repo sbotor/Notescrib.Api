@@ -10,7 +10,6 @@ public class NoteOverview
     public string OwnerId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
     public IReadOnlyCollection<string> Tags { get; set; } = null!;
-    public int SectionCount { get; set; }
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
 }

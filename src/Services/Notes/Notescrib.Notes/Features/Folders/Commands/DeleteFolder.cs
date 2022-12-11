@@ -53,7 +53,7 @@ public static class DeleteFolder
                     .Select(n => n.Item.Id).ToArray();
                 
                 await _noteRepository.DeleteFromFoldersAsync(removedFolderIds, cancellationToken);
-                x.Parent!.Item.Children.Remove(x.Item);
+                x.Parent!.Item.ChildrenIds.Remove(x.Item);
                 workspace.FolderCount -= removedFolderIds.Length;
                 
                 return true;

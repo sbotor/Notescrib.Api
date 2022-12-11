@@ -1,8 +1,6 @@
-﻿using Notescrib.Notes.Contracts;
+﻿namespace Notescrib.Notes.Features.Folders.Models;
 
-namespace Notescrib.Notes.Features.Folders.Models;
-
-public class FolderOverview : FolderInfoBase, IChildrenCollectionTree<FolderOverview>
+public class FolderOverview : FolderInfoBase
 {
-    public ICollection<FolderOverview> Children { get; set; } = Array.Empty<FolderOverview>();
+    public ICollection<FolderOverview> ChildrenIds { get; set; } = Array.Empty<FolderOverview>();
 }

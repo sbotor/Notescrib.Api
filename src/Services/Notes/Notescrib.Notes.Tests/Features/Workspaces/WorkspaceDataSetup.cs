@@ -16,7 +16,7 @@ public static class WorkspaceDataSetup
                 {
                     Id = "F0",
                     Name = "Folder 0",
-                    Children = new List<Folder> { new() { Id = "F0.0", Name = "Folder 0.0" } }
+                    ChildrenIds = new List<Folder> { new() { Id = "F0.0", Name = "Folder 0.0" } }
                 },
                 new() { Id = "F1", Name = "Folder 1" }
             })

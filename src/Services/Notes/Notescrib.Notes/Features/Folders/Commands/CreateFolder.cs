@@ -64,7 +64,7 @@ public static class CreateFolder
                     throw new AppException("The parent cannot nest children.");
                 }
                     
-                x.Item.Children.Add(folder);
+                x.Item.ChildrenIds.Add(folder);
                 workspace.FolderCount++;
                 
                 return true;

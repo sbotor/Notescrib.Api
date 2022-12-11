@@ -67,8 +67,8 @@ public static class CreateNote
             {
                 Name = request.Name,
                 OwnerId = userId,
+                WorkspaceId = workspace.Id,
                 FolderId = request.FolderId,
-                SectionTree = NoteSection.CreateRoot(),
                 SharingInfo = request.SharingInfo,
                 Tags = request.Tags.ToArray(),
                 Created = _dateTimeProvider.Now

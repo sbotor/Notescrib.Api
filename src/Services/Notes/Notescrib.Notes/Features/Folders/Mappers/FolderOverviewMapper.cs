@@ -11,7 +11,7 @@ public class FolderOverviewMapper : IMapper<Folder, FolderOverview>
         {
             Id = item.Id,
             Name = item.Name,
-            Children = new List<FolderOverview>(),
+            ChildrenIds = new List<FolderOverview>(),
             Created = item.Created,
             Updated = item.Updated
         };

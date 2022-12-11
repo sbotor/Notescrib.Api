@@ -2,13 +2,13 @@
 
 namespace Notescrib.Notes.Features.Folders;
 
-public class Folder : IChildrenCollectionTree<Folder>
+public class Folder : IChildrenTree<ICollection<Folder>, Folder>
 {
     public const string RootId = "_root";
     
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
-    public ICollection<Folder> Children { get; set; } = new List<Folder>();
+    public ICollection<Folder> ChildrenIds { get; set; } = new List<Folder>();
     public bool IsRoot => Id == RootId;
     
     public DateTime Created { get; set; }
@@ -19,7 +19,7 @@ public class Folder : IChildrenCollectionTree<Folder>
         {
             Id = RootId,
             Name = RootId,
-            Children = children?.ToArray() ?? Array.Empty<Folder>(),
+            ChildrenIds = children?.ToArray() ?? Array.Empty<Folder>(),
             Created = created ?? DateTime.MinValue
         };
 

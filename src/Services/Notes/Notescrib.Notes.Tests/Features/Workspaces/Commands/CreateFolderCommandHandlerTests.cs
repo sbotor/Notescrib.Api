@@ -54,7 +54,7 @@ public class CreateFolderWorkspaceCommandHandlerTests
         for (var i = 1; i <= Consts.Folder.MaxNestingLevel; i++)
         {
             var newFolder = new Folder { Id = "N{i}", Name = $"Nested {i}" };
-            tempFolder.Children = new List<Folder> { newFolder };
+            tempFolder.ChildrenIds = new List<Folder> { newFolder };
             tempFolder = newFolder;
         }
 
@@ -77,6 +77,6 @@ public class CreateFolderWorkspaceCommandHandlerTests
         var tree = new Tree<Folder>(_repository.Items.First().FolderTree);
 
         Assert.Single(tree.EnumerateBreadthFirst(), x => (parentId == null && x.Item.Name == name)
-                                 || (x.Item.Id == parentId && x.Item.Children.SingleOrDefault(c => c.Name == name) != null));
+                                 || (x.Item.Id == parentId && x.Item.ChildrenIds.SingleOrDefault(c => c.Name == name) != null));
     }
 }

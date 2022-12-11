@@ -15,7 +15,6 @@ public class NoteOverviewMapper : IMapper<Note, NoteOverview>
             SharingInfo = item.SharingInfo,
             Updated = item.Updated,
             Created = item.Created,
-            Tags = item.Tags.ToArray(),
-            SectionCount = item.SectionCount
+            Tags = item.Tags.ToArray()
         };
 }

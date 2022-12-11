@@ -31,7 +31,7 @@ public class BfsTreeEnumerable<T> : IEnumerable<BfsNode<T>>
             
                 yield return new(item, level);
 
-                foreach (var child in item.Children)
+                foreach (var child in item.ChildrenIds)
                 {
                     queue.Enqueue(child);
                 }

@@ -19,7 +19,7 @@ public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
         {
             Id = item.Id,
             Name = item.Name,
-            Children = item.Children.Select(_baseMapper.Map).ToArray(),
+            Children = item.ChildrenIds.Select(_baseMapper.Map).ToArray(),
             Created = item.Created,
             Updated = item.Updated,
             Notes = new List<NoteOverview>()
