@@ -1,6 +1,4 @@
-﻿using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Folders.Commands;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Notes.Features.Folders.Commands;
 
 namespace Notescrib.Notes.Api.Features.Folders.Models;
 
@@ -10,5 +8,5 @@ public class CreateFolderRequest
     public string? ParentId { get; set; } = null!;
 
     public CreateFolder.Command ToCommand()
-        => new(Name, ParentId ?? Folder.RootId);
+        => new(Name, ParentId);
 }

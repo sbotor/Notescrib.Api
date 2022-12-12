@@ -28,4 +28,5 @@ public interface INoteRepository
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default);
 }

@@ -3,6 +3,7 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Extensions;
+using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
@@ -16,47 +17,35 @@ public static class UpdateFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IWorkspaceRepository _repository;
-        private readonly IPermissionGuard _permissionGuard;
+        private readonly IFolderRepository _folderRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IUserContextProvider _userContextProvider;
 
         public Handler(
-            IWorkspaceRepository repository,
-            IPermissionGuard permissionGuard,
-            IDateTimeProvider dateTimeProvider,
-            IUserContextProvider userContextProvider)
+            IFolderRepository folderRepository,
+            IDateTimeProvider dateTimeProvider)
         {
-            _repository = repository;
-            _permissionGuard = permissionGuard;
+            _folderRepository = folderRepository;
             _dateTimeProvider = dateTimeProvider;
-            _userContextProvider = userContextProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var userId = _userContextProvider.UserId;
-            var workspace = await _repository.GetByOwnerIdAsync(userId, cancellationToken);
-            if (workspace == null)
-            {
-                throw new NotFoundException<Workspace>();
-            }
-            
-            _permissionGuard.GuardCanEdit(workspace.OwnerId);
-
-            var found = workspace.FolderTree.ToDfsEnumerable()
-                .FirstOrDefault(x => x.Item.Id == request.FolderId)?.Item;
-            if (found == null)
+            var folder = await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
+            if (folder == null)
             {
                 throw new NotFoundException<Folder>(request.FolderId);
             }
 
-            found.Name = request.Name;
+            if (folder.ParentId == null)
+            {
+                throw new AppException("Cannot update root folder.");
+            }
 
             var now = _dateTimeProvider.Now;
-            found.Updated = now;
+            folder.Updated = now;
+            folder.Name = request.Name;
 
-            await _repository.UpdateAsync(workspace, cancellationToken);
+            await _folderRepository.UpdateAsync(folder, cancellationToken);
             
             return Unit.Value;
         }
@@ -67,8 +56,7 @@ public static class UpdateFolder
         public Validator()
         {
             RuleFor(x => x.FolderId)
-                .NotEmpty()
-                .NotEqual(Folder.RootId);
+                .NotEmpty();
 
             RuleFor(x => x.Name)
                 .NotEmpty()

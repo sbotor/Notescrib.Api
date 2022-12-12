@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
+using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Workspaces;
 
@@ -12,6 +13,12 @@ public static class MongoDbClassMaps
     public static void Register()
     {
         BsonClassMap.RegisterClassMap<Workspace>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);
+        });
+        
+        BsonClassMap.RegisterClassMap<FolderBase>(cm =>
         {
             cm.AutoMap();
             cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);

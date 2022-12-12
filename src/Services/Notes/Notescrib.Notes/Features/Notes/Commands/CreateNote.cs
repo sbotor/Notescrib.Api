@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
+using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Folders;
+using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
@@ -16,69 +18,74 @@ namespace Notescrib.Notes.Features.Notes.Commands;
 
 public static class CreateNote
 {
-    public record Command(string Name, string FolderId, IReadOnlyCollection<string> Tags, SharingInfo SharingInfo)
-        : ICommand<NoteOverview>;
+    public record Command(
+            string Name,
+            string? FolderId,
+            IReadOnlyCollection<string> Tags,
+            SharingInfo SharingInfo)
+        : ICommand;
 
-    internal class Handler : ICommandHandler<Command, NoteOverview>
+    internal class Handler : ICommandHandler<Command>
     {
         private readonly INoteRepository _noteRepository;
         private readonly IWorkspaceRepository _workspaceRepository;
+        private readonly IFolderRepository _folderRepository;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IMapper<Note, NoteOverview> _mapper;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
             INoteRepository noteRepository,
             IWorkspaceRepository workspaceRepository,
+            IFolderRepository folderRepository,
             IPermissionGuard permissionGuard,
-            IMapper<Note, NoteOverview> mapper,
             IDateTimeProvider dateTimeProvider)
         {
             _noteRepository = noteRepository;
             _workspaceRepository = workspaceRepository;
+            _folderRepository = folderRepository;
             _permissionGuard = permissionGuard;
-            _mapper = mapper;
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<NoteOverview> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var userId = _permissionGuard.UserContext.UserId;
-            var workspace = await _workspaceRepository.GetByOwnerIdAsync(userId, cancellationToken);
-            if (workspace == null)
+
+            var note = new Note
             {
-                throw new NotFoundException<Workspace>();
+                Name = request.Name,
+                Tags = request.Tags.ToArray(),
+                OwnerId = userId,
+                SharingInfo = request.SharingInfo,
+                Created = _dateTimeProvider.Now
+            };
+            
+            var includeOptions = new FolderIncludeOptions { Workspace = true };
+
+            var folder = request.FolderId == null
+                ? await _folderRepository.GetRootAsync(userId, includeOptions, cancellationToken)
+                : await _folderRepository.GetByIdAsync(request.FolderId, includeOptions, cancellationToken);
+            if (folder == null)
+            {
+                throw new NotFoundException<Folder>(request.FolderId);
             }
-
-            _permissionGuard.GuardCanEdit(workspace.OwnerId);
-
+            
+            _permissionGuard.GuardCanEdit(folder.OwnerId);
+            
+            var workspace = folder.Workspace;
             if (workspace.NoteCount >= Consts.Workspace.MaxNoteCount)
             {
                 throw new AppException("Maximum note count reached.");
             }
 
-            if (workspace.FolderTree.ToBfsEnumerable()
-                .All(x => x.Item.Id != request.FolderId))
-            {
-                throw new NotFoundException<Folder>(request.FolderId);
-            }
-
-            var note = new Note
-            {
-                Name = request.Name,
-                OwnerId = userId,
-                WorkspaceId = workspace.Id,
-                FolderId = request.FolderId,
-                SharingInfo = request.SharingInfo,
-                Tags = request.Tags.ToArray(),
-                Created = _dateTimeProvider.Now
-            };
-
+            note.FolderId = folder.Id;
+            note.WorkspaceId = folder.WorkspaceId;
             workspace.NoteCount++;
+            
             await _noteRepository.AddNote(note, cancellationToken);
             await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
-            
-            return _mapper.Map(note);
+
+            return Unit.Value;
         }
     }
 

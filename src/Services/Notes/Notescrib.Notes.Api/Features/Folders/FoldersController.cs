@@ -43,8 +43,8 @@ public class FoldersController : ControllerBase
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteFolder.Command(id), cancellationToken));
 
-    [HttpGet("{id}")]
+    [HttpGet("{id?}")]
     [ProducesResponseType(typeof(FolderDetails), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFolderDetails(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFolderDetails(string? id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetFolderDetails.Query(id), cancellationToken));
 }

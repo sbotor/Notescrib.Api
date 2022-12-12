@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using System.Linq.Expressions;
+using MongoDB.Driver;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
@@ -68,4 +69,7 @@ public class NoteMongoRepository : INoteRepository
 
     public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         => _collection.FindOneAndDeleteAsync(x => x.Id == id, cancellationToken: cancellationToken);
+
+    public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+        => _collection.DeleteManyAsync(x => ids.Contains(x.Id), cancellationToken);
 }

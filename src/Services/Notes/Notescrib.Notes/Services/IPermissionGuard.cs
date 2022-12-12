@@ -14,4 +14,6 @@ public interface IPermissionGuard
 
     Expression<Func<T, bool>> ExpressionCanView<T>()
         where T : IShareable;
+
+    bool CanView(string ownerId, SharingInfo? sharingInfo = null);
 }

@@ -2,6 +2,7 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Folders;
+using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 
@@ -14,13 +15,18 @@ public static class CreateWorkspace
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IWorkspaceRepository _repository;
+        private readonly IFolderRepository _folderRepository;
         private readonly IUserContextProvider _userContext;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IWorkspaceRepository repository, IUserContextProvider userContext,
+        public Handler(
+            IWorkspaceRepository repository,
+            IFolderRepository folderRepository,
+            IUserContextProvider userContext,
             IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
+            _folderRepository = folderRepository;
             _userContext = userContext;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -34,8 +40,19 @@ public static class CreateWorkspace
             }
 
             var now = _dateTimeProvider.Now;
-            var workspace = new Workspace { OwnerId = userId, Created = now, FolderTree = Folder.CreateRoot(now) };
+            var workspace = new Workspace { OwnerId = userId, Created = now };
             await _repository.AddAsync(workspace, cancellationToken);
+
+            await _folderRepository.AddAsync(
+                new()
+                {
+                    Id = workspace.Id,
+                    OwnerId = workspace.OwnerId,
+                    Name = "*root",
+                    Created = workspace.Created,
+                    WorkspaceId = workspace.Id
+                },
+                CancellationToken.None);
 
             return Unit.Value;
         }

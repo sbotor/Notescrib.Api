@@ -1,6 +1,4 @@
-﻿using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes.Commands;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Notes.Features.Notes.Commands;
 using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Api.Features.Notes.Models;
@@ -13,5 +11,5 @@ public class UpdateNoteRequest
     public IReadOnlyCollection<string> Tags { get; set; } = null!;
 
     public UpdateNote.Command ToCommand(string id)
-        => new(id, Name, FolderId ?? Folder.RootId, Tags, SharingInfo);
+        => new(id, Name, Tags, SharingInfo);
 }

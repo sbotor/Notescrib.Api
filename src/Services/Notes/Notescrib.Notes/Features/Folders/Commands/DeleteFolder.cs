@@ -3,6 +3,7 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Extensions;
+using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
@@ -18,53 +19,45 @@ public static class DeleteFolder
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IWorkspaceRepository _workspaceRepository;
+        private readonly IFolderRepository _folderRepository;
         private readonly INoteRepository _noteRepository;
-        private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IWorkspaceRepository workspaceRepository, INoteRepository noteRepository,
-            IPermissionGuard permissionGuard)
+        public Handler(IFolderRepository folderRepository, IWorkspaceRepository workspaceRepository,
+            INoteRepository noteRepository)
         {
             _workspaceRepository = workspaceRepository;
+            _folderRepository = folderRepository;
             _noteRepository = noteRepository;
-            _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _workspaceRepository.GetByOwnerIdAsync(
-                _permissionGuard.UserContext.UserId,
+            var folder = await _folderRepository.GetByIdAsync(
+                request.Id,
+                new() { Workspace = true, Children = true, ChildrenNotes = true },
                 cancellationToken);
-            if (workspace == null)
-            {
-                throw new NotFoundException<Workspace>();
-            }
-
-            _permissionGuard.GuardCanEdit(workspace.OwnerId);
-
-            var tree = new Tree<Folder>(workspace.FolderTree);
-            var found = await tree.VisitDepthFirstAsync(async x =>
-            {
-                if (x.Item.Id != request.Id)
-                {
-                    return false;
-                }
-
-                var removedFolderIds = x.Item.ToDfsEnumerable()
-                    .Select(n => n.Item.Id).ToArray();
-                
-                await _noteRepository.DeleteFromFoldersAsync(removedFolderIds, cancellationToken);
-                x.Parent!.Item.ChildrenIds.Remove(x.Item);
-                workspace.FolderCount -= removedFolderIds.Length;
-                
-                return true;
-            });
-            
-            if (!found)
+            if (folder == null)
             {
                 throw new NotFoundException<Folder>(request.Id);
             }
 
-            await _workspaceRepository.UpdateAsync(workspace, cancellationToken);
+            if (folder.ParentId == null)
+            {
+                throw new AppException("Cannot delete root folder.");
+            }
+
+            var workspace = folder.Workspace;
+
+            var folderIds = folder.Children.Select(x => x.Id).Append(folder.Id).ToArray();
+            var noteIds = folder.ChildrenNotes.Select(x => x.Id).ToArray();
+            workspace.FolderCount -= folderIds.Length;
+            workspace.NoteCount -= noteIds.Length;
+
+            await _noteRepository.DeleteManyAsync(noteIds, CancellationToken.None);
+
+            await _folderRepository.DeleteManyAsync(folderIds, CancellationToken.None);
+
+            await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
 
             return Unit.Value;
         }
@@ -75,8 +68,7 @@ public static class DeleteFolder
         public Validator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty()
-                .NotEqual(Folder.RootId);
+                .NotEmpty();
         }
     }
 }

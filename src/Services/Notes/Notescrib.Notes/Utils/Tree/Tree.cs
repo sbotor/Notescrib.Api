@@ -12,24 +12,24 @@ public class Tree<T>
         _root = root;
     }
     
-    public bool VisitDepthFirst(Func<DfsNode<T>, bool> visitor)
-        => EnumerateDepthFirst().Any(visitor.Invoke);
+    public DfsNode<T>? VisitDepthFirst(Func<DfsNode<T>, bool> visitor)
+        => EnumerateDepthFirst().FirstOrDefault(visitor.Invoke);
 
-    public async ValueTask<bool> VisitDepthFirstAsync(Func<DfsNode<T>, ValueTask<bool>> visitor)
+    public async ValueTask<DfsNode<T>?> VisitDepthFirstAsync(Func<DfsNode<T>, ValueTask<bool>> visitor)
     {
         foreach (var item in EnumerateDepthFirst())
         {
             if (await visitor.Invoke(item))
             {
-                return true;
+                return item;
             }
         }
 
-        return false;
+        return null;
     }
     
-    public bool VisitBreadthFirst(Func<BfsNode<T>, bool> visitor)
-        => EnumerateBreadthFirst().Any(visitor.Invoke);
+    public BfsNode<T>? VisitBreadthFirst(Func<BfsNode<T>, bool> visitor)
+        => EnumerateBreadthFirst().FirstOrDefault(visitor.Invoke);
 
     public IEnumerable<DfsNode<T>> EnumerateDepthFirst()
         => new DfsTreeEnumerable<T>(_root);
