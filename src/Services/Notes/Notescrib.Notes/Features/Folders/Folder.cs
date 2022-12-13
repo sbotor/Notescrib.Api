@@ -23,5 +23,5 @@ public class Folder : FolderBase
     public IReadOnlyCollection<Note> ImmediateNotes { get; set; } = null!;
     public IReadOnlyCollection<Folder> ImmediateChildren { get; set; } = null!;
     public IReadOnlyCollection<Folder> Children { get; set; } = null!;
-    public Folder Parent { get; set; } = null!;
+    public Folder? Parent { get; set; } = null!;
 }

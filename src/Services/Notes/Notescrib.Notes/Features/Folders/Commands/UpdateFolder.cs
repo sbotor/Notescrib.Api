@@ -41,12 +41,27 @@ public static class UpdateFolder
                 throw new AppException("Cannot update root folder.");
             }
 
+            // TODO: optimize this later.
+            var parent = await _folderRepository.GetByIdAsync(
+                    folder.ParentId,
+                    new() { Children = true },
+                    cancellationToken);
+            if (parent == null)
+            {
+                throw new NotFoundException<Folder>();
+            }
+
+            if (parent.Children.Any(x => x.Name == request.Name))
+            {
+                throw new DuplicationException<Folder>();
+            }
+
             var now = _dateTimeProvider.Now;
             folder.Updated = now;
             folder.Name = request.Name;
 
             await _folderRepository.UpdateAsync(folder, cancellationToken);
-            
+
             return Unit.Value;
         }
     }

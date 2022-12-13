@@ -20,18 +20,15 @@ public static class CreateFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IFolderRepository _folderRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            IWorkspaceRepository workspaceRepository,
             IFolderRepository folderRepository,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _workspaceRepository = workspaceRepository;
             _folderRepository = folderRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
@@ -41,9 +38,9 @@ public static class CreateFolder
         {
             var userId = _permissionGuard.UserContext.UserId;
             var now = _dateTimeProvider.Now;
-            var folder = new Folder { Name = request.Name, Created = now, OwnerId = userId };
+            var folder = new FolderBase { Name = request.Name, Created = now, OwnerId = userId };
 
-            var includeOptions = new FolderIncludeOptions() { Workspace = true };
+            var includeOptions = new FolderIncludeOptions { Children = true };
 
             var parent = request.ParentId == null
                 ? await _folderRepository.GetRootAsync(userId, includeOptions, cancellationToken)
@@ -55,8 +52,7 @@ public static class CreateFolder
 
             _permissionGuard.GuardCanEdit(parent.OwnerId);
             
-            var workspace = parent.Workspace;
-            if (workspace.FolderCount >= Consts.Workspace.MaxFolderCount)
+            if (parent.Children.Count >= Consts.Folder.MaxChildrenCount)
             {
                 throw new AppException("Maximum folder count reached.");
             }
@@ -66,13 +62,17 @@ public static class CreateFolder
                 throw new AppException("The parent cannot nest children.");
             }
 
-            folder.AncestorIds = parent.AncestorIds.Append(parent.Id).ToArray();
+            if (parent.Children.Any(x => x.Name == folder.Name))
+            {
+                throw new DuplicationException<Folder>();
+            }
 
-            folder.WorkspaceId = workspace.Id;
-            workspace.FolderCount++;
+            folder.AncestorIds = parent.AncestorIds.Append(parent.Id).ToArray();
+            folder.ParentId = parent.Id;
+
+            folder.WorkspaceId = parent.WorkspaceId;
 
             await _folderRepository.AddAsync(folder, cancellationToken);
-            await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
 
             return Unit.Value;
         }
