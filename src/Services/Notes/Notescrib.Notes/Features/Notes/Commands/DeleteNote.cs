@@ -3,9 +3,9 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
+using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Notes.Commands;
 
@@ -33,13 +33,15 @@ public static class DeleteNote
                 .GetByOwnerIdAsync(_permissionGuard.UserContext.UserId, cancellationToken);
             if (workspace == null)
             {
-                throw new NotFoundException<Workspace>();
+                throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
             }
 
-            var note = await _noteRepository.GetByIdAsync(request.Id, cancellationToken);
+            var include = new NoteIncludeOptions { Workspace = true };
+            
+            var note = await _noteRepository.GetByIdAsync(request.Id, include, cancellationToken);
             if (note == null)
             {
-                throw new NotFoundException<Note>(request.Id);
+                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
 
             _permissionGuard.GuardCanEdit(note.OwnerId);

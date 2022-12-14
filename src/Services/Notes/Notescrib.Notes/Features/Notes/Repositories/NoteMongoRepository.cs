@@ -5,71 +5,98 @@ using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Repositories;
 
 public class NoteMongoRepository : INoteRepository
 {
-    private readonly IMongoCollection<Note> _collection;
+    private readonly MongoDbContext _context;
 
-    public NoteMongoRepository(IMongoCollection<Note> collection)
+    public NoteMongoRepository(MongoDbContext context)
     {
-        _collection = collection;
+        _context = context;
     }
 
-    public Task<PagedList<Note>> GetAsync(
-        string? folderId,
-        IPermissionGuard permissionGuard,
-        PagingSortingInfo<NotesSorting> info,
-        CancellationToken cancellationToken = default)
-    {
-        var filters = new[]
-        {
-            x => folderId == null || x.FolderId == folderId,
-            permissionGuard.ExpressionCanView<Note>()
-        };
+    public Task CreateNote(NoteBase note, CancellationToken cancellationToken = default)
+        => _context.Notes.InsertOneAsync(note, cancellationToken: cancellationToken);
 
-        return _collection.FindPagedAsync(
-            filters,
-            info,
-            cancellationToken);
+    public Task<Note?> GetByIdAsync(string id, NoteIncludeOptions? include = null, CancellationToken cancellationToken = default)
+    {
+        include ??= new();
+        
+        var aggregate = _context.Notes.Aggregate()
+            .Match(x => x.Id == id)
+            .As<Note>();
+
+        aggregate = Include(aggregate, include);
+
+        return aggregate.FirstOrDefaultAsync(cancellationToken)!;
+    }
+
+    public Task UpdateAsync(NoteBase note, CancellationToken cancellationToken = default)
+    {
+        var update = Builders<NoteBase>.Update
+            .Set(x => x.Name, note.Name)
+            .Set(x => x.Tags, note.Tags)
+            .Set(x => x.SharingInfo, note.SharingInfo)
+            .Set(x => x.Updated, note.Updated);
+
+        return _context.Notes.UpdateOneAsync(x => x.Id == note.Id, update, cancellationToken: cancellationToken);
     }
     
-    public Task<IReadOnlyCollection<Note>> GetAsync(
-        string? folderId,
-        IPermissionGuard permissionGuard,
-        CancellationToken cancellationToken = default)
+    public Task UpdateContentAsync(NoteBase note, CancellationToken cancellationToken = default)
     {
-        var filters = new[]
-        {
-            x => folderId == null || x.FolderId == folderId,
-            permissionGuard.ExpressionCanView<Note>()
-        };
+        var update = Builders<NoteBase>.Update
+            .Set(x => x.Content, note.Content);
 
-        return _collection.FindAsync(filters, cancellationToken);
+        return _context.Notes.UpdateOneAsync(x => x.Id == note.Id, update, cancellationToken: cancellationToken);
     }
 
-    public Task AddNote(Note note, CancellationToken cancellationToken = default)
-        => _collection.InsertOneAsync(note, cancellationToken: cancellationToken);
-
-    public Task<Note?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
-        => _collection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken)!;
-
-    public Task UpdateAsync(Note note, CancellationToken cancellationToken = default)
-        => _collection.FindOneAndReplaceAsync(
-            x => x.Id == note.Id,
-            note,
-            cancellationToken: cancellationToken);
-
-    public Task DeleteFromFoldersAsync(IEnumerable<string> folderIds,
+    public async Task<int> DeleteFromFoldersAsync(IEnumerable<string> folderIds,
         CancellationToken cancellationToken = default)
-        => _collection.DeleteManyAsync(
+    {
+        var result = await _context.Notes.DeleteManyAsync(
             x => folderIds.Contains(x.FolderId),
             cancellationToken: cancellationToken);
 
-    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
-        => _collection.FindOneAndDeleteAsync(x => x.Id == id, cancellationToken: cancellationToken);
+        return (int)result.DeletedCount;
+    }
 
-    public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
-        => _collection.DeleteManyAsync(x => ids.Contains(x.Id), cancellationToken);
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+        => _context.Notes.DeleteOneAsync(x => x.Id == id, cancellationToken: cancellationToken);
+
+    private IAggregateFluent<Note> Include(IAggregateFluent<Note> aggregate, NoteIncludeOptions options)
+    {
+        if (!options.Content)
+        {
+            var projection = Builders<Note>.Projection
+                .Exclude(x => x.Content);
+
+            aggregate = aggregate
+                .Project<Note>(projection);
+        }
+        
+        if (options.Folder)
+        {
+            aggregate = aggregate
+                .Lookup(
+                    _context.Folders,
+                    x => x.FolderId,
+                    x => x.Id,
+                    (Note x) => x.Folder);
+        }
+
+        if (options.Workspace)
+        {
+            aggregate = aggregate
+                .Lookup(
+                    _context.Workspaces,
+                    x => x.WorkspaceId,
+                    x => x.Id,
+                    (Note x) => x.Workspace);
+        }
+
+        return aggregate;
+    }
 }

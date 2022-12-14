@@ -3,6 +3,7 @@ using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Users.Mappers;
 using Notescrib.Identity.Features.Users.Models;
+using Notescrib.Identity.Utils;
 
 namespace Notescrib.Identity.Features.Users.Queries;
 
@@ -26,7 +27,7 @@ public static class GetUserDetails
             var found = await _userManager.FindByIdAsync(request.Id);
             if (found == null)
             {
-                throw new NotFoundException<AppUser>(request.Id);
+                throw new NotFoundException(ErrorCodes.User.UserNotFound);
             }
 
             return _mapper.MapToDetails(found);

@@ -1,36 +1,31 @@
 ﻿using MongoDB.Driver;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Workspaces;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
 
 public class FolderMongoRepository : IFolderRepository
 {
+    private readonly MongoDbContext _context;
+
     private static readonly AggregateUnwindOptions<Folder> UnwindOptions = new()
     {
         PreserveNullAndEmptyArrays = true
     };
 
-    private readonly IMongoCollection<FolderBase> _collection;
-    private readonly IMongoCollection<Workspace> _workspaceCollection;
-    private readonly IMongoCollection<Note> _noteCollection;
-
-    public FolderMongoRepository(IMongoCollection<FolderBase> collection, IMongoCollection<Workspace> workspaceCollection, IMongoCollection<Note> noteCollection)
+    public FolderMongoRepository(MongoDbContext context)
     {
-        _collection = collection;
-        _workspaceCollection = workspaceCollection;
-        _noteCollection = noteCollection;
+        _context = context;
     }
 
     public Task AddAsync(FolderBase folder, CancellationToken cancellationToken = default)
-        => _collection.InsertOneAsync(folder, cancellationToken: cancellationToken);
+        => _context.Folders.InsertOneAsync(folder, cancellationToken: cancellationToken);
 
     public Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
     {
         include ??= new();
 
-        var aggregate = _collection.Aggregate()
+        var aggregate = _context.Folders.Aggregate()
             .Match(x => x.Id == id)
             .As<Folder>();
 
@@ -40,19 +35,25 @@ public class FolderMongoRepository : IFolderRepository
     }
 
     public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
-        => _collection.DeleteOneAsync(x => x.Id == id, cancellationToken);
+        => _context.Folders.DeleteOneAsync(x => x.Id == id, cancellationToken);
     
     public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
-        => _collection.DeleteOneAsync(x => ids.Contains(x.Id), cancellationToken);
-    
+        => _context.Folders.DeleteOneAsync(x => ids.Contains(x.Id), cancellationToken);
+
     public Task UpdateAsync(FolderBase folder, CancellationToken cancellationToken = default)
-        => _collection.ReplaceOneAsync(x => x.Id == folder.Id, folder, cancellationToken: cancellationToken);
+    {
+        var update = Builders<FolderBase>.Update
+            .Set(x => x.Name, folder.Name)
+            .Set(x => x.Updated, folder.Updated);
+
+        return _context.Folders.UpdateOneAsync(x => x.Id == folder.Id, update, cancellationToken: cancellationToken);
+    }
 
     public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default)
     {
         include ??= new();
 
-        var aggregate = _collection.Aggregate()
+        var aggregate = _context.Folders.Aggregate()
             .Match(x => x.OwnerId == ownerId && x.ParentId == null)
             .As<Folder>();
 
@@ -68,7 +69,7 @@ public class FolderMongoRepository : IFolderRepository
         {
             aggregate = aggregate
                 .Lookup(
-                    _workspaceCollection,
+                    _context.Workspaces,
                     x => x.WorkspaceId,
                     x => x.Id,
                     (Folder x) => x.Workspace)
@@ -79,7 +80,7 @@ public class FolderMongoRepository : IFolderRepository
         {
             aggregate = aggregate
                 .Lookup(
-                    _collection,
+                    _context.Folders,
                     x => x.Id, 
                     x => x.ParentId, 
                     (Folder x) => x.ImmediateChildren);
@@ -88,26 +89,26 @@ public class FolderMongoRepository : IFolderRepository
         if (options.Children)
         {
             aggregate = aggregate.Lookup(
-                _collection,
+                _context.Folders,
                 x => x.Id,
                 x => x.AncestorIds,
                 (Folder x) => x.Children);
         }
 
-        if (options.ImmediateNotes)
+        if (options.Notes)
         {
             aggregate = aggregate.Lookup(
-                _noteCollection,
+                _context.Notes,
                 x => x.Id,
                 x => x.FolderId,
-                (Folder x) => x.ImmediateNotes);
+                (Folder x) => x.Notes);
         }
         
         if (options.Parent)
         {
             aggregate = aggregate
                 .Lookup(
-                    _collection,
+                    _context.Folders,
                     x => x.Id,
                     x => x.ParentId,
                     (Folder x) => x.Parent)

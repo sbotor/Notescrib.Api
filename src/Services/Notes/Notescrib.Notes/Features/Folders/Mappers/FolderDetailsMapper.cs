@@ -9,9 +9,9 @@ namespace Notescrib.Notes.Features.Folders.Mappers;
 public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
 {
     private readonly IMapper<Folder, FolderInfoBase> _baseMapper;
-    private readonly IMapper<Note, NoteOverview> _noteMapper;
+    private readonly IMapper<NoteBase, NoteOverview> _noteMapper;
 
-    public FolderDetailsMapper(IMapper<Folder, FolderInfoBase> baseMapper, IMapper<Note, NoteOverview> noteMapper)
+    public FolderDetailsMapper(IMapper<Folder, FolderInfoBase> baseMapper, IMapper<NoteBase, NoteOverview> noteMapper)
     {
         _baseMapper = baseMapper;
         _noteMapper = noteMapper;
@@ -25,6 +25,6 @@ public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
             Children = item.ImmediateChildren.Select(_baseMapper.Map).ToArray(),
             Created = item.Created,
             Updated = item.Updated,
-            Notes = item.ImmediateNotes.Select(_noteMapper.Map).ToArray()
+            Notes = item.Notes.Select(_noteMapper.Map).ToArray()
         };
 }

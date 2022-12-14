@@ -24,7 +24,7 @@ public static class MongoDbClassMaps
             cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);
         });
 
-        BsonClassMap.RegisterClassMap<Note>(cm =>
+        BsonClassMap.RegisterClassMap<NoteBase>(cm =>
         {
             cm.AutoMap();
             cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);

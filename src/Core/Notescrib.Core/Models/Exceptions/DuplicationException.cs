@@ -2,15 +2,8 @@
 
 public class DuplicationException : AppException
 {
-    public DuplicationException(string? message = null) : base(message)
-    {
-    }
-}
-
-public class DuplicationException<TEntity> : DuplicationException
-{
-    public DuplicationException()
-        : base($"{typeof(TEntity).Name} already exists.")
+    public DuplicationException(string code, string? message = null)
+        : base(code, message)
     {
     }
 }

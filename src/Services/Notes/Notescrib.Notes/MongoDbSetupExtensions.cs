@@ -19,21 +19,9 @@ public static class MongoDbSetupExtensions
     {
         MongoDbClassMaps.Register();
 
-        var section = config.GetSection(nameof(MongoDbSettings));
-        services.Configure<MongoDbCollectionNames>(section.GetSection(nameof(MongoDbCollectionNames)));
-        
-        var settings = section.Get<MongoDbSettings>()!;
-        var db = new MongoClient(settings.ConnectionUri)
-            .GetDatabase(settings.DatabaseName);
-        
-        services.AddSingleton(db.GetCollection<Workspace>(settings.Collections.Workspaces));
-        services.AddScoped<IWorkspaceRepository, WorkspaceMongoRepository>();
-        
-        services.AddSingleton(db.GetCollection<FolderBase>(settings.Collections.Folders));
-        services.AddScoped<IFolderRepository, FolderMongoRepository>();
-        
-        services.AddSingleton(db.GetCollection<Note>(settings.Collections.Notes));
-        services.AddScoped<INoteRepository, NoteMongoRepository>();
+        services.Configure<MongoDbSettings>(config.GetSection(nameof(MongoDbSettings)));
+
+        services.AddSingleton<MongoDbContext>();
 
         return services;
     }

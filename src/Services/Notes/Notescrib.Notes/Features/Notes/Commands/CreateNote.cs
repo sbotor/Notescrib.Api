@@ -51,38 +51,43 @@ public static class CreateNote
         {
             var userId = _permissionGuard.UserContext.UserId;
 
-            var note = new Note
-            {
-                Name = request.Name,
-                Tags = request.Tags.ToArray(),
-                OwnerId = userId,
-                SharingInfo = request.SharingInfo,
-                Created = _dateTimeProvider.Now
-            };
-            
-            var includeOptions = new FolderIncludeOptions { Workspace = true };
+            var includeOptions = new FolderIncludeOptions { Workspace = true, Notes = true };
 
             var folder = request.FolderId == null
                 ? await _folderRepository.GetRootAsync(userId, includeOptions, cancellationToken)
                 : await _folderRepository.GetByIdAsync(request.FolderId, includeOptions, cancellationToken);
             if (folder == null)
             {
-                throw new NotFoundException<Folder>(request.FolderId);
+                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             }
             
             _permissionGuard.GuardCanEdit(folder.OwnerId);
+
+            if (folder.Children.Any(x => x.Name == request.Name))
+            {
+                throw new AppException(ErrorCodes.Note.NoteAlreadyExists);
+            }
             
             var workspace = folder.Workspace;
             if (workspace.NoteCount >= Consts.Workspace.MaxNoteCount)
             {
                 throw new AppException("Maximum note count reached.");
             }
+            
+            var note = new NoteBase
+            {
+                Name = request.Name,
+                Tags = request.Tags.ToArray(),
+                OwnerId = userId,
+                SharingInfo = request.SharingInfo,
+                Created = _dateTimeProvider.Now,
+                FolderId = folder.Id,
+                WorkspaceId = folder.WorkspaceId
+            };
 
-            note.FolderId = folder.Id;
-            note.WorkspaceId = folder.WorkspaceId;
             workspace.NoteCount++;
             
-            await _noteRepository.AddNote(note, cancellationToken);
+            await _noteRepository.CreateNote(note, cancellationToken);
             await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
 
             return Unit.Value;
@@ -106,8 +111,7 @@ public static class CreateNote
                 .NotEmpty();
 
             RuleFor(x => x.SharingInfo)
-                .NotNull()
-                .SetValidator(new SharingInfoValidator());
+                .NotNull();
         }
     }
 }

@@ -2,7 +2,8 @@
 
 public class ForbiddenException : AppException
 {
-    public ForbiddenException(string? message = null) : base(message)
+    public ForbiddenException(string? code = null , string? message = null)
+        : base(code ?? GeneralErrorCodes.Forbidden, message)
     {
     }
 }

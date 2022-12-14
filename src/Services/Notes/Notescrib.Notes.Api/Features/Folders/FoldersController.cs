@@ -21,15 +21,11 @@ public class FoldersController : ControllerBase
     }
     
     [HttpPost]
-    [ProducesResponseType(typeof(FolderInfoBase), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateFolder(CreateFolderRequest request,
         CancellationToken cancellationToken)
-        => StatusCode(
-            StatusCodes.Status201Created,
-            await _mediator.Send(request.ToCommand(), cancellationToken));
+        => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
 
     [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateFolder(
         string id,
         UpdateFolderRequest request,
@@ -37,7 +33,6 @@ public class FoldersController : ControllerBase
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
     
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteFolder(
         string id,
         CancellationToken cancellationToken)

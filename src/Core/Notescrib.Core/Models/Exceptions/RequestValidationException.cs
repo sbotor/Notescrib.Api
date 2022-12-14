@@ -2,14 +2,13 @@
 
 public class RequestValidationException : AppException
 {
-    public IReadOnlyDictionary<string, string[]> Errors { get; }
+    private readonly IReadOnlyCollection<ValidationErrorModel> _errors;
 
-    public RequestValidationException(IReadOnlyDictionary<string, string[]> errors)
-        : base("Validation errors occured.")
+    public RequestValidationException(IEnumerable<ValidationErrorModel> errors)
     {
-        Errors = errors;
+        _errors = errors.ToArray();
     }
 
-    public ValidationErrorModel ToErrorModel()
-        => new() { Message = Message, Errors = Errors };
+    public override ErrorResponse ToResponse()
+        => new() { ValidationErrors = _errors };
 }

@@ -5,6 +5,7 @@ using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
+using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
@@ -36,7 +37,7 @@ public static class CreateWorkspace
             var userId = _userContext.UserId;
             if (await _repository.GetByOwnerIdAsync(userId, cancellationToken) != null)
             {
-                throw new DuplicationException<Workspace>();
+                throw new DuplicationException(ErrorCodes.Workspace.WorkspaceAlreadyExists);
             }
 
             var now = _dateTimeProvider.Now;

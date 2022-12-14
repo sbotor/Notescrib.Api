@@ -19,8 +19,7 @@ public class FolderBase
 public class Folder : FolderBase
 {
     public Workspace Workspace { get; set; } = null!;
-    public IReadOnlyCollection<Note> ChildrenNotes { get; set; } = null!;
-    public IReadOnlyCollection<Note> ImmediateNotes { get; set; } = null!;
+    public IReadOnlyCollection<NoteBase> Notes { get; set; } = null!;
     public IReadOnlyCollection<Folder> ImmediateChildren { get; set; } = null!;
     public IReadOnlyCollection<Folder> Children { get; set; } = null!;
     public Folder? Parent { get; set; } = null!;

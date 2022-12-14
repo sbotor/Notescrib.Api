@@ -2,10 +2,7 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
 
@@ -19,13 +16,16 @@ public static class UpdateFolder
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IPermissionGuard _permissionGuard;
 
         public Handler(
             IFolderRepository folderRepository,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IPermissionGuard permissionGuard)
         {
             _folderRepository = folderRepository;
             _dateTimeProvider = dateTimeProvider;
+            _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -33,8 +33,10 @@ public static class UpdateFolder
             var folder = await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
             if (folder == null)
             {
-                throw new NotFoundException<Folder>(request.FolderId);
+                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             }
+            
+            _permissionGuard.GuardCanEdit(folder.OwnerId);
 
             if (folder.ParentId == null)
             {
@@ -48,12 +50,12 @@ public static class UpdateFolder
                     cancellationToken);
             if (parent == null)
             {
-                throw new NotFoundException<Folder>();
+                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound, "Parent folder does not exist.");
             }
 
             if (parent.Children.Any(x => x.Name == request.Name))
             {
-                throw new DuplicationException<Folder>();
+                throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
 
             var now = _dateTimeProvider.Now;

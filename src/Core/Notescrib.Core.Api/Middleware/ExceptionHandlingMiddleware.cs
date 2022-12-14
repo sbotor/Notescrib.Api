@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Notescrib.Core.Models;
 using Notescrib.Core.Models.Exceptions;
 
 namespace Notescrib.Core.Api.Middleware;
@@ -32,51 +33,33 @@ public class ExceptionHandlingMiddleware
 
     private async Task HandleException(Exception exception, HttpContext context)
     {
-        var statusCode = HttpStatusCode.InternalServerError;
-        var message = "An unexpected error occured.";
+        HttpStatusCode statusCode;
+        ErrorResponse response;
 
         if (exception is AppException appException)
         {
             _logger.LogWarning(exception, "An exception occured.");
-            statusCode = HandleAppException(appException, out message);
+            statusCode = GetErrorCode(appException);
+            response = appException.ToResponse();
         }
         else
         {
             _logger.LogError(exception, "An unhandled exception occured.");
+            statusCode = HttpStatusCode.InternalServerError;
+            response = ErrorResponse.UnexpectedError;
         }
 
         context.Response.StatusCode = (int)statusCode;
-        await context.Response.WriteAsJsonAsync(message);
+        await context.Response.WriteAsJsonAsync(response);
     }
 
-    private HttpStatusCode HandleAppException(AppException exception, out string message)
-    {
-        switch (exception)
+    private static HttpStatusCode GetErrorCode(AppException exception)
+        => exception switch
         {
-            case NotFoundException notFound:
-                message = GetMessageOrDefault(notFound, "The resource was not found.");
-                return HttpStatusCode.NotFound;
-                
-            case ForbiddenException forbidden:
-                message = GetMessageOrDefault(forbidden, "Invalid permissions.");
-                return HttpStatusCode.Forbidden;
-                
-            case DuplicationException duplication:
-                message = GetMessageOrDefault(duplication, "The resource already exists.");
-                return HttpStatusCode.UnprocessableEntity;
-            
-            case RequestValidationException validation:
-                message = validation.ToErrorModel().Serialize();
-                return HttpStatusCode.BadRequest;
-
-            default:
-                message = GetMessageOrDefault(exception, "Invalid request.");
-                return HttpStatusCode.BadRequest;
-        }
-    }
-
-    private static string GetMessageOrDefault(Exception exception, string message)
-        => !string.IsNullOrEmpty(exception.Message)
-            ? exception.Message
-            : message;
+            NotFoundException => HttpStatusCode.NotFound,
+            ForbiddenException => HttpStatusCode.Forbidden,
+            DuplicationException => HttpStatusCode.UnprocessableEntity,
+            RequestValidationException => HttpStatusCode.BadRequest,
+            _ => HttpStatusCode.BadRequest
+        };
 }

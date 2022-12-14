@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using Notescrib.Core.Models;
 using Notescrib.Core.Models.Exceptions;
 
 namespace Notescrib.Core.Cqrs.Behaviors;
@@ -31,7 +32,7 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
 
         if (errors.Any())
         {
-            throw new RequestValidationException(errors);
+            throw new RequestValidationException(errors.Select(x => new ValidationErrorModel(x.Key, x.Value)));
         }
 
         return await next.Invoke();

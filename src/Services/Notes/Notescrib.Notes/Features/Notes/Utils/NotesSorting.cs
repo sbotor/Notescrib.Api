@@ -12,7 +12,7 @@ internal class NotesSortingProvider : ISortingProvider<NotesSorting>
     public string GetSortName(NotesSorting value)
         => value switch
         {
-            NotesSorting.Name => nameof(Note.Name),
+            NotesSorting.Name => nameof(NoteBase.Name),
             _ => throw new NotSupportedException()
         };
 }

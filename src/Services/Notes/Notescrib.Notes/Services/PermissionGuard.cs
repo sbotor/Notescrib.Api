@@ -25,24 +25,9 @@ internal class PermissionGuard : IPermissionGuard
         }
     }
 
-    public Expression<Func<T, bool>> ExpressionCanView<T>()
-        where T : IShareable
-        => x =>
-            (UserContext.UserId == x.OwnerId || x.SharingInfo.Visibility == VisibilityLevel.Public)
-            || (x.SharingInfo.Visibility == VisibilityLevel.Hidden
-                && x.SharingInfo.AllowedIds.Contains(UserContext.UserId));
-
-    public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
-    {
-        var userId = UserContext.UserId;
-        if (userId == ownerId || sharingInfo?.Visibility == VisibilityLevel.Public)
-        {
-            return true;
-        }
-
-        return sharingInfo is { Visibility: VisibilityLevel.Hidden }
-               && sharingInfo.AllowedIds.Contains(userId);
-    }
+    private bool CanView(string ownerId, SharingInfo? sharingInfo = null)
+        => sharingInfo?.Visibility != VisibilityLevel.Private
+           || ownerId == UserContext.UserId;
 
     public void GuardCanView(string ownerId, SharingInfo? sharingInfo = null)
     {

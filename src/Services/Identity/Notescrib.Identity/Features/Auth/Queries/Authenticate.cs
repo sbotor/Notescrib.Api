@@ -6,6 +6,7 @@ using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Models;
 using Notescrib.Identity.Features.Auth.Providers;
 using Notescrib.Identity.Features.Users.Mappers;
+using Notescrib.Identity.Utils;
 
 namespace Notescrib.Identity.Features.Auth.Queries;
 
@@ -33,12 +34,12 @@ public static class Authenticate
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorCodes.User.UserNotFound);
             }
 
             if (!user.EmailConfirmed)
             {
-                throw new AppException();
+                throw new AppException(ErrorCodes.User.EmailNotConfirmed);
             }
             
             var result = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash!, request.Password);

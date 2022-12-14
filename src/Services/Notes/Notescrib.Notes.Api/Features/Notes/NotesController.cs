@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Core.Api.Attributes;
 using Notescrib.Notes.Api.Features.Notes.Models;
+using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Notes.Commands;
 using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Api.Features.Notes;
 
@@ -22,21 +22,13 @@ public class NotesController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(NoteOverview), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CreateNote(CreateNoteRequest request)
-    {
-        var result = await _mediator.Send(request.ToCommand());
-        return Ok(result);
-    }
-
-    [HttpGet]
-    [ProducesResponseType(typeof(PagedList<NoteOverview>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetNotes([FromQuery] GetNotesRequest request, CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
-
-    // [HttpGet("{id}")]
-    // public async Task<IActionResult> GetNote(string id, CancellationToken cancellationToken)
-    //     => Ok(await _mediator.Send(new GetNote.Query(id), cancellationToken));
+    public async Task<IActionResult> CreateNote(CreateNoteRequest request, CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
+    
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(NoteDetails), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNote(string id, CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new GetNote.Query(id), cancellationToken));
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateNote(string id, UpdateNoteRequest request,
@@ -46,4 +38,8 @@ public class NotesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteNote(string id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteNote.Command(id), cancellationToken));
+
+    [HttpPut("content/{id}")]
+    public async Task<IActionResult> UpdateContent(string id, string content, CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new UpdateNoteContent.Command(id, content), cancellationToken));
 }

@@ -9,12 +9,9 @@ public static class Consts
 
     public static class Note
     {
-        public const int MaxTotalLength = 100_000;
-        public const int MaxSectionLength = 10_000;
-        public const int MaxSectionCount = 10;
+        public const int MaxContentLength = 1_000_000;
         public const int MaxLabelCount = 10;
-        public const int MaxSharingCount = 10;
-        public const int MaxNestingLevel = 2;
+        public const int MaxRelatedCount = 10;
     }
 
     public static class Folder

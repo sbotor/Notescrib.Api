@@ -4,6 +4,7 @@ using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Folders.Models;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Services;
+using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Folders.Queries;
 
@@ -29,7 +30,7 @@ public static class GetFolderDetails
 
         public async Task<FolderDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var includeOptions = new FolderIncludeOptions { ImmediateChildren = true, ImmediateNotes = true };
+            var includeOptions = new FolderIncludeOptions { ImmediateChildren = true, Notes = true };
 
             var folder = request.Id == null
                 ? await _folderRepository.GetRootAsync(_permissionGuard.UserContext.UserId, includeOptions,
@@ -37,14 +38,10 @@ public static class GetFolderDetails
                 : await _folderRepository.GetByIdAsync(request.Id, includeOptions, cancellationToken);
             if (folder == null)
             {
-                throw new NotFoundException<Folder>(request.Id);
+                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             }
 
             _permissionGuard.GuardCanView(folder.OwnerId);
-
-            folder.ImmediateNotes = folder.ImmediateNotes
-                .Where(x => _permissionGuard.CanView(x.OwnerId, x.SharingInfo))
-                .ToArray();
 
             return _folderMapper.Map(folder);
         }

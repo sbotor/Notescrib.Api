@@ -2,15 +2,9 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders.Models;
 using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -38,7 +32,6 @@ public static class CreateFolder
         {
             var userId = _permissionGuard.UserContext.UserId;
             var now = _dateTimeProvider.Now;
-            var folder = new FolderBase { Name = request.Name, Created = now, OwnerId = userId };
 
             var includeOptions = new FolderIncludeOptions { Children = true };
 
@@ -47,30 +40,35 @@ public static class CreateFolder
                 : await _folderRepository.GetByIdAsync(request.ParentId, includeOptions, cancellationToken);
             if (parent == null)
             {
-                throw new NotFoundException<Folder>(request.ParentId);
+                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             }
 
             _permissionGuard.GuardCanEdit(parent.OwnerId);
             
             if (parent.Children.Count >= Consts.Folder.MaxChildrenCount)
             {
-                throw new AppException("Maximum folder count reached.");
+                throw new AppException(ErrorCodes.Folder.MaximumFolderCountReached);
             }
 
             if (parent.AncestorIds.Count >= Consts.Folder.MaxNestingLevel)
             {
-                throw new AppException("The parent cannot nest children.");
+                throw new AppException(ErrorCodes.Folder.CannotNestMoreChildren);
             }
 
-            if (parent.Children.Any(x => x.Name == folder.Name))
+            if (parent.Children.Any(x => x.Name == request.Name))
             {
-                throw new DuplicationException<Folder>();
+                throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
-
-            folder.AncestorIds = parent.AncestorIds.Append(parent.Id).ToArray();
-            folder.ParentId = parent.Id;
-
-            folder.WorkspaceId = parent.WorkspaceId;
+            
+            var folder = new FolderBase
+            {
+                Name = request.Name,
+                Created = now,
+                OwnerId = userId,
+                AncestorIds = parent.AncestorIds.Append(parent.Id).ToArray(),
+                ParentId = parent.Id,
+                WorkspaceId = parent.WorkspaceId
+            };
 
             await _folderRepository.AddAsync(folder, cancellationToken);
 
