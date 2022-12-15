@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
@@ -17,22 +19,12 @@ public class FolderMongoRepository : IFolderRepository
         _context = context;
     }
 
-    public Task AddAsync(FolderBase folder, CancellationToken cancellationToken = default)
+    public Task AddAsync(FolderData folder, CancellationToken cancellationToken = default)
         => _context.Folders.InsertOneAsync(folder, cancellationToken: cancellationToken);
 
     public Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
-    {
-        include ??= new();
-
-        var aggregate = _context.Folders.Aggregate()
-            .Match(x => x.Id == id)
-            .As<Folder>();
-
-        aggregate = Include(aggregate, include);
-
-        return aggregate.As<Folder>().FirstOrDefaultAsync(cancellationToken)!;
-    }
+        => GetWithInclude(x => x.Id == id, include, cancellationToken);
 
     public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         => _context.Folders.DeleteOneAsync(x => x.Id == id, cancellationToken);
@@ -40,13 +32,29 @@ public class FolderMongoRepository : IFolderRepository
     public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
         => _context.Folders.DeleteOneAsync(x => ids.Contains(x.Id), cancellationToken);
 
-    public Task UpdateAsync(FolderBase folder, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(FolderData folder, CancellationToken cancellationToken = default)
     {
-        var update = Builders<FolderBase>.Update
+        foreach (var note in folder.Notes)
+        {
+            if (note.Id == default!)
+            {
+                note.Id = ObjectId.GenerateNewId().ToString();
+            }
+        }
+        
+        var update = Builders<FolderData>.Update
             .Set(x => x.Name, folder.Name)
-            .Set(x => x.Updated, folder.Updated);
+            .Set(x => x.Updated, folder.Updated)
+            .Set(x => x.Notes, folder.Notes);
 
         return _context.Folders.UpdateOneAsync(x => x.Id == folder.Id, update, cancellationToken: cancellationToken);
+    }
+
+    public Task<Folder?> GetByNoteIdAsync(string noteId, FolderIncludeOptions? include = null,
+        CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<FolderData>.Filter.ElemMatch(x => x.Notes, x => x.Id == noteId);
+        return GetWithInclude(filter, include, cancellationToken);
     }
 
     public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default)
@@ -62,6 +70,24 @@ public class FolderMongoRepository : IFolderRepository
         return aggregate.As<Folder>().FirstOrDefaultAsync(cancellationToken)!;
     }
 
+    private Task<Folder?> GetWithInclude(Expression<Func<FolderData, bool>> filter, FolderIncludeOptions? include,
+        CancellationToken cancellationToken)
+        => GetWithInclude(new ExpressionFilterDefinition<FolderData>(filter), include, cancellationToken);
+    
+    private Task<Folder?> GetWithInclude(FilterDefinition<FolderData> filter, FolderIncludeOptions? include,
+        CancellationToken cancellationToken)
+    {
+        include ??= new();
+
+        var aggregate = _context.Folders.Aggregate()
+            .Match(filter)
+            .As<Folder>();
+
+        aggregate = Include(aggregate, include);
+
+        return aggregate.FirstOrDefaultAsync(cancellationToken)!;
+    }
+    
     private IAggregateFluent<Folder> Include(IAggregateFluent<Folder> aggregate,
         FolderIncludeOptions options)
     {
@@ -95,15 +121,6 @@ public class FolderMongoRepository : IFolderRepository
                 (Folder x) => x.Children);
         }
 
-        if (options.Notes)
-        {
-            aggregate = aggregate.Lookup(
-                _context.Notes,
-                x => x.Id,
-                x => x.FolderId,
-                (Folder x) => x.Notes);
-        }
-        
         if (options.Parent)
         {
             aggregate = aggregate

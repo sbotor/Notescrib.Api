@@ -2,18 +2,11 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
-using Notescrib.Notes.Models.Configuration;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils.Mediatr;
-using Notescrib.Notes.Utils.MongoDb;
 
 [assembly: InternalsVisibleTo("Notescrib.Notes.Tests")]
 

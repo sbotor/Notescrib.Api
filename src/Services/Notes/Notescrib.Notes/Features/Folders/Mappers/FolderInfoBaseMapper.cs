@@ -4,8 +4,8 @@ using Notescrib.Notes.Features.Workspaces;
 
 namespace Notescrib.Notes.Features.Folders.Mappers;
 
-public class FolderInfoBaseMapper : IMapper<Folder, FolderInfoBase>
+public class FolderInfoBaseMapper : IMapper<FolderData, FolderInfoBase>
 {
-    public FolderInfoBase Map(Folder item)
+    public FolderInfoBase Map(FolderData item)
         => new() { Id = item.Id, Name = item.Name, Created = item.Created, Updated = item.Updated };
 }

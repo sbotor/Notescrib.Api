@@ -2,14 +2,8 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Extensions;
-using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -27,22 +21,19 @@ public static class CreateNote
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteRepository _noteRepository;
-        private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IFolderRepository _folderRepository;
+        private readonly INoteContentRepository _noteContentRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            INoteRepository noteRepository,
-            IWorkspaceRepository workspaceRepository,
             IFolderRepository folderRepository,
+            INoteContentRepository noteContentRepository,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _noteRepository = noteRepository;
-            _workspaceRepository = workspaceRepository;
             _folderRepository = folderRepository;
+            _noteContentRepository = noteContentRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -51,11 +42,9 @@ public static class CreateNote
         {
             var userId = _permissionGuard.UserContext.UserId;
 
-            var includeOptions = new FolderIncludeOptions { Workspace = true, Notes = true };
-
             var folder = request.FolderId == null
-                ? await _folderRepository.GetRootAsync(userId, includeOptions, cancellationToken)
-                : await _folderRepository.GetByIdAsync(request.FolderId, includeOptions, cancellationToken);
+                ? await _folderRepository.GetRootAsync(userId, cancellationToken: cancellationToken)
+                : await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
             if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
@@ -63,18 +52,17 @@ public static class CreateNote
             
             _permissionGuard.GuardCanEdit(folder.OwnerId);
 
-            if (folder.Children.Any(x => x.Name == request.Name))
+            if (folder.Notes.Count >= Consts.Folder.MaxNoteCount)
+            {
+                throw new AppException(ErrorCodes.Folder.MaximumNoteCountReached);
+            }
+            
+            if (folder.Notes.Any(x => x.Name == request.Name))
             {
                 throw new AppException(ErrorCodes.Note.NoteAlreadyExists);
             }
-            
-            var workspace = folder.Workspace;
-            if (workspace.NoteCount >= Consts.Workspace.MaxNoteCount)
-            {
-                throw new AppException("Maximum note count reached.");
-            }
-            
-            var note = new NoteBase
+
+            var note = new Note
             {
                 Name = request.Name,
                 Tags = request.Tags.ToArray(),
@@ -85,11 +73,9 @@ public static class CreateNote
                 WorkspaceId = folder.WorkspaceId
             };
 
-            workspace.NoteCount++;
-            
-            await _noteRepository.CreateNote(note, cancellationToken);
-            await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
-
+            folder.Notes.Add(note);
+            await _folderRepository.UpdateAsync(folder, cancellationToken);
+            await _noteContentRepository.CreateAsync(note.Id, CancellationToken.None);
             return Unit.Value;
         }
     }

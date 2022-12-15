@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Notes;
+using Notescrib.Notes.Features.Templates;
 using Notescrib.Notes.Features.Workspaces;
 using Notescrib.Notes.Models.Configuration;
 
@@ -15,13 +16,15 @@ public class MongoDbContext
         
         var db = new MongoClient(settings.ConnectionUri)
             .GetDatabase(settings.DatabaseName);
-
-        Notes = db.GetCollection<NoteBase>(settings.Collections.Notes);
+        
         Workspaces = db.GetCollection<Workspace>(settings.Collections.Workspaces);
-        Folders = db.GetCollection<FolderBase>(settings.Collections.Folders);
+        Folders = db.GetCollection<FolderData>(settings.Collections.Folders);
+        NoteTemplates = db.GetCollection<NoteTemplate>(settings.Collections.NoteTemplates);
+        NoteContents = db.GetCollection<NoteContentData>(settings.Collections.NoteContents);
     }
     
-    public IMongoCollection<NoteBase> Notes { get; }
     public IMongoCollection<Workspace> Workspaces { get; }
-    public IMongoCollection<FolderBase> Folders { get; }
+    public IMongoCollection<FolderData> Folders { get; }
+    public IMongoCollection<NoteTemplate> NoteTemplates { get; }
+    public IMongoCollection<NoteContentData> NoteContents { get; }
 }

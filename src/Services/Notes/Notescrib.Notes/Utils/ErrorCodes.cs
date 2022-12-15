@@ -11,6 +11,7 @@ public static class ErrorCodes
     public static class Folder
     {
         public const string MaximumFolderCountReached = nameof(MaximumFolderCountReached);
+        public const string MaximumNoteCountReached = nameof(MaximumFolderCountReached);
         public const string CannotNestMoreChildren = nameof(CannotNestMoreChildren);
         public const string FolderAlreadyExists = nameof(FolderAlreadyExists);
         public const string FolderNotFound = nameof(FolderNotFound);

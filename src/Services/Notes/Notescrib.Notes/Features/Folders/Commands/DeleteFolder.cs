@@ -2,14 +2,10 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.Tree;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -19,17 +15,14 @@ public static class DeleteFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
+        private readonly INoteContentRepository _noteContentRepository;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IFolderRepository folderRepository, IWorkspaceRepository workspaceRepository,
-            INoteRepository noteRepository, IPermissionGuard permissionGuard)
+        public Handler(IFolderRepository folderRepository, INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard)
         {
-            _workspaceRepository = workspaceRepository;
             _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
+            _noteContentRepository = noteContentRepository;
             _permissionGuard = permissionGuard;
         }
 
@@ -37,7 +30,7 @@ public static class DeleteFolder
         {
             var folder = await _folderRepository.GetByIdAsync(
                 request.Id,
-                new() { Workspace = true, Children = true},
+                new() { Children = true},
                 cancellationToken);
             if (folder == null)
             {
@@ -51,19 +44,13 @@ public static class DeleteFolder
                 throw new AppException("Cannot delete root folder.");
             }
 
-            var workspace = folder.Workspace;
-
-            var folderIds = folder.Children.Select(x => x.Id)
-                .Append(folder.Id)
-                .ToArray();
+            var allFolders = folder.Children.Append(folder).ToArray();
             
-            var deletedNoteCount = await _noteRepository.DeleteFromFoldersAsync(folderIds, CancellationToken.None);
+            var folderIds = allFolders.Select(x => x.Id);
+            var noteIds = allFolders.SelectMany(x => x.Notes.Select(n => n.Id));
 
             await _folderRepository.DeleteManyAsync(folderIds, CancellationToken.None);
-
-            await _workspaceRepository.UpdateAsync(workspace, CancellationToken.None);
-            
-            workspace.NoteCount -= deletedNoteCount;
+            await _noteContentRepository.DeleteManyAsync(noteIds, CancellationToken.None);
 
             return Unit.Value;
         }

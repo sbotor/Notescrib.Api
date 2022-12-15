@@ -7,7 +7,7 @@ using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
 
-namespace Notescrib.Notes.Features.Notes;
+namespace Notescrib.Notes.Features.Notes.Queries;
 
 public static class GetNote
 {
@@ -15,28 +15,29 @@ public static class GetNote
 
     internal class Handler : IQueryHandler<Query, NoteDetails>
     {
-        private readonly INoteRepository _noteRepository;
+        private readonly INoteContentRepository _noteContentRepository;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IMapper<Note, NoteDetails> _mapper;
+        private readonly IMapper<NoteContent, NoteDetails> _mapper;
 
-        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard, IMapper<Note, NoteDetails> mapper)
+        public Handler(INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard, IMapper<NoteContent, NoteDetails> mapper)
         {
-            _noteRepository = noteRepository;
+            _noteContentRepository = noteContentRepository;
             _permissionGuard = permissionGuard;
             _mapper = mapper;
         }
 
         public async Task<NoteDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var note = await _noteRepository.GetByIdAsync(request.Id, new() { Content = true }, cancellationToken);
-            if (note == null)
+            var content = await _noteContentRepository.GetByNoteIdAsync(request.Id, cancellationToken);
+            if (content == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
-            
+
+            var note = content.Note;
             _permissionGuard.GuardCanView(note.OwnerId, note.SharingInfo);
 
-            var details = _mapper.Map(note);
+            var details = _mapper.Map(content);
             details.IsReadonly = !_permissionGuard.CanEdit(note.OwnerId);
 
             return details;

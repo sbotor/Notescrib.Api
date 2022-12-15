@@ -60,7 +60,7 @@ public static class CreateFolder
                 throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
             
-            var folder = new FolderBase
+            var folder = new FolderData
             {
                 Name = request.Name,
                 Created = now,

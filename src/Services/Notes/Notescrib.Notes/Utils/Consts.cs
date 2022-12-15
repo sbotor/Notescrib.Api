@@ -18,10 +18,6 @@ public static class Consts
     {
         public const int MaxNestingLevel = 4;
         public const int MaxChildrenCount = 10;
-    }
-
-    public static class Workspace
-    {
-        public const int MaxNoteCount = 128;
+        public const int MaxNoteCount = 32;
     }
 }

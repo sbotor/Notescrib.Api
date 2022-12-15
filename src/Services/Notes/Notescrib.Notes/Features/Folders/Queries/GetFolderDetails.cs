@@ -30,7 +30,7 @@ public static class GetFolderDetails
 
         public async Task<FolderDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var includeOptions = new FolderIncludeOptions { ImmediateChildren = true, Notes = true };
+            var includeOptions = new FolderIncludeOptions { ImmediateChildren = true };
 
             var folder = request.Id == null
                 ? await _folderRepository.GetRootAsync(_permissionGuard.UserContext.UserId, includeOptions,

@@ -3,9 +3,9 @@ using Notescrib.Notes.Features.Notes.Models;
 
 namespace Notescrib.Notes.Features.Notes.Mappers;
 
-public class NoteOverviewMapper : IMapper<NoteBase, NoteOverview>
+public class NoteOverviewMapper : IMapper<Note, NoteOverview>
 {
-    public NoteOverview Map(NoteBase item)
+    public NoteOverview Map(Note item)
         => new()
         {
             Id = item.Id,

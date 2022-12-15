@@ -3,7 +3,6 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -21,18 +20,15 @@ public static class UpdateNote
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteRepository _noteRepository;
         private readonly IFolderRepository _folderRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            INoteRepository noteRepository,
             IFolderRepository folderRepository,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _noteRepository = noteRepository;
             _folderRepository = folderRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
@@ -40,15 +36,16 @@ public static class UpdateNote
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _noteRepository.GetByIdAsync(request.Id, cancellationToken: cancellationToken);
-            if (note == null)
+            var folder = await _folderRepository.GetByNoteIdAsync(request.Id, cancellationToken: cancellationToken);
+            if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
 
+            var note = folder.FindNote(request.Id);
+            
             _permissionGuard.GuardCanEdit(note.OwnerId);
-
-            var folder = await _folderRepository.GetByIdAsync(note.FolderId, new() { Notes = true }, cancellationToken);
+            
             if (folder!.Children.Any(x => x.Name == request.Name))
             {
                 throw new DuplicationException(ErrorCodes.Note.NoteAlreadyExists);
@@ -59,7 +56,7 @@ public static class UpdateNote
             note.SharingInfo = request.SharingInfo;
             note.Updated = _dateTimeProvider.Now;
 
-            await _noteRepository.UpdateAsync(note, cancellationToken);
+            await _folderRepository.UpdateAsync(folder, cancellationToken);
 
             return Unit.Value;
         }

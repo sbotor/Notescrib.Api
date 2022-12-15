@@ -14,28 +14,28 @@ public static class UpdateNoteContent
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteRepository _noteRepository;
+        private readonly INoteContentRepository _noteContentRepository;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard)
+        public Handler(INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard)
         {
-            _noteRepository = noteRepository;
+            _noteContentRepository = noteContentRepository;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _noteRepository.GetByIdAsync(request.NoteId, new() { Content = true }, cancellationToken);
-            if (note == null)
+            var content = await _noteContentRepository.GetByNoteIdAsync(request.NoteId, cancellationToken);
+            if (content == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
             
-            _permissionGuard.GuardCanEdit(note.OwnerId);
+            _permissionGuard.GuardCanEdit(content.Note.OwnerId);
 
-            note.Content = request.Content;
+            content.Value = request.Content;
 
-            await _noteRepository.UpdateContentAsync(note, cancellationToken);
+            await _noteContentRepository.UpdateAsync(content, cancellationToken);
             
             return Unit.Value;
         }

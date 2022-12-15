@@ -6,6 +6,7 @@ using Notescrib.Notes.Api.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Notes.Commands;
 using Notescrib.Notes.Features.Notes.Models;
+using Notescrib.Notes.Features.Notes.Queries;
 
 namespace Notescrib.Notes.Api.Features.Notes;
 
