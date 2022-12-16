@@ -18,12 +18,15 @@ public static class DeleteNote
         private readonly IFolderRepository _folderRepository;
         private readonly INoteContentRepository _noteContentRepository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IFolderRepository folderRepository, INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard)
+        public Handler(IFolderRepository folderRepository, INoteContentRepository noteContentRepository,
+            IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _folderRepository = folderRepository;
             _noteContentRepository = noteContentRepository;
             _permissionGuard = permissionGuard;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -39,11 +42,14 @@ public static class DeleteNote
             _permissionGuard.GuardCanEdit(note.OwnerId);
 
             folder.Notes.Remove(note);
+            folder.Updated = _dateTimeProvider.Now;
+
             await _folderRepository.UpdateAsync(folder, cancellationToken);
             await _noteContentRepository.DeleteAsync(note.Id, CancellationToken.None);
-            
+
             return Unit.Value;
-;        }
+            ;
+        }
     }
 
     internal class Validator : AbstractValidator<Command>

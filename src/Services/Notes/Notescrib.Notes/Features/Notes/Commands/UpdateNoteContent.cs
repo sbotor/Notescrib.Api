@@ -2,6 +2,7 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -15,12 +16,16 @@ public static class UpdateNoteContent
     internal class Handler : ICommandHandler<Command>
     {
         private readonly INoteContentRepository _noteContentRepository;
+        private readonly IFolderRepository _folderRepository;
         private readonly IPermissionGuard _permissionGuard;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard)
+        public Handler(INoteContentRepository noteContentRepository, IFolderRepository folderRepository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _noteContentRepository = noteContentRepository;
+            _folderRepository = folderRepository;
             _permissionGuard = permissionGuard;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -34,9 +39,11 @@ public static class UpdateNoteContent
             _permissionGuard.GuardCanEdit(content.Note.OwnerId);
 
             content.Value = request.Content;
+            content.Note.Updated = _dateTimeProvider.Now;
 
             await _noteContentRepository.UpdateAsync(content, cancellationToken);
-            
+            await _folderRepository.UpdateNoteAsync(content.Note, CancellationToken.None);
+
             return Unit.Value;
         }
     }

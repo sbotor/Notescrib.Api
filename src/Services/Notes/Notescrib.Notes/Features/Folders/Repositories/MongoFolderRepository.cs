@@ -1,11 +1,12 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
 
-public class FolderMongoRepository : IFolderRepository
+public class MongoFolderRepository : IFolderRepository
 {
     private readonly MongoDbContext _context;
 
@@ -14,7 +15,7 @@ public class FolderMongoRepository : IFolderRepository
         PreserveNullAndEmptyArrays = true
     };
 
-    public FolderMongoRepository(MongoDbContext context)
+    public MongoFolderRepository(MongoDbContext context)
     {
         _context = context;
     }
@@ -53,8 +54,17 @@ public class FolderMongoRepository : IFolderRepository
     public Task<Folder?> GetByNoteIdAsync(string noteId, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
     {
-        var filter = Builders<FolderData>.Filter.ElemMatch(x => x.Notes, x => x.Id == noteId);
+        var filter = MongoDbHelpers.GetNoteFilter(noteId);
         return GetWithInclude(filter, include, cancellationToken);
+    }
+
+    public Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default)
+    {
+        var noteFilter = MongoDbHelpers.GetNoteFilter(note.Id);
+        var update = Builders<FolderData>.Update
+            .Set(x => x.Notes[-1].Updated, note.Updated);
+
+        return _context.Folders.UpdateOneAsync(noteFilter, update, cancellationToken: cancellationToken);
     }
 
     public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default)

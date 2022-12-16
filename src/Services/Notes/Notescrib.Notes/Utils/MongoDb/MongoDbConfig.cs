@@ -9,20 +9,18 @@ namespace Notescrib.Notes.Utils.MongoDb;
 
 public static class MongoDbConfig
 {
-    private static readonly IIdGenerator IdGenerator = StringObjectIdGenerator.Instance;
-
     public static void RegisterClassMaps()
     {
         BsonClassMap.RegisterClassMap<Workspace>(cm =>
         {
             cm.AutoMap();
-            cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
         
         BsonClassMap.RegisterClassMap<FolderData>(cm =>
         {
             cm.AutoMap();
-            cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
         
         BsonClassMap.RegisterClassMap<NoteContentData>(cm =>
@@ -33,7 +31,7 @@ public static class MongoDbConfig
         BsonClassMap.RegisterClassMap<NoteTemplateBase>(cm =>
         {
             cm.AutoMap();
-            cm.MapIdMember(x => x.Id).SetIdGenerator(IdGenerator);
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
     }
 }

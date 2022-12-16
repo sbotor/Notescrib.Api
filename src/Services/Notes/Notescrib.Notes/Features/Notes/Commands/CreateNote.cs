@@ -62,18 +62,21 @@ public static class CreateNote
                 throw new AppException(ErrorCodes.Note.NoteAlreadyExists);
             }
 
+            var now = _dateTimeProvider.Now;
             var note = new Note
             {
                 Name = request.Name,
                 Tags = request.Tags.ToArray(),
                 OwnerId = userId,
                 SharingInfo = request.SharingInfo,
-                Created = _dateTimeProvider.Now,
+                Created = now,
                 FolderId = folder.Id,
                 WorkspaceId = folder.WorkspaceId
             };
 
             folder.Notes.Add(note);
+            folder.Updated = now;
+            
             await _folderRepository.UpdateAsync(folder, cancellationToken);
             await _noteContentRepository.CreateAsync(note.Id, CancellationToken.None);
             return Unit.Value;

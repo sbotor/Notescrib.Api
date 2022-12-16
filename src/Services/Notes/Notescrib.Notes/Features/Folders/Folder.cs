@@ -10,7 +10,7 @@ public class FolderData
     public string Name { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-    public ICollection<Note> Notes { get; set; } = new List<Note>();
+    public IList<Note> Notes { get; set; } = new List<Note>();
     
     public ICollection<string> AncestorIds { get; set; } = new List<string>();
     public string? ParentId { get; set; }

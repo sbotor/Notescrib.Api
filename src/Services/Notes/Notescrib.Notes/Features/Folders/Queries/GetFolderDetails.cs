@@ -43,7 +43,13 @@ public static class GetFolderDetails
 
             _permissionGuard.GuardCanView(folder.OwnerId);
 
-            return _folderMapper.Map(folder);
+            var mapped = _folderMapper.Map(folder);
+            
+            // TODO: Maybe do this on the DB server in the future.
+            mapped.Children = mapped.Children.OrderBy(x => x.Name).ToArray();
+            mapped.Notes = mapped.Notes.OrderBy(x => x.Name).ToArray();
+
+            return mapped;
         }
     }
 }

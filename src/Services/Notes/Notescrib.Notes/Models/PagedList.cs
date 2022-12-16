@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using Notescrib.Notes.Utils;
+﻿using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Models;
 
-public class PagedList<T> : IReadOnlyCollection<T>
+public class PagedList<T>
 {
     public IList<T> Data { get; }
 
@@ -29,8 +28,4 @@ public class PagedList<T> : IReadOnlyCollection<T>
             Page,
             PageSize,
             TotalCount);
-
-    public IEnumerator<T> GetEnumerator() => Data.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public int Count => Data.Count;
 }

@@ -20,4 +20,9 @@ public static class Consts
         public const int MaxChildrenCount = 10;
         public const int MaxNoteCount = 32;
     }
+
+    public static class NoteTemplate
+    {
+        public const int MaxContentLength = 100_000;
+    }
 }

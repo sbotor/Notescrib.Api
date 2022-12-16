@@ -38,6 +38,18 @@
       "ClusterId": "notes",
       "AuthorizationPolicy": "Default",
       "Match": {
+        "Path": "/api/workspaces/{**rest}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/workspaces/{**rest}" }
+      ]
+    },
+    "folders": {
+      "ClusterId": "notes",
+      "AuthorizationPolicy": "Default",
+      "Match": {
         "Path": "/api/folders/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
@@ -56,6 +68,18 @@
       },
       "Transforms": [
         { "PathPattern": "/notes/{**rest}" }
+      ]
+    },
+    "templates": {
+      "ClusterId": "notes",
+      "AuthorizationPolicy": "Default",
+      "Match": {
+        "Path": "/api/templates/{**rest}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/templates/{**rest}" }
       ]
     }
   },

@@ -1,4 +1,6 @@
-﻿namespace Notescrib.Notes.Models;
+﻿using FluentValidation;
+
+namespace Notescrib.Notes.Models;
 
 public readonly struct Paging
 {
@@ -12,5 +14,17 @@ public readonly struct Paging
     {
         Page = page ?? 1;
         PageSize = pageSize ?? DefaultPageSize;
+    }
+
+    public class Validator : AbstractValidator<Paging>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Page)
+                .GreaterThan(0);
+
+            RuleFor(x => x.PageSize)
+                .LessThanOrEqualTo(MaxPageSize);
+        }
     }
 }

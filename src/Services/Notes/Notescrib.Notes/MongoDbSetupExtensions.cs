@@ -1,5 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notescrib.Notes.Features.Folders.Repositories;
+using Notescrib.Notes.Features.Notes.Repositories;
+using Notescrib.Notes.Features.Templates.Repositories;
+using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Models.Configuration;
 using Notescrib.Notes.Utils.MongoDb;
 
@@ -14,6 +18,11 @@ public static class MongoDbSetupExtensions
         services.Configure<MongoDbSettings>(config.GetSection(nameof(MongoDbSettings)));
 
         services.AddSingleton<MongoDbContext>();
+
+        services.AddSingleton<IFolderRepository, MongoFolderRepository>();
+        services.AddSingleton<INoteContentRepository, MongoNoteContentRepository>();
+        services.AddSingleton<IWorkspaceRepository, MongoWorkspaceRepository>();
+        services.AddSingleton<INoteTemplateRepository, MongoNoteTemplateRepository>();
 
         return services;
     }

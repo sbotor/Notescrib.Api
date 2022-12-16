@@ -5,24 +5,24 @@ using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Repositories;
 
-public class NoteContentMongoRepository : INoteContentRepository
+public class MongoNoteContentRepository : INoteContentRepository
 {
     private readonly MongoDbContext _context;
 
-    public NoteContentMongoRepository(MongoDbContext context)
+    public MongoNoteContentRepository(MongoDbContext context)
     {
         _context = context;
     }
 
     public async Task<NoteContent?> GetByNoteIdAsync(string noteId, CancellationToken cancellationToken = default)
     {
-        var folderFilter = Builders<FolderData>.Filter.ElemMatch(x => x.Notes, x => x.Id == noteId);
+        var noteFilter = MongoDbHelpers.GetNoteFilter(noteId);
         var projection = Builders<FolderData>.Projection
             .Include(x => x.Notes)
             .ElemMatch(x => x.Notes, x => x.Id == noteId);
 
         var folderPipeline = new EmptyPipelineDefinition<FolderData>()
-            .Match(folderFilter)
+            .Match(noteFilter)
             .Project(projection)
             .As<FolderData, BsonDocument, FolderData>();
 
