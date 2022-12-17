@@ -6,7 +6,6 @@ namespace Notescrib.Notes.Api.Features.Notes.Models;
 public class UpdateNoteRequest
 {
     public string Name { get; set; } = null!;
-    public string? FolderId { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
     public IReadOnlyCollection<string> Tags { get; set; } = null!;
 

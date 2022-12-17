@@ -17,19 +17,21 @@ public class MongoNoteContentRepository : INoteContentRepository
     public async Task<NoteContent?> GetByNoteIdAsync(string noteId, CancellationToken cancellationToken = default)
     {
         var noteFilter = MongoDbHelpers.GetNoteFilter(noteId);
+
         var projection = Builders<FolderData>.Projection
-            .Include(x => x.Notes)
-            .ElemMatch(x => x.Notes, x => x.Id == noteId);
+            .Include(x => x.Notes);
 
         var folderPipeline = new EmptyPipelineDefinition<FolderData>()
             .Match(noteFilter)
             .Project(projection)
             .As<FolderData, BsonDocument, FolderData>();
 
-        var result = await _context.NoteContents.Aggregate()
+        var query = _context.NoteContents.Aggregate()
             .Match(x => x.NoteId == noteId)
-            .Lookup(_context.Folders, new BsonDocument("", ""), folderPipeline,
-                (NoteContentFolderLookup x) => x.Folders)
+            .Lookup(_context.Folders, null, folderPipeline,
+                (NoteContentFolderLookup x) => x.Folders);
+        
+        var result = await query
             .FirstOrDefaultAsync(cancellationToken);
 
         var note = result?.Folders.FirstOrDefault()?.Notes.FirstOrDefault();

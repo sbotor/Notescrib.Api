@@ -2,8 +2,8 @@
 
 namespace Notescrib.Notes.Features.Folders.Models;
 
-public class FolderDetails : FolderInfoBase
+public class FolderDetails : FolderOverview
 {
-    public ICollection<FolderInfoBase> Children { get; set; } = Array.Empty<FolderInfoBase>();
+    public ICollection<FolderOverview> Children { get; set; } = Array.Empty<FolderOverview>();
     public IReadOnlyCollection<NoteOverview> Notes { get; set; } = Array.Empty<NoteOverview>();
 }

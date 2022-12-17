@@ -1,6 +1,9 @@
 ﻿namespace Notescrib.Notes.Features.Folders.Models;
 
-public class FolderOverview : FolderInfoBase
+public class FolderOverview
 {
-    public ICollection<FolderOverview> ChildrenIds { get; set; } = Array.Empty<FolderOverview>();
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public DateTime Created { get; set; }
+    public DateTime? Updated { get; set; }
 }

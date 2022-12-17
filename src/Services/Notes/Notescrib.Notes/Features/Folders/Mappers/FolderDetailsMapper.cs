@@ -8,10 +8,10 @@ namespace Notescrib.Notes.Features.Folders.Mappers;
 
 public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
 {
-    private readonly IMapper<FolderData, FolderInfoBase> _baseMapper;
+    private readonly IMapper<FolderData, FolderOverview> _baseMapper;
     private readonly IMapper<Note, NoteOverview> _noteMapper;
 
-    public FolderDetailsMapper(IMapper<FolderData, FolderInfoBase> baseMapper, IMapper<Note, NoteOverview> noteMapper)
+    public FolderDetailsMapper(IMapper<FolderData, FolderOverview> baseMapper, IMapper<Note, NoteOverview> noteMapper)
     {
         _baseMapper = baseMapper;
         _noteMapper = noteMapper;

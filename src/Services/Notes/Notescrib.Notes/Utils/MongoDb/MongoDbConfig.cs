@@ -26,6 +26,7 @@ public static class MongoDbConfig
         BsonClassMap.RegisterClassMap<NoteContentData>(cm =>
         {
             cm.AutoMap();
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
 
         BsonClassMap.RegisterClassMap<NoteTemplateBase>(cm =>

@@ -46,7 +46,7 @@ public static class UpdateNote
             
             _permissionGuard.GuardCanEdit(note.OwnerId);
             
-            if (folder!.Children.Any(x => x.Name == request.Name))
+            if (note.Name != request.Name && folder.Notes.Any(x => x.Name == request.Name))
             {
                 throw new DuplicationException(ErrorCodes.Note.NoteAlreadyExists);
             }

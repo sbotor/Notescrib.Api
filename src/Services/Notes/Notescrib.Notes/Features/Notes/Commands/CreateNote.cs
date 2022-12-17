@@ -87,9 +87,6 @@ public static class CreateNote
     {
         public Validator()
         {
-            RuleFor(x => x.FolderId)
-                .NotNull();
-
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .MaximumLength(Consts.Name.MaxLength);
