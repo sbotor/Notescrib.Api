@@ -20,7 +20,7 @@ public static class MongoDbSetupExtensions
         services.AddSingleton<MongoDbContext>();
 
         services.AddSingleton<IFolderRepository, MongoFolderRepository>();
-        services.AddSingleton<INoteContentRepository, MongoNoteContentRepository>();
+        services.AddSingleton<INoteRepository, MongoNoteRepository>();
         services.AddSingleton<IWorkspaceRepository, MongoWorkspaceRepository>();
         services.AddSingleton<INoteTemplateRepository, MongoNoteTemplateRepository>();
 

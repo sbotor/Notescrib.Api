@@ -1,6 +1,4 @@
-﻿using Notescrib.Notes.Features.Notes;
-
-namespace Notescrib.Notes.Features.Folders.Repositories;
+﻿namespace Notescrib.Notes.Features.Folders.Repositories;
 
 public interface IFolderRepository
 {
@@ -8,11 +6,7 @@ public interface IFolderRepository
 
     Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default);
-    Task<Folder?> GetByNoteIdAsync(string noteId, FolderIncludeOptions? include = null,
-        CancellationToken cancellationToken = default);
-    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
     Task UpdateAsync(FolderData folder, CancellationToken cancellationToken = default);
     Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default);
     Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default);
-    Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default);
 }

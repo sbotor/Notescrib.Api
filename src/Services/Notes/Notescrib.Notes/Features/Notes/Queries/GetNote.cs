@@ -15,29 +15,29 @@ public static class GetNote
 
     internal class Handler : IQueryHandler<Query, NoteDetails>
     {
-        private readonly INoteContentRepository _noteContentRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IMapper<NoteContent, NoteDetails> _mapper;
+        private readonly IMapper<Note, NoteDetails> _mapper;
 
-        public Handler(INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard, IMapper<NoteContent, NoteDetails> mapper)
+        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard, IMapper<Note, NoteDetails> mapper)
         {
-            _noteContentRepository = noteContentRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _mapper = mapper;
         }
 
         public async Task<NoteDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var content = await _noteContentRepository.GetByNoteIdAsync(request.Id, cancellationToken);
-            if (content == null)
+            var include = new NoteIncludeOptions { Content = true };
+            var note = await _noteRepository.GetByIdAsync(request.Id, include, cancellationToken);
+            if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
-
-            var note = content.Note;
+            
             _permissionGuard.GuardCanView(note.OwnerId, note.SharingInfo);
 
-            var details = _mapper.Map(content);
+            var details = _mapper.Map(note);
             details.IsReadonly = !_permissionGuard.CanEdit(note.OwnerId);
 
             return details;

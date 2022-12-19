@@ -3,23 +3,19 @@ using Notescrib.Notes.Features.Notes.Models;
 
 namespace Notescrib.Notes.Features.Notes.Mappers;
 
-public class NoteDetailsMapper : IMapper<NoteContent, NoteDetails>
+public class NoteDetailsMapper : IMapper<Note, NoteDetails>
 {
-    public NoteDetails Map(NoteContent item)
-    {
-        var note = item.Note;
-
-        return new()
+    public NoteDetails Map(Note item)
+        => new()
         {
-            Id = note.Id,
-            Name = note.Name,
-            FolderId = note.FolderId,
-            OwnerId = note.OwnerId,
-            SharingInfo = note.SharingInfo,
-            Updated = note.Updated,
-            Created = note.Created,
-            Tags = note.Tags.ToArray(),
-            Content = item.Value
+            Id = item.Id,
+            Name = item.Name,
+            FolderId = item.FolderId,
+            OwnerId = item.OwnerId,
+            SharingInfo = item.SharingInfo,
+            Updated = item.Updated,
+            Created = item.Created,
+            Tags = item.Tags.ToArray(),
+            Content = item.Content
         };
-    }
 }

@@ -23,7 +23,7 @@ public static class MongoDbConfig
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
         
-        BsonClassMap.RegisterClassMap<NoteContentData>(cm =>
+        BsonClassMap.RegisterClassMap<NoteData>(cm =>
         {
             cm.AutoMap();
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);

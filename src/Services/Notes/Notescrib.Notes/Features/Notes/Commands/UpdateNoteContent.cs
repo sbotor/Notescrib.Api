@@ -15,34 +15,31 @@ public static class UpdateNoteContent
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteContentRepository _noteContentRepository;
-        private readonly IFolderRepository _folderRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(INoteContentRepository noteContentRepository, IFolderRepository folderRepository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
-            _noteContentRepository = noteContentRepository;
-            _folderRepository = folderRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var content = await _noteContentRepository.GetByNoteIdAsync(request.NoteId, cancellationToken);
-            if (content == null)
+            var note = await _noteRepository.GetByIdAsync(request.NoteId, cancellationToken: cancellationToken);
+            if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
             
-            _permissionGuard.GuardCanEdit(content.Note.OwnerId);
+            _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            content.Value = request.Content;
-            content.Note.Updated = _dateTimeProvider.Now;
-
-            await _noteContentRepository.UpdateAsync(content, cancellationToken);
-            await _folderRepository.UpdateNoteAsync(content.Note, CancellationToken.None);
+            note.Content = request.Content;
+            note.Updated = _dateTimeProvider.Now;
+            
+            await _noteRepository.UpdateContentAsync(note.Id, note.Content, CancellationToken.None);
 
             return Unit.Value;
         }

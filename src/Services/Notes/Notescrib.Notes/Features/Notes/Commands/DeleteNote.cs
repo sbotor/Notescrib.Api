@@ -16,39 +16,35 @@ public static class DeleteNote
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IFolderRepository _folderRepository;
-        private readonly INoteContentRepository _noteContentRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(IFolderRepository folderRepository, INoteContentRepository noteContentRepository,
+        public Handler(IFolderRepository folderRepository, INoteRepository noteRepository,
             IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _folderRepository = folderRepository;
-            _noteContentRepository = noteContentRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _folderRepository.GetByNoteIdAsync(request.Id, cancellationToken: cancellationToken);
-            if (folder == null)
+            var note = await _noteRepository.GetByIdAsync(request.Id, new() { Folder = true }, cancellationToken);
+            if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
 
-            var note = folder.FindNote(request.Id);
-
             _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            folder.Notes.Remove(note);
-            folder.Updated = _dateTimeProvider.Now;
+            note.Folder.Updated = _dateTimeProvider.Now;
 
-            await _folderRepository.UpdateAsync(folder, cancellationToken);
-            await _noteContentRepository.DeleteAsync(note.Id, CancellationToken.None);
+            await _folderRepository.UpdateAsync(note.Folder, cancellationToken);
+            await _noteRepository.DeleteAsync(note.Id, CancellationToken.None);
 
             return Unit.Value;
-            ;
         }
     }
 

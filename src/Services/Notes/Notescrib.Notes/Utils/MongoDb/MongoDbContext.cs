@@ -19,12 +19,12 @@ public class MongoDbContext
         
         Workspaces = db.GetCollection<Workspace>(settings.Collections.Workspaces);
         Folders = db.GetCollection<FolderData>(settings.Collections.Folders);
+        Notes = db.GetCollection<NoteData>(settings.Collections.Notes);
         NoteTemplates = db.GetCollection<NoteTemplate>(settings.Collections.NoteTemplates);
-        NoteContents = db.GetCollection<NoteContentData>(settings.Collections.NoteContents);
     }
     
     public IMongoCollection<Workspace> Workspaces { get; }
     public IMongoCollection<FolderData> Folders { get; }
+    public IMongoCollection<NoteData> Notes { get; }
     public IMongoCollection<NoteTemplate> NoteTemplates { get; }
-    public IMongoCollection<NoteContentData> NoteContents { get; }
 }

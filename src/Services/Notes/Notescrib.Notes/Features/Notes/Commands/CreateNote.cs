@@ -22,18 +22,18 @@ public static class CreateNote
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IFolderRepository _folderRepository;
-        private readonly INoteContentRepository _noteContentRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
             IFolderRepository folderRepository,
-            INoteContentRepository noteContentRepository,
+            INoteRepository noteRepository,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
             _folderRepository = folderRepository;
-            _noteContentRepository = noteContentRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -41,7 +41,7 @@ public static class CreateNote
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var userId = _permissionGuard.UserContext.UserId;
-
+            
             var folder = request.FolderId == null
                 ? await _folderRepository.GetRootAsync(userId, cancellationToken: cancellationToken)
                 : await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
@@ -52,18 +52,20 @@ public static class CreateNote
             
             _permissionGuard.GuardCanEdit(folder.OwnerId);
 
-            if (folder.Notes.Count >= Consts.Folder.MaxNoteCount)
+            var notes = await _noteRepository.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
+            
+            if (notes.Count >= Consts.Folder.MaxNoteCount)
             {
                 throw new AppException(ErrorCodes.Folder.MaximumNoteCountReached);
             }
             
-            if (folder.Notes.Any(x => x.Name == request.Name))
+            if (notes.Any(x => x.Name == request.Name))
             {
                 throw new AppException(ErrorCodes.Note.NoteAlreadyExists);
             }
 
             var now = _dateTimeProvider.Now;
-            var note = new Note
+            var note = new NoteData
             {
                 Name = request.Name,
                 Tags = request.Tags.ToArray(),
@@ -73,12 +75,11 @@ public static class CreateNote
                 FolderId = folder.Id,
                 WorkspaceId = folder.WorkspaceId
             };
-
-            folder.Notes.Add(note);
+            
             folder.Updated = now;
             
-            await _folderRepository.UpdateAsync(folder, cancellationToken);
-            await _noteContentRepository.CreateAsync(note.Id, CancellationToken.None);
+            await _noteRepository.CreateAsync(note, cancellationToken);
+            await _folderRepository.UpdateAsync(folder, CancellationToken.None);
             return Unit.Value;
         }
     }

@@ -10,14 +10,10 @@ public class FolderData
     public string Name { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-    public IList<Note> Notes { get; set; } = new List<Note>();
-    
+
     public ICollection<string> AncestorIds { get; set; } = new List<string>();
     public string? ParentId { get; set; }
     public string WorkspaceId { get; set; } = null!;
-
-    public Note FindNote(string id)
-        => Notes.First(x => x.Id == id);
 }
 
 public class Folder : FolderData

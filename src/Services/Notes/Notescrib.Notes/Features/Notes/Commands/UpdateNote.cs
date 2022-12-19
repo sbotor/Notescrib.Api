@@ -3,6 +3,7 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Folders.Repositories;
+using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -21,32 +22,36 @@ public static class UpdateNote
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IFolderRepository _folderRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
             IFolderRepository folderRepository,
+            INoteRepository noteRepository,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
             _folderRepository = folderRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _folderRepository.GetByNoteIdAsync(request.Id, cancellationToken: cancellationToken);
-            if (folder == null)
+            var note = await _noteRepository.GetByIdAsync(request.Id, cancellationToken: cancellationToken);
+            if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
 
-            var note = folder.FindNote(request.Id);
-            
             _permissionGuard.GuardCanEdit(note.OwnerId);
-            
-            if (note.Name != request.Name && folder.Notes.Any(x => x.Name == request.Name))
+
+            var folder = await _folderRepository.GetByIdAsync(note.FolderId, cancellationToken: cancellationToken);
+            var notes = await _noteRepository.GetByFolderIdAsync(folder!.Id, cancellationToken: cancellationToken);
+
+            if (note.Name != request.Name && notes.Any(x => x.Name == request.Name))
             {
                 throw new DuplicationException(ErrorCodes.Note.NoteAlreadyExists);
             }

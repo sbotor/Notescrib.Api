@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Notescrib.Notes.Features.Notes;
+using Notescrib.Notes.Models;
 using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
@@ -31,40 +32,15 @@ public class MongoFolderRepository : IFolderRepository
         => _context.Folders.DeleteOneAsync(x => x.Id == id, cancellationToken);
     
     public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
-        => _context.Folders.DeleteOneAsync(x => ids.Contains(x.Id), cancellationToken);
+        => _context.Folders.DeleteManyAsync(x => ids.Contains(x.Id), cancellationToken);
 
     public Task UpdateAsync(FolderData folder, CancellationToken cancellationToken = default)
     {
-        foreach (var note in folder.Notes)
-        {
-            if (note.Id == default!)
-            {
-                note.Id = ObjectId.GenerateNewId().ToString();
-            }
-        }
-        
         var update = Builders<FolderData>.Update
             .Set(x => x.Name, folder.Name)
-            .Set(x => x.Updated, folder.Updated)
-            .Set(x => x.Notes, folder.Notes);
+            .Set(x => x.Updated, folder.Updated);
 
         return _context.Folders.UpdateOneAsync(x => x.Id == folder.Id, update, cancellationToken: cancellationToken);
-    }
-
-    public Task<Folder?> GetByNoteIdAsync(string noteId, FolderIncludeOptions? include = null,
-        CancellationToken cancellationToken = default)
-    {
-        var filter = MongoDbHelpers.GetNoteFilter(noteId);
-        return GetWithInclude(filter, include, cancellationToken);
-    }
-
-    public Task UpdateNoteAsync(Note note, CancellationToken cancellationToken = default)
-    {
-        var noteFilter = MongoDbHelpers.GetNoteFilter(note.Id);
-        var update = Builders<FolderData>.Update
-            .Set(x => x.Notes[-1].Updated, note.Updated);
-
-        return _context.Folders.UpdateOneAsync(noteFilter, update, cancellationToken: cancellationToken);
     }
 
     public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default)
@@ -98,12 +74,12 @@ public class MongoFolderRepository : IFolderRepository
         return aggregate.FirstOrDefaultAsync(cancellationToken)!;
     }
     
-    private IAggregateFluent<Folder> Include(IAggregateFluent<Folder> aggregate,
+    private IAggregateFluent<Folder> Include(IAggregateFluent<Folder> query,
         FolderIncludeOptions options)
     {
         if (options.Workspace)
         {
-            aggregate = aggregate
+            query = query
                 .Lookup(
                     _context.Workspaces,
                     x => x.WorkspaceId,
@@ -114,7 +90,7 @@ public class MongoFolderRepository : IFolderRepository
         
         if (options.ImmediateChildren)
         {
-            aggregate = aggregate
+            query = query
                 .Lookup(
                     _context.Folders,
                     x => x.Id, 
@@ -124,7 +100,7 @@ public class MongoFolderRepository : IFolderRepository
 
         if (options.Children)
         {
-            aggregate = aggregate.Lookup(
+            query = query.Lookup(
                 _context.Folders,
                 x => x.Id,
                 x => x.AncestorIds,
@@ -133,7 +109,7 @@ public class MongoFolderRepository : IFolderRepository
 
         if (options.Parent)
         {
-            aggregate = aggregate
+            query = query
                 .Lookup(
                     _context.Folders,
                     x => x.Id,
@@ -142,6 +118,6 @@ public class MongoFolderRepository : IFolderRepository
                 .Unwind(x => x.Parent, UnwindOptions);
         }
 
-        return aggregate;
+        return query;
     }
 }

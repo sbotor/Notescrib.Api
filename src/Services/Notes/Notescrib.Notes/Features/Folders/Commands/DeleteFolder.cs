@@ -16,13 +16,13 @@ public static class DeleteFolder
     internal class Handler : ICommandHandler<Command>
     {
         private readonly IFolderRepository _folderRepository;
-        private readonly INoteContentRepository _noteContentRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IFolderRepository folderRepository, INoteContentRepository noteContentRepository, IPermissionGuard permissionGuard)
+        public Handler(IFolderRepository folderRepository, INoteRepository noteRepository, IPermissionGuard permissionGuard)
         {
             _folderRepository = folderRepository;
-            _noteContentRepository = noteContentRepository;
+            _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
         }
 
@@ -46,11 +46,10 @@ public static class DeleteFolder
 
             var allFolders = folder.Children.Append(folder).ToArray();
             
-            var folderIds = allFolders.Select(x => x.Id);
-            var noteIds = allFolders.SelectMany(x => x.Notes.Select(n => n.Id));
+            var folderIds = allFolders.Select(x => x.Id).ToArray();
 
             await _folderRepository.DeleteManyAsync(folderIds, CancellationToken.None);
-            await _noteContentRepository.DeleteManyAsync(noteIds, CancellationToken.None);
+            await _noteRepository.DeleteFromFoldersAsync(folderIds, CancellationToken.None);
 
             return Unit.Value;
         }
