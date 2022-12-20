@@ -10,7 +10,7 @@ public interface INoteTemplateRepository
     Task CreateAsync(NoteTemplate template, CancellationToken cancellationToken = default);
     Task UpdateAsync(NoteTemplateBase template, CancellationToken cancellationToken = default);
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
-    Task UpdateWithContentAsync(NoteTemplate template, CancellationToken cancellationToken = default);
+    Task UpdateContentAsync(NoteTemplate template, CancellationToken cancellationToken = default);
 
     Task<PagedList<NoteTemplateBase>> SearchAsync(string ownerId, string? textFilter, PagingSortingInfo<NoteTemplatesSorting> pagingSortingInfo,
         CancellationToken cancellationToken);

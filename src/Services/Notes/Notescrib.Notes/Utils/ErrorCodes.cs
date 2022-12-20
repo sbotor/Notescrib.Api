@@ -22,4 +22,14 @@ public static class ErrorCodes
         public const string NoteNotFound = nameof(NoteNotFound);
         public const string NoteAlreadyExists = nameof(NoteAlreadyExists);
     }
+
+    public static class NoteTemplate
+    {
+        public const string NoteTemplateNotFound = nameof(NoteTemplateNotFound);
+    }
+
+    public static class General
+    {
+        public const string InvalidSortingProperty = nameof(InvalidSortingProperty);
+    }
 }

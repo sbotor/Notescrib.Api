@@ -9,4 +9,5 @@ public interface IPermissionGuard
     
     public IUserContextProvider UserContext { get; }
     bool CanEdit(string ownerId);
+    bool CanView(string ownerId, SharingInfo? sharingInfo = null);
 }

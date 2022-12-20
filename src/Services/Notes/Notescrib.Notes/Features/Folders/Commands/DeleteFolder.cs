@@ -49,7 +49,7 @@ public static class DeleteFolder
             var folderIds = allFolders.Select(x => x.Id).ToArray();
 
             await _folderRepository.DeleteManyAsync(folderIds, CancellationToken.None);
-            await _noteRepository.DeleteFromFoldersAsync(folderIds, CancellationToken.None);
+            await _noteRepository.DeleteFromFoldersAsync(_permissionGuard.UserContext.UserId, folderIds, CancellationToken.None);
 
             return Unit.Value;
         }

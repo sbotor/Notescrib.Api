@@ -16,6 +16,7 @@ public static class UpdateNote
             string Id,
             string Name,
             IReadOnlyCollection<string> Tags,
+            IReadOnlyCollection<string> RelatedIds,
             SharingInfo SharingInfo)
         : ICommand;
 
@@ -56,14 +57,33 @@ public static class UpdateNote
                 throw new DuplicationException(ErrorCodes.Note.NoteAlreadyExists);
             }
 
+            await ResolveRelatedNoteIds(request, note);
+
             note.Name = request.Name;
             note.Tags = request.Tags.ToArray();
             note.SharingInfo = request.SharingInfo;
             note.Updated = _dateTimeProvider.Now;
 
-            await _folderRepository.UpdateAsync(folder, cancellationToken);
+            await _noteRepository.UpdateAsync(note, cancellationToken);
 
             return Unit.Value;
+        }
+
+        private async Task ResolveRelatedNoteIds(Command command, NoteBase note)
+        {
+            var foundNotes = await _noteRepository.GetManyAsync(command.RelatedIds);
+
+            if (foundNotes.Any(x => _permissionGuard.CanEdit(x.OwnerId)))
+            {
+                throw new ForbiddenException();
+            }
+
+            if (foundNotes.Count != command.RelatedIds.Count)
+            {
+                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
+            }
+
+            note.RelatedIds = command.RelatedIds.ToArray();
         }
     }
 
@@ -85,6 +105,9 @@ public static class UpdateNote
 
             RuleFor(x => x.SharingInfo)
                 .NotNull();
+
+            RuleFor(x => x.RelatedIds.Count)
+                .LessThanOrEqualTo(Consts.Note.MaxRelatedCount);
         }
     }
 }

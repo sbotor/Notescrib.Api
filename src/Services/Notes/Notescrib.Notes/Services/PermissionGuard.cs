@@ -25,7 +25,7 @@ internal class PermissionGuard : IPermissionGuard
         }
     }
 
-    private bool CanView(string ownerId, SharingInfo? sharingInfo = null)
+    public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
         => sharingInfo?.Visibility != VisibilityLevel.Private
            || ownerId == UserContext.UserId;
 

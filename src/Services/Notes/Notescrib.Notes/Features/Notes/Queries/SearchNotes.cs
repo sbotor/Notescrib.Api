@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using Notescrib.Core.Cqrs;
 using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Models;
+using Notescrib.Notes.Features.Notes.Repositories;
+using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
@@ -11,24 +12,36 @@ namespace Notescrib.Notes.Features.Notes.Queries;
 
 public static class SearchNotes
 {
-    public record Query(string? TextFilter, bool OwnOnly) : IQuery<PagedList<NoteOverview>>;
+    public record Query(string? TextFilter, bool OwnOnly, Paging Paging) : IQuery<PagedList<NoteOverview>>;
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteOverview>>
     {
-        private readonly IFolderRepository _folderRepository;
-        private readonly IMapper<NoteData, NoteOverview> _mapper;
+        private readonly INoteRepository _noteRepository;
+        private readonly IMapper<NoteBase, NoteOverview> _mapper;
         private readonly IUserContextProvider _userContextProvider;
+        private readonly ISortingProvider<NotesSorting> _sortingProvider;
 
-        public Handler(IFolderRepository folderRepository, IMapper<NoteData, NoteOverview> mapper, IUserContextProvider userContextProvider)
+        public Handler(INoteRepository noteRepository, IMapper<NoteBase, NoteOverview> mapper,
+            IUserContextProvider userContextProvider, ISortingProvider<NotesSorting> sortingProvider)
         {
-            _folderRepository = folderRepository;
+            _noteRepository = noteRepository;
             _mapper = mapper;
             _userContextProvider = userContextProvider;
+            _sortingProvider = sortingProvider;
         }
 
-        public Task<PagedList<NoteOverview>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedList<NoteOverview>> Handle(Query request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new PagedList<NoteOverview>(Array.Empty<NoteOverview>(), 1, 0, 0));
+            var info = new PagingSortingInfo<NotesSorting>(request.Paging, new(), _sortingProvider);
+
+            var result = await _noteRepository.SearchAsync(
+                _userContextProvider.UserId,
+                request.TextFilter,
+                request.OwnOnly,
+                info,
+                cancellationToken);
+
+            return result.Map(_mapper.Map);
         }
     }
 

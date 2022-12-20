@@ -39,7 +39,7 @@ public static class UpdateNoteContent
             note.Content = request.Content;
             note.Updated = _dateTimeProvider.Now;
             
-            await _noteRepository.UpdateContentAsync(note.Id, note.Content, CancellationToken.None);
+            await _noteRepository.UpdateContentAsync(note, CancellationToken.None);
 
             return Unit.Value;
         }

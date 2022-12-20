@@ -9,7 +9,7 @@ using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Notes.Queries;
 
-public static class GetNote
+public static class GetNoteDetails
 {
     public record Query(string Id) : IQuery<NoteDetails>;
 
@@ -19,7 +19,8 @@ public static class GetNote
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Note, NoteDetails> _mapper;
 
-        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard, IMapper<Note, NoteDetails> mapper)
+        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard,
+            IMapper<Note, NoteDetails> mapper)
         {
             _noteRepository = noteRepository;
             _permissionGuard = permissionGuard;
@@ -28,15 +29,16 @@ public static class GetNote
 
         public async Task<NoteDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var include = new NoteIncludeOptions { Content = true };
+            var include = new NoteIncludeOptions { Content = true, Related = true };
             var note = await _noteRepository.GetByIdAsync(request.Id, include, cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
-            
+
             _permissionGuard.GuardCanView(note.OwnerId, note.SharingInfo);
 
+            note.Related = note.Related.Where(x => _permissionGuard.CanView(x.OwnerId, x.SharingInfo)).ToArray();
             var details = _mapper.Map(note);
             details.IsReadonly = !_permissionGuard.CanEdit(note.OwnerId);
 

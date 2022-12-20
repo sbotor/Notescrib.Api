@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Core.Api.Attributes;
 using Notescrib.Notes.Api.Features.Templates.Models;
+using Notescrib.Notes.Features.Templates.Commands;
 
 namespace Notescrib.Notes.Api.Features.Templates;
 
@@ -27,4 +28,19 @@ public class TemplatesController : ControllerBase
     public async Task<IActionResult> SearchTemplates([FromQuery] SearchTemplatesRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTemplate(string id, UpdateNoteTemplateRequest request,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
+    
+    [HttpPut("{id}/content")]
+    public async Task<IActionResult> UpdateTemplateContent(string id, UpdateNoteTemplateContentRequest request,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTemplate(string id,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new DeleteNoteTemplate.Command(id), cancellationToken));
 }

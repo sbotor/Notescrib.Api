@@ -1,4 +1,6 @@
-﻿using Notescrib.Notes.Contracts;
+﻿using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Utils;
 
 namespace Notescrib.Notes.Features.Templates.Utils;
 
@@ -17,6 +19,6 @@ internal class NoteTemplatesSortingProvider : ISortingProvider<NoteTemplatesSort
             NoteTemplatesSorting.Name => nameof(NoteTemplate.Name),
             NoteTemplatesSorting.Updated => nameof(NoteTemplate.Updated),
             NoteTemplatesSorting.Created => nameof(NoteTemplate.Created),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new AppException(ErrorCodes.General.InvalidSortingProperty)
         };
 }

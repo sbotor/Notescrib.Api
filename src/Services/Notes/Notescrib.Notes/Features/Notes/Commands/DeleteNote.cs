@@ -42,7 +42,7 @@ public static class DeleteNote
             note.Folder.Updated = _dateTimeProvider.Now;
 
             await _folderRepository.UpdateAsync(note.Folder, cancellationToken);
-            await _noteRepository.DeleteAsync(note.Id, CancellationToken.None);
+            await _noteRepository.DeleteAsync(note, CancellationToken.None);
 
             return Unit.Value;
         }

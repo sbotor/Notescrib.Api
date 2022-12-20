@@ -23,17 +23,26 @@ public class MongoNoteTemplateRepository : INoteTemplateRepository
         => _context.NoteTemplates.InsertOneAsync(template, cancellationToken: cancellationToken);
 
     public Task UpdateAsync(NoteTemplateBase template, CancellationToken cancellationToken = default)
-        => UpdateCore(template.Id, GetUpdateDefBase(template), cancellationToken);
+    {
+        var update = Builders<NoteTemplate>.Update
+            .Set(x => x.Name, template.Name)
+            .Set(x => x.Updated, template.Updated);
+        
+        return _context.NoteTemplates.UpdateOneAsync(x => x.Id == template.Id, update,
+            cancellationToken: cancellationToken);
+    }
 
     public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         => _context.NoteTemplates.DeleteOneAsync(x => x.Id == id, cancellationToken);
 
-    public Task UpdateWithContentAsync(NoteTemplate template, CancellationToken cancellationToken = default)
+    public Task UpdateContentAsync(NoteTemplate template, CancellationToken cancellationToken = default)
     {
-        var update = GetUpdateDefBase(template)
-            .Set(x => x.Content, template.Content);
+        var update = Builders<NoteTemplate>.Update
+            .Set(x => x.Content, template.Content)
+            .Set(x => x.Updated, template.Updated);
 
-        return UpdateCore(template.Id, update, cancellationToken);
+        return _context.NoteTemplates.UpdateOneAsync(x => x.Id == template.Id, update,
+            cancellationToken: cancellationToken);
     }
 
     public Task<PagedList<NoteTemplateBase>> SearchAsync(string ownerId, string? textFilter, PagingSortingInfo<NoteTemplatesSorting> pagingSortingInfo,
@@ -50,13 +59,4 @@ public class MongoNoteTemplateRepository : INoteTemplateRepository
 
         return _context.NoteTemplates.FindPagedAsync(filters, pagingSortingInfo, projection, cancellationToken);
     }
-
-    private Task UpdateCore(string id, UpdateDefinition<NoteTemplate> update, CancellationToken cancellationToken)
-        => _context.NoteTemplates.UpdateOneAsync(x => x.Id == id, update,
-            cancellationToken: cancellationToken);
-    
-    private static UpdateDefinition<NoteTemplate> GetUpdateDefBase(NoteTemplateBase template)
-        => Builders<NoteTemplate>.Update
-            .Set(x => x.Name, template.Name)
-            .Set(x => x.Updated, template.Updated);
 }

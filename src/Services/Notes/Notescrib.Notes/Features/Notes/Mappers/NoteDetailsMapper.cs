@@ -5,6 +5,13 @@ namespace Notescrib.Notes.Features.Notes.Mappers;
 
 public class NoteDetailsMapper : IMapper<Note, NoteDetails>
 {
+    private readonly IMapper<NoteBase, NoteOverview> _baseMapper;
+
+    public NoteDetailsMapper(IMapper<NoteBase, NoteOverview> baseMapper)
+    {
+        _baseMapper = baseMapper;
+    }
+    
     public NoteDetails Map(Note item)
         => new()
         {
@@ -16,6 +23,7 @@ public class NoteDetailsMapper : IMapper<Note, NoteDetails>
             Updated = item.Updated,
             Created = item.Created,
             Tags = item.Tags.ToArray(),
-            Content = item.Content
+            Content = item.Content,
+            Related = item.Related.Select(_baseMapper.Map).ToArray()
         };
 }
