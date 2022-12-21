@@ -9,6 +9,11 @@ public class AppException : Exception
         _errors = new ErrorModel[] { new(code, message) };
     }
 
+    public AppException(IEnumerable<ErrorModel> errors)
+    {
+        _errors = errors.ToArray();
+    }
+
     protected AppException()
     {
         _errors = Array.Empty<ErrorModel>();

@@ -1,4 +1,5 @@
-﻿using Notescrib.Notes.Models;
+﻿using Notescrib.Core.Services;
+using Notescrib.Notes.Models;
 
 namespace Notescrib.Notes.Services;
 

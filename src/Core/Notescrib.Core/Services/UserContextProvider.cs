@@ -1,9 +1,9 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace Notescrib.Notes.Services;
+namespace Notescrib.Core.Services;
 
-internal class UserContextProvider : IUserContextProvider
+public class UserContextProvider : IUserContextProvider
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

@@ -14,4 +14,6 @@ public interface INoteTemplateRepository
 
     Task<PagedList<NoteTemplateBase>> SearchAsync(string ownerId, string? textFilter, PagingSortingInfo<NoteTemplatesSorting> pagingSortingInfo,
         CancellationToken cancellationToken);
+
+    Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default);
 }

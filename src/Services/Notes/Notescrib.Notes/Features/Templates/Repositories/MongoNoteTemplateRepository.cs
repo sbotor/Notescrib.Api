@@ -35,6 +35,9 @@ public class MongoNoteTemplateRepository : INoteTemplateRepository
     public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         => _context.NoteTemplates.DeleteOneAsync(x => x.Id == id, cancellationToken);
 
+    public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
+        => _context.NoteTemplates.DeleteManyAsync(x => x.WorkspaceId == workspaceId, cancellationToken);
+
     public Task UpdateContentAsync(NoteTemplate template, CancellationToken cancellationToken = default)
     {
         var update = Builders<NoteTemplate>.Update

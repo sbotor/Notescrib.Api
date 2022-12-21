@@ -67,6 +67,9 @@ public class MongoNoteRepository : INoteRepository
 
         await _context.Notes.DeleteOneAsync(x => x.Id == note.Id, cancellationToken);
     }
+    
+    public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
+        => _context.Notes.DeleteManyAsync(x => x.WorkspaceId == workspaceId, cancellationToken);
 
     public async Task DeleteFromFoldersAsync(string ownerId, IEnumerable<string> folderIds, CancellationToken cancellationToken = default)
     {

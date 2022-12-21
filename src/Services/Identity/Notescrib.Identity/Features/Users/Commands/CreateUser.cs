@@ -1,12 +1,14 @@
 ﻿using System.Text.Json;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Identity.Clients;
 using Notescrib.Identity.Data;
 using Notescrib.Identity.Features.Auth.Models;
 using Notescrib.Identity.Features.Auth.Providers;
 using Notescrib.Identity.Features.Users.Mappers;
+using Notescrib.Identity.Features.Users.Notifications;
+using Notescrib.Identity.Utils;
 
 namespace Notescrib.Identity.Features.Users.Commands;
 
@@ -19,26 +21,26 @@ public static class CreateUser
         private readonly AppUserManager _userManager;
         private readonly IUserMapper _mapper;
         private readonly IJwtProvider _jwtProvider;
-        private readonly INotesApiClient _client;
+        private readonly IMediator _mediator;
 
-        public Handler(AppUserManager userManager, IUserMapper mapper, IJwtProvider jwtProvider, INotesApiClient client)
+        public Handler(AppUserManager userManager, IUserMapper mapper, IJwtProvider jwtProvider, IMediator mediator)
         {
             _userManager = userManager;
             _mapper = mapper;
             _jwtProvider = jwtProvider;
-            _client = client;
+            _mediator = mediator;
         }
 
         public async Task<TokenResponse> Handle(Command request, CancellationToken cancellationToken)
         {
             if (request.Password != request.PasswordConfirmation)
             {
-                throw new AppException("Passwords do not match.");
+                throw new AppException(ErrorCodes.User.PasswordsDoNotMatch);
             }
 
             if (await _userManager.ExistsByEmailAsync(request.Email))
             {
-                throw new DuplicationException("User with this email already exists.");
+                throw new DuplicationException(ErrorCodes.User.EmailTaken);
             }
 
             var user = _mapper.MapToEntity(request);
@@ -51,7 +53,8 @@ public static class CreateUser
             if (result.Succeeded)
             {
                 var jwt = _jwtProvider.GenerateToken(user.Id);
-                await CreateWorkspaceOrThrow(user, jwt);
+
+                await CreateWorkspaceAndSendEmail(user, jwt);
                 
                 return new TokenResponse
                 {
@@ -63,17 +66,23 @@ public static class CreateUser
             throw new AppException(SerializeErrors(result));
         }
 
-        private async Task CreateWorkspaceOrThrow(AppUser user, string jwt)
+        private async Task CreateWorkspaceAndSendEmail(AppUser user, string jwt)
         {
             try
             {
-                var result = await _client.CreateWorkspace(jwt);
-                if (!result)
+                await _mediator.Publish(new CreateWorkspace.Notification(jwt), CancellationToken.None);
+                
+                try
                 {
-                    throw new Exception("Problem creating the workspace.");
+                    await _mediator.Publish(new SendConfirmationEmail.Notification(user), CancellationToken.None);
+                }
+                catch
+                {
+                    await _mediator.Publish(new DeleteWorkspace.Notification(jwt));
+                    throw;
                 }
             }
-            catch (Exception)
+            catch
             {
                 await _userManager.DeleteAsync(user);
                 throw;

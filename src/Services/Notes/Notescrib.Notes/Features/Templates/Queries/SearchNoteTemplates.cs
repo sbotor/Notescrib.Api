@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Notescrib.Core.Cqrs;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Templates.Models;
 using Notescrib.Notes.Features.Templates.Repositories;

@@ -34,6 +34,9 @@ public class MongoFolderRepository : IFolderRepository
     public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
         => _context.Folders.DeleteManyAsync(x => ids.Contains(x.Id), cancellationToken);
 
+    public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
+        => _context.Folders.DeleteManyAsync(x => x.WorkspaceId == workspaceId, cancellationToken);
+    
     public Task UpdateAsync(FolderData folder, CancellationToken cancellationToken = default)
     {
         var update = Builders<FolderData>.Update

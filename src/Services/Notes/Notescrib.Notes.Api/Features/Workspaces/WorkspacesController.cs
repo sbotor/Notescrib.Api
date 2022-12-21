@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Notescrib.Core.Api.Attributes;
 using Notescrib.Notes.Features.Workspaces.Commands;
 
 namespace Notescrib.Notes.Api.Features.Workspaces;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiRoute]
 [Authorize]
 public class WorkspacesController : ControllerBase
 {
@@ -18,9 +19,11 @@ public class WorkspacesController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateWorkspace(CancellationToken cancellationToken)
-        => StatusCode(
-            StatusCodes.Status201Created,
-            await _mediator.Send(new CreateWorkspace.Command(), cancellationToken));
+        => Ok(await _mediator.Send(new CreateWorkspace.Command(), cancellationToken));
+
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> DeleteWorkspace(CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new DeleteWorkspace.Command(), cancellationToken));
 }

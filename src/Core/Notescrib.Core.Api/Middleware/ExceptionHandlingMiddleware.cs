@@ -60,6 +60,7 @@ public class ExceptionHandlingMiddleware
             ForbiddenException => HttpStatusCode.Forbidden,
             DuplicationException => HttpStatusCode.UnprocessableEntity,
             RequestValidationException => HttpStatusCode.BadRequest,
+            ServerErrorException => HttpStatusCode.InternalServerError,
             _ => HttpStatusCode.BadRequest
         };
 }

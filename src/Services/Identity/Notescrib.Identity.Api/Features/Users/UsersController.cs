@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Core.Api.Attributes;
 using Notescrib.Identity.Api.Features.Users.Models;
-using Notescrib.Identity.Features.Users.Models;
+using Notescrib.Identity.Features.Users.Commands;
 using Notescrib.Identity.Features.Users.Queries;
 
 namespace Notescrib.Identity.Api.Features.Users;
@@ -20,20 +20,19 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
 
     [HttpGet]
-    [ProducesResponseType(typeof(UserDetails), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCurrentUserDetails()
-    {
-        var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-        if (userId == null)
-        {
-            return BadRequest();
-        }
-        
-        return Ok(await _mediator.Send(new GetUserDetails.Query(userId.Value)));
-    }
+    public async Task<IActionResult> GetCurrentUserDetails(CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new GetUserDetails.Query(), cancellationToken));
+    
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser()
+        => Ok(await _mediator.Send(new DeleteUser.Command()));
+    
+    [HttpPost("{id}/confirm")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ConfirmEmail(string id, ConfirmEmailRequest request)
+        => Ok(await _mediator.Send(request.ToCommand(id)));
 }

@@ -23,4 +23,6 @@ public interface INoteRepository
 
     Task<IReadOnlyCollection<NoteBase>> GetManyAsync(IEnumerable<string> ids,
         CancellationToken cancellationToken = default);
+
+    Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default);
 }

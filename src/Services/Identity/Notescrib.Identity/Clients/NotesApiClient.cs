@@ -2,16 +2,24 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Notescrib.Identity.Clients.Config;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Retry;
 
 namespace Notescrib.Identity.Clients;
 
 public interface INotesApiClient
 {
-    Task<bool> CreateWorkspace(string jwt);
+    Task<bool> CreateWorkspaceAsync(string jwt);
+    Task<bool> DeleteWorkspaceAsync(string jwt);
 }
 
 public class NotesApiClient : INotesApiClient
 {
+    private static readonly AsyncRetryPolicy<HttpResponseMessage> RetryPolicy = HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, x => TimeSpan.FromMilliseconds(Math.Pow(x * 10, 2)));
+    
     private readonly HttpClient _client;
     private readonly ILogger<NotesApiClient> _logger;
     private readonly NotesApiSettings _settings;
@@ -24,12 +32,15 @@ public class NotesApiClient : INotesApiClient
         _settings = options.Value;
     }
 
-    public async Task<bool> CreateWorkspace(string jwt)
-    {
-        using var request = new HttpRequestMessage(HttpMethod.Post, _settings.WorkspacesPath);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+    public Task<bool> CreateWorkspaceAsync(string jwt)
+        => SendWithMethod(jwt, HttpMethod.Post);
 
-        var response = await _client.SendAsync(request);
+    public Task<bool> DeleteWorkspaceAsync(string jwt)
+        => SendWithMethod(jwt, HttpMethod.Delete);
+
+    private async Task<bool> SendWithMethod(string jwt, HttpMethod method)
+    {
+        using var response = await RetryPolicy.ExecuteAsync(() => Execute(jwt, method));
 
         if (response.IsSuccessStatusCode)
         {
@@ -40,5 +51,13 @@ public class NotesApiClient : INotesApiClient
             await response.Content.ReadAsStringAsync());
 
         return false;
+    }
+
+    private async Task<HttpResponseMessage> Execute(string jwt, HttpMethod method)
+    {
+        using var request = new HttpRequestMessage(method, _settings.WorkspacesPath);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        return await _client.SendAsync(request);
     }
 }

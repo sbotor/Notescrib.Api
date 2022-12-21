@@ -10,8 +10,7 @@ internal class UserMapper : IUserMapper
         {
             UserName = item.Email,
             Email = item.Email,
-            IsActive = true,
-            EmailConfirmed = true // TODO: Email confirmation.
+            IsActive = true
         };
 
     public UserDetails MapToDetails(AppUser item)

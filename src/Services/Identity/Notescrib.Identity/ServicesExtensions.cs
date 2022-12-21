@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Core.Services;
 using Notescrib.Identity.Clients;
 using Notescrib.Identity.Clients.Config;
 using Notescrib.Identity.Data;
@@ -21,14 +22,19 @@ public static class ServicesExtensions
     
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddMediatrWithValidation(ThisAssembly)
-            .AddPipelineBehavior(typeof(LoggingBehavior<,>))
+        services.AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddPipelineBehavior(typeof(ValidationBehavior<,>));
+        services.AddMediatrWithValidation(ThisAssembly);
 
         services.AddTransient<IUserMapper, UserMapper>();
+
+        services.AddScoped<IUserContextProvider, UserContextProvider>();
+        services.AddHttpContextAccessor();
         
         services.AddIdentityServices(config);
+        
         services.AddNotesIntegration(config);
+        services.AddEmailsIntegration(config);
         
         return services;
     }
@@ -42,7 +48,8 @@ public static class ServicesExtensions
         
         services.AddIdentityCore<AppUser>(ConfigureIdentityOptions)
             .AddEntityFrameworkStores<UserDbContext>()
-            .AddUserManager<AppUserManager>();
+            .AddUserManager<AppUserManager>()
+            .AddDefaultTokenProviders();
     }
     
     private static void ConfigureIdentityOptions(IdentityOptions options)
@@ -72,6 +79,21 @@ public static class ServicesExtensions
         {
             var settings = section.Get<NotesApiSettings>()!;
             client.BaseAddress = settings.BaseUrl;
+        });
+    }
+
+    private static void AddEmailsIntegration(this IServiceCollection services, IConfiguration config)
+    {
+        var section = config.GetSection(nameof(EmailsApiSettings));
+        services.Configure<EmailsApiSettings>(section);
+
+        services.AddScoped<IEmailsApiClient, EmailsApiClient>();
+        
+        services.AddHttpClient(nameof(EmailsApiClient), client =>
+        {
+            var settings = section.Get<EmailsApiSettings>()!;
+            client.BaseAddress = settings.BaseUrl;
+            client.DefaultRequestHeaders.Add("X-Api-Key", settings.ApiKey);
         });
     }
 }

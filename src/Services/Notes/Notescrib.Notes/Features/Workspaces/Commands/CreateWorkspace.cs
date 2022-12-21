@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;

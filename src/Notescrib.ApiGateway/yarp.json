@@ -17,7 +17,7 @@
       "Match": {
         "Path": "/api/identity/users/{**rest}",
         "Hosts": [ "localhost" ],
-        "Methods": [ "GET", "POST" ]
+        "Methods": [ "GET", "POST", "DELETE" ]
       },
       "Transforms": [
         { "PathPattern": "/users/{**rest}" }
@@ -32,6 +32,17 @@
       },
       "Transforms": [
         { "PathSet": "/users" }
+      ]
+    },
+    "confirm_email": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/api/identity/users/{id}/confirm",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "POST" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/users/{id}/confirm" }
       ]
     },
     "workspaces": {
@@ -95,6 +106,13 @@
       "Destinations": {
         "notes_api": {
           "Address": "https://localhost:5002/api"
+        }
+      }
+    },
+    "emails": {
+      "Destinations": {
+        "emails_api": {
+          "Address": "https://localhost:5003/api"
         }
       }
     }

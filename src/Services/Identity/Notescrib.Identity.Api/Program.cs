@@ -11,6 +11,7 @@ using Notescrib.Identity.Features.Auth.Providers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().ConfigureSerialization();
+builder.Services.AddHealthChecks();
 
 if (builder.Environment.IsDevelopment())
 {
