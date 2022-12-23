@@ -8,6 +8,7 @@ using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Queries;
 
@@ -17,21 +18,18 @@ public static class GetFolderDetails
 
     internal class Handler : IQueryHandler<Query, FolderDetails>
     {
-        private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Folder, FolderDetails> _folderMapper;
         private readonly IMapper<Note, NoteOverview> _noteMapper;
 
         public Handler(
-            IFolderRepository folderRepository,
-            INoteRepository noteRepository,
+            MongoDbContext context,
             IPermissionGuard permissionGuard,
             IMapper<Folder, FolderDetails> folderMapper,
             IMapper<Note, NoteOverview> noteMapper)
         {
-            _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
             _folderMapper = folderMapper;
             _noteMapper = noteMapper;
@@ -42,9 +40,9 @@ public static class GetFolderDetails
             var includeOptions = new FolderIncludeOptions { ImmediateChildren = true };
 
             var folder = request.Id == null
-                ? await _folderRepository.GetRootAsync(_permissionGuard.UserContext.UserId, includeOptions,
+                ? await _context.Folders.GetRootAsync(_permissionGuard.UserContext.UserId, includeOptions,
                     cancellationToken)
-                : await _folderRepository.GetByIdAsync(request.Id, includeOptions, cancellationToken);
+                : await _context.Folders.GetByIdAsync(request.Id, includeOptions, cancellationToken);
             if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
@@ -52,7 +50,7 @@ public static class GetFolderDetails
 
             _permissionGuard.GuardCanView(folder.OwnerId);
 
-            var notes = await _noteRepository.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
+            var notes = await _context.Notes.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
 
             var mapped = _folderMapper.Map(folder);
             

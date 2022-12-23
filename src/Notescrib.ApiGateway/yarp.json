@@ -81,6 +81,28 @@
         { "PathPattern": "/notes/{**rest}" }
       ]
     },
+    "searchNotes": {
+      "ClusterId": "notes",
+      "Match": {
+        "Path": "/api/notes",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/notes" }
+      ]
+    },
+    "getNoteDetails": {
+      "ClusterId": "notes",
+      "Match": {
+        "Path": "/api/notes/{id}",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/notes/{id}" }
+      ]
+    },
     "templates": {
       "ClusterId": "notes",
       "AuthorizationPolicy": "Default",

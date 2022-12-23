@@ -2,11 +2,10 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Commands;
 
@@ -21,19 +20,16 @@ public static class CreateNote
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            IFolderRepository folderRepository,
-            INoteRepository noteRepository,
+            MongoDbContext context,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -43,8 +39,8 @@ public static class CreateNote
             var userId = _permissionGuard.UserContext.UserId;
             
             var folder = request.FolderId == null
-                ? await _folderRepository.GetRootAsync(userId, cancellationToken: cancellationToken)
-                : await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
+                ? await _context.Folders.GetRootAsync(userId, cancellationToken: cancellationToken)
+                : await _context.Folders.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
             if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
@@ -52,7 +48,7 @@ public static class CreateNote
             
             _permissionGuard.GuardCanEdit(folder.OwnerId);
 
-            var notes = await _noteRepository.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
+            var notes = await _context.Notes.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
             
             if (notes.Count >= Consts.Folder.MaxNoteCount)
             {
@@ -65,7 +61,7 @@ public static class CreateNote
             }
 
             var now = _dateTimeProvider.Now;
-            var note = new NoteData
+            var note = new Note
             {
                 Name = request.Name,
                 Tags = request.Tags.ToArray(),
@@ -77,9 +73,14 @@ public static class CreateNote
             };
             
             folder.Updated = now;
+
+            await _context.EnsureTransactionAsync(CancellationToken.None);
             
-            await _noteRepository.CreateAsync(note, cancellationToken);
-            await _folderRepository.UpdateAsync(folder, CancellationToken.None);
+            await _context.Notes.CreateAsync(note, cancellationToken);
+            await _context.Folders.UpdateAsync(folder, CancellationToken.None);
+
+            await _context.CommitTransactionAsync();
+            
             return Unit.Value;
         }
     }

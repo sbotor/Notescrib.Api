@@ -6,6 +6,7 @@ using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Queries;
 
@@ -15,14 +16,14 @@ public static class GetNoteDetails
 
     internal class Handler : IQueryHandler<Query, NoteDetails>
     {
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Note, NoteDetails> _mapper;
 
-        public Handler(INoteRepository noteRepository, IPermissionGuard permissionGuard,
+        public Handler(MongoDbContext context, IPermissionGuard permissionGuard,
             IMapper<Note, NoteDetails> mapper)
         {
-            _noteRepository = noteRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
             _mapper = mapper;
         }
@@ -30,7 +31,7 @@ public static class GetNoteDetails
         public async Task<NoteDetails> Handle(Query request, CancellationToken cancellationToken)
         {
             var include = new NoteIncludeOptions { Content = true, Related = true };
-            var note = await _noteRepository.GetByIdAsync(request.Id, include, cancellationToken);
+            var note = await _context.Notes.GetByIdAsync(request.Id, include, cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
@@ -40,7 +41,6 @@ public static class GetNoteDetails
 
             note.Related = note.Related.Where(x => _permissionGuard.CanView(x.OwnerId, x.SharingInfo)).ToArray();
             var details = _mapper.Map(note);
-            details.IsReadonly = !_permissionGuard.CanEdit(note.OwnerId);
 
             return details;
         }

@@ -5,6 +5,7 @@ using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -14,23 +15,23 @@ public static class UpdateFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IFolderRepository _folderRepository;
+        private readonly MongoDbContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPermissionGuard _permissionGuard;
 
         public Handler(
-            IFolderRepository folderRepository,
+            MongoDbContext context,
             IDateTimeProvider dateTimeProvider,
             IPermissionGuard permissionGuard)
         {
-            _folderRepository = folderRepository;
+            _context = context;
             _dateTimeProvider = dateTimeProvider;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _folderRepository.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
+            var folder = await _context.Folders.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
             if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
@@ -44,7 +45,7 @@ public static class UpdateFolder
             }
 
             // TODO: optimize this later.
-            var parent = await _folderRepository.GetByIdAsync(
+            var parent = await _context.Folders.GetByIdAsync(
                     folder.ParentId,
                     new() { Children = true },
                     cancellationToken);
@@ -62,7 +63,7 @@ public static class UpdateFolder
             folder.Updated = now;
             folder.Name = request.Name;
 
-            await _folderRepository.UpdateAsync(folder, cancellationToken);
+            await _context.Folders.UpdateAsync(folder, cancellationToken);
 
             return Unit.Value;
         }

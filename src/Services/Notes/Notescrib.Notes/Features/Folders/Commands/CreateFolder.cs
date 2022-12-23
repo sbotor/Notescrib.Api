@@ -5,6 +5,7 @@ using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -14,16 +15,16 @@ public static class CreateFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IFolderRepository _folderRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            IFolderRepository folderRepository,
+            MongoDbContext context,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _folderRepository = folderRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -36,8 +37,8 @@ public static class CreateFolder
             var includeOptions = new FolderIncludeOptions { Children = true };
 
             var parent = request.ParentId == null
-                ? await _folderRepository.GetRootAsync(userId, includeOptions, cancellationToken)
-                : await _folderRepository.GetByIdAsync(request.ParentId, includeOptions, cancellationToken);
+                ? await _context.Folders.GetRootAsync(userId, includeOptions, cancellationToken)
+                : await _context.Folders.GetByIdAsync(request.ParentId, includeOptions, cancellationToken);
             if (parent == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
@@ -60,7 +61,7 @@ public static class CreateFolder
                 throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
             
-            var folder = new FolderData
+            var folder = new Folder
             {
                 Name = request.Name,
                 Created = now,
@@ -70,7 +71,7 @@ public static class CreateFolder
                 WorkspaceId = parent.WorkspaceId
             };
 
-            await _folderRepository.AddAsync(folder, cancellationToken);
+            await _context.Folders.AddAsync(folder, cancellationToken);
 
             return Unit.Value;
         }

@@ -12,9 +12,20 @@ public class UserContextProvider : IUserContextProvider
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string UserId => GetClaim(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("No user ID found.");
-    public string Email => GetClaim(ClaimTypes.Email) ?? throw new InvalidOperationException("No user email found.");
+    public string UserId => UserIdOrDefault
+                            ?? throw new InvalidOperationException("No user ID found.");
+
+    public string? UserIdOrDefault => GetClaim(ClaimTypes.NameIdentifier);
+
+    public bool IsAnonymous => CheckIsAuthenticated()
+                               ?? throw new InvalidOperationException("No user identity found.");
 
     private string? GetClaim(string claimType)
         => _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
+
+    private bool? CheckIsAuthenticated()
+    {
+        var isAuthenticated = _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated;
+        return !isAuthenticated ?? null;
+    }
 }

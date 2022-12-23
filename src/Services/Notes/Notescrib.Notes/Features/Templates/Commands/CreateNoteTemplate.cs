@@ -7,6 +7,7 @@ using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Commands;
 
@@ -16,16 +17,13 @@ public static class CreateNoteTemplate
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteTemplateRepository _repository;
-        private readonly IWorkspaceRepository _workspaceRepository;
+        private readonly MongoDbContext _context;
         private readonly IUserContextProvider _userContextProvider;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(INoteTemplateRepository repository, IWorkspaceRepository workspaceRepository,
-            IUserContextProvider userContextProvider, IDateTimeProvider dateTimeProvider)
+        public Handler(MongoDbContext context, IUserContextProvider userContextProvider, IDateTimeProvider dateTimeProvider)
         {
-            _repository = repository;
-            _workspaceRepository = workspaceRepository;
+            _context = context;
             _userContextProvider = userContextProvider;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -33,7 +31,7 @@ public static class CreateNoteTemplate
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var userId = _userContextProvider.UserId;
-            var workspace = await _workspaceRepository.GetByOwnerIdAsync(userId, cancellationToken);
+            var workspace = await _context.Workspaces.GetByOwnerIdAsync(userId, cancellationToken);
             if (workspace == null)
             {
                 throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
@@ -48,7 +46,7 @@ public static class CreateNoteTemplate
                 Content = string.Empty
             };
 
-            await _repository.CreateAsync(template, cancellationToken);
+            await _context.NoteTemplates.CreateAsync(template, cancellationToken);
 
             return Unit.Value;
         }

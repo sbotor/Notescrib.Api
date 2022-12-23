@@ -16,7 +16,7 @@ internal class PermissionGuard : IPermissionGuard
 
     public IUserContextProvider UserContext { get; }
 
-    public bool CanEdit(string ownerId) => UserContext.UserId == ownerId;
+    public bool CanEdit(string ownerId) => UserContext.UserIdOrDefault == ownerId;
 
     public void GuardCanEdit(string ownerId)
     {
@@ -27,8 +27,10 @@ internal class PermissionGuard : IPermissionGuard
     }
 
     public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
-        => sharingInfo?.Visibility != VisibilityLevel.Private
-           || ownerId == UserContext.UserId;
+        => UserContext.IsAnonymous
+            ? sharingInfo?.Visibility == VisibilityLevel.Public
+            : sharingInfo?.Visibility != VisibilityLevel.Private
+              || ownerId == UserContext.UserIdOrDefault;
 
     public void GuardCanView(string ownerId, SharingInfo? sharingInfo = null)
     {

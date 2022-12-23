@@ -8,6 +8,7 @@ using Notescrib.Notes.Features.Templates.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Queries;
 
@@ -17,16 +18,16 @@ public static class SearchNoteTemplates
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteTemplateOverview>>
     {
-        private readonly INoteTemplateRepository _repository;
+        private readonly MongoDbContext _context;
         private readonly IUserContextProvider _userContextProvider;
         private readonly IMapper<NoteTemplateBase, NoteTemplateOverview> _mapper;
         private readonly ISortingProvider<NoteTemplatesSorting> _sortingProvider;
 
-        public Handler(INoteTemplateRepository repository, IUserContextProvider userContextProvider,
+        public Handler(MongoDbContext context, IUserContextProvider userContextProvider,
             IMapper<NoteTemplateBase, NoteTemplateOverview> mapper,
             ISortingProvider<NoteTemplatesSorting> sortingProvider)
         {
-            _repository = repository;
+            _context = context;
             _userContextProvider = userContextProvider;
             _mapper = mapper;
             _sortingProvider = sortingProvider;
@@ -37,7 +38,9 @@ public static class SearchNoteTemplates
             var sorting = new Sorting<NoteTemplatesSorting>();
             var info = new PagingSortingInfo<NoteTemplatesSorting>(request.Paging, sorting, _sortingProvider);
 
-            var templates = await _repository.SearchAsync(_userContextProvider.UserId, request.TextFilter, info,
+            var templates = await _context.NoteTemplates.SearchAsync(
+                _userContextProvider.UserId, request.TextFilter,
+                info,
                 cancellationToken);
 
             return templates.Map(_mapper.Map);

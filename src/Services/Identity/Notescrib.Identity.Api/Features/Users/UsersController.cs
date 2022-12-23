@@ -22,6 +22,10 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
+    
+    [HttpPost]
+    public async Task<IActionResult> UpdateUser(CreateUserRequest request)
+        => Ok(await _mediator.Send(request.ToCommand()));
 
     [HttpGet]
     public async Task<IActionResult> GetCurrentUserDetails(CancellationToken cancellationToken)

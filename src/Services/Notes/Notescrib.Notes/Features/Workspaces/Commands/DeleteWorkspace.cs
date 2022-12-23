@@ -7,6 +7,7 @@ using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
@@ -16,37 +17,33 @@ public static class DeleteWorkspace
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IWorkspaceRepository _workspaceRepository;
-        private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
-        private readonly INoteTemplateRepository _noteTemplateRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IWorkspaceRepository workspaceRepository, IFolderRepository folderRepository,
-            INoteRepository noteRepository, INoteTemplateRepository noteTemplateRepository, IPermissionGuard permissionGuard)
+        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
         {
-            _workspaceRepository = workspaceRepository;
-            _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
-            _noteTemplateRepository = noteTemplateRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var workspace =
-                await _workspaceRepository.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId,
+                await _context.Workspaces.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId,
                     CancellationToken.None);
             if (workspace == null)
             {
                 throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
             }
 
-            await _noteTemplateRepository.DeleteAllAsync(workspace.Id, CancellationToken.None);
-            await _noteRepository.DeleteAllAsync(workspace.Id, CancellationToken.None);
-            await _folderRepository.DeleteAllAsync(workspace.Id, CancellationToken.None);
+            await _context.EnsureTransactionAsync(CancellationToken.None);
+            
+            await _context.NoteTemplates.DeleteAllAsync(workspace.Id, CancellationToken.None);
+            await _context.Notes.DeleteAllAsync(workspace.Id, CancellationToken.None);
+            await _context.Folders.DeleteAllAsync(workspace.Id, CancellationToken.None);
+            await _context.Workspaces.DeleteAsync(workspace.Id, CancellationToken.None);
 
-            await _workspaceRepository.DeleteAsync(workspace.Id, CancellationToken.None);
+            await _context.CommitTransactionAsync();
 
             return Unit.Value;
         }

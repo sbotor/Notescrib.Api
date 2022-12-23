@@ -6,6 +6,7 @@ using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -15,20 +16,18 @@ public static class DeleteFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IFolderRepository folderRepository, INoteRepository noteRepository, IPermissionGuard permissionGuard)
+        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
         {
-            _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _folderRepository.GetByIdAsync(
+            var folder = await _context.Folders.GetByIdAsync(
                 request.Id,
                 new() { Children = true},
                 cancellationToken);
@@ -48,8 +47,12 @@ public static class DeleteFolder
             
             var folderIds = allFolders.Select(x => x.Id).ToArray();
 
-            await _folderRepository.DeleteManyAsync(folderIds, CancellationToken.None);
-            await _noteRepository.DeleteFromFoldersAsync(_permissionGuard.UserContext.UserId, folderIds, CancellationToken.None);
+            await _context.EnsureTransactionAsync(CancellationToken.None);
+            
+            await _context.Folders.DeleteManyAsync(folderIds, CancellationToken.None);
+            await _context.Notes.DeleteFromFoldersAsync(_permissionGuard.UserContext.UserId, folderIds, CancellationToken.None);
+
+            await _context.CommitTransactionAsync();
 
             return Unit.Value;
         }

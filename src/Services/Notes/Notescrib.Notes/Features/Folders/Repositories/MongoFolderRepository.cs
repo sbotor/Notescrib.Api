@@ -1,56 +1,56 @@
 ﻿using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Driver;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Models;
+using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
 
 public class MongoFolderRepository : IFolderRepository
 {
-    private readonly MongoDbContext _context;
+    private readonly IMongoDbProvider _provider;
+    private readonly SessionAccessor _sessionAccessor;
 
-    private static readonly AggregateUnwindOptions<Folder> UnwindOptions = new()
-    {
-        PreserveNullAndEmptyArrays = true
-    };
+    private static readonly AggregateUnwindOptions<Folder> UnwindOptions = new() { PreserveNullAndEmptyArrays = true };
 
-    public MongoFolderRepository(MongoDbContext context)
+    public MongoFolderRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor)
     {
-        _context = context;
+        _provider = provider;
+        _sessionAccessor = sessionAccessor;
     }
 
-    public Task AddAsync(FolderData folder, CancellationToken cancellationToken = default)
-        => _context.Folders.InsertOneAsync(folder, cancellationToken: cancellationToken);
+    public Task AddAsync(Folder folder, CancellationToken cancellationToken = default)
+        => _provider.Folders.SessionInsertOneAsync(_sessionAccessor.Session, folder,
+            cancellationToken: cancellationToken);
 
     public Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
         => GetWithInclude(x => x.Id == id, include, cancellationToken);
 
-    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
-        => _context.Folders.DeleteOneAsync(x => x.Id == id, cancellationToken);
-    
     public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
-        => _context.Folders.DeleteManyAsync(x => ids.Contains(x.Id), cancellationToken);
+        => _provider.Folders.SessionDeleteManyAsync(_sessionAccessor.Session, x => ids.Contains(x.Id),
+            cancellationToken: cancellationToken);
 
     public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
-        => _context.Folders.DeleteManyAsync(x => x.WorkspaceId == workspaceId, cancellationToken);
-    
-    public Task UpdateAsync(FolderData folder, CancellationToken cancellationToken = default)
+        => _provider.Folders.SessionDeleteManyAsync(_sessionAccessor.Session, x => x.WorkspaceId == workspaceId,
+            cancellationToken: cancellationToken);
+
+    public Task UpdateAsync(Folder folder, CancellationToken cancellationToken = default)
     {
         var update = Builders<FolderData>.Update
             .Set(x => x.Name, folder.Name)
             .Set(x => x.Updated, folder.Updated);
 
-        return _context.Folders.UpdateOneAsync(x => x.Id == folder.Id, update, cancellationToken: cancellationToken);
+        return _provider.Folders.SessionUpdateOneAsync(_sessionAccessor.Session, x => x.Id == folder.Id, update,
+            cancellationToken: cancellationToken);
     }
 
-    public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default)
+    public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null,
+        CancellationToken cancellationToken = default)
     {
         include ??= new();
 
-        var aggregate = _context.Folders.Aggregate()
+        var aggregate = _provider.Folders
+            .SessionAggregate(_sessionAccessor.Session)
             .Match(x => x.OwnerId == ownerId && x.ParentId == null)
             .As<Folder>();
 
@@ -62,13 +62,14 @@ public class MongoFolderRepository : IFolderRepository
     private Task<Folder?> GetWithInclude(Expression<Func<FolderData, bool>> filter, FolderIncludeOptions? include,
         CancellationToken cancellationToken)
         => GetWithInclude(new ExpressionFilterDefinition<FolderData>(filter), include, cancellationToken);
-    
+
     private Task<Folder?> GetWithInclude(FilterDefinition<FolderData> filter, FolderIncludeOptions? include,
         CancellationToken cancellationToken)
     {
         include ??= new();
 
-        var aggregate = _context.Folders.Aggregate()
+        var aggregate = _provider.Folders
+            .SessionAggregate(_sessionAccessor.Session)
             .Match(filter)
             .As<Folder>();
 
@@ -76,7 +77,7 @@ public class MongoFolderRepository : IFolderRepository
 
         return aggregate.FirstOrDefaultAsync(cancellationToken)!;
     }
-    
+
     private IAggregateFluent<Folder> Include(IAggregateFluent<Folder> query,
         FolderIncludeOptions options)
     {
@@ -84,27 +85,27 @@ public class MongoFolderRepository : IFolderRepository
         {
             query = query
                 .Lookup(
-                    _context.Workspaces,
+                    _provider.Workspaces,
                     x => x.WorkspaceId,
                     x => x.Id,
                     (Folder x) => x.Workspace)
                 .Unwind(x => x.Workspace, UnwindOptions);
         }
-        
+
         if (options.ImmediateChildren)
         {
             query = query
                 .Lookup(
-                    _context.Folders,
-                    x => x.Id, 
-                    x => x.ParentId, 
+                    _provider.Folders,
+                    x => x.Id,
+                    x => x.ParentId,
                     (Folder x) => x.ImmediateChildren);
         }
 
         if (options.Children)
         {
             query = query.Lookup(
-                _context.Folders,
+                _provider.Folders,
                 x => x.Id,
                 x => x.AncestorIds,
                 (Folder x) => x.Children);
@@ -114,7 +115,7 @@ public class MongoFolderRepository : IFolderRepository
         {
             query = query
                 .Lookup(
-                    _context.Folders,
+                    _provider.Folders,
                     x => x.Id,
                     x => x.ParentId,
                     (Folder x) => x.Parent)

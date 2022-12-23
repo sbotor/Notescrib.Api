@@ -7,6 +7,7 @@ using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
@@ -16,19 +17,16 @@ public static class CreateWorkspace
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IWorkspaceRepository _repository;
-        private readonly IFolderRepository _folderRepository;
+        private readonly MongoDbContext _context;
         private readonly IUserContextProvider _userContext;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            IWorkspaceRepository repository,
-            IFolderRepository folderRepository,
+            MongoDbContext context,
             IUserContextProvider userContext,
             IDateTimeProvider dateTimeProvider)
         {
-            _repository = repository;
-            _folderRepository = folderRepository;
+            _context = context;
             _userContext = userContext;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -36,16 +34,19 @@ public static class CreateWorkspace
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
-            if (await _repository.GetByOwnerIdAsync(userId, cancellationToken) != null)
+            if (await _context.Workspaces.GetByOwnerIdAsync(userId, cancellationToken) != null)
             {
                 throw new DuplicationException(ErrorCodes.Workspace.WorkspaceAlreadyExists);
             }
 
             var now = _dateTimeProvider.Now;
             var workspace = new Workspace { OwnerId = userId, Created = now };
-            await _repository.AddAsync(workspace, cancellationToken);
 
-            await _folderRepository.AddAsync(
+            await _context.EnsureTransactionAsync(CancellationToken.None);
+            
+            await _context.Workspaces.AddAsync(workspace, cancellationToken);
+
+            await _context.Folders.AddAsync(
                 new()
                 {
                     Id = workspace.Id,
@@ -55,6 +56,8 @@ public static class CreateWorkspace
                     WorkspaceId = workspace.Id
                 },
                 CancellationToken.None);
+
+            await _context.CommitTransactionAsync();
 
             return Unit.Value;
         }

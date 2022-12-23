@@ -3,11 +3,10 @@ using Notescrib.Core.Cqrs;
 using Notescrib.Core.Services;
 using Notescrib.Notes.Contracts;
 using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
-using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Queries;
 
@@ -17,15 +16,15 @@ public static class SearchNotes
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteOverview>>
     {
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IMapper<NoteBase, NoteOverview> _mapper;
         private readonly IUserContextProvider _userContextProvider;
         private readonly ISortingProvider<NotesSorting> _sortingProvider;
 
-        public Handler(INoteRepository noteRepository, IMapper<NoteBase, NoteOverview> mapper,
+        public Handler(MongoDbContext context, IMapper<NoteBase, NoteOverview> mapper,
             IUserContextProvider userContextProvider, ISortingProvider<NotesSorting> sortingProvider)
         {
-            _noteRepository = noteRepository;
+            _context = context;
             _mapper = mapper;
             _userContextProvider = userContextProvider;
             _sortingProvider = sortingProvider;
@@ -35,8 +34,8 @@ public static class SearchNotes
         {
             var info = new PagingSortingInfo<NotesSorting>(request.Paging, new(), _sortingProvider);
 
-            var result = await _noteRepository.SearchAsync(
-                _userContextProvider.UserId,
+            var result = await _context.Notes.SearchAsync(
+                _userContextProvider.UserIdOrDefault,
                 request.TextFilter,
                 request.OwnOnly,
                 info,

@@ -2,11 +2,10 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Commands;
 
@@ -22,26 +21,23 @@ public static class UpdateNote
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IFolderRepository _folderRepository;
-        private readonly INoteRepository _noteRepository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            IFolderRepository folderRepository,
-            INoteRepository noteRepository,
+            MongoDbContext context,
             IPermissionGuard permissionGuard,
             IDateTimeProvider dateTimeProvider)
         {
-            _folderRepository = folderRepository;
-            _noteRepository = noteRepository;
+            _context = context;
             _permissionGuard = permissionGuard;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _noteRepository.GetByIdAsync(request.Id, cancellationToken: cancellationToken);
+            var note = await _context.Notes.GetByIdAsync(request.Id, cancellationToken: cancellationToken);
             if (note == null)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
@@ -49,8 +45,8 @@ public static class UpdateNote
 
             _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            var folder = await _folderRepository.GetByIdAsync(note.FolderId, cancellationToken: cancellationToken);
-            var notes = await _noteRepository.GetByFolderIdAsync(folder!.Id, cancellationToken: cancellationToken);
+            var folder = await _context.Folders.GetByIdAsync(note.FolderId, cancellationToken: cancellationToken);
+            var notes = await _context.Notes.GetByFolderIdAsync(folder!.Id, cancellationToken: cancellationToken);
 
             if (note.Name != request.Name && notes.Any(x => x.Name == request.Name))
             {
@@ -64,14 +60,14 @@ public static class UpdateNote
             note.SharingInfo = request.SharingInfo;
             note.Updated = _dateTimeProvider.Now;
 
-            await _noteRepository.UpdateAsync(note, cancellationToken);
+            await _context.Notes.UpdateAsync(note, cancellationToken);
 
             return Unit.Value;
         }
 
         private async Task ResolveRelatedNoteIds(Command command, NoteBase note)
         {
-            var foundNotes = await _noteRepository.GetManyAsync(command.RelatedIds);
+            var foundNotes = await _context.Notes.GetManyAsync(command.RelatedIds);
 
             if (foundNotes.Any(x => _permissionGuard.CanEdit(x.OwnerId)))
             {

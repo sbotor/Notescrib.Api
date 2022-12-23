@@ -5,6 +5,7 @@ using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
+using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Commands;
 
@@ -14,18 +15,18 @@ public static class UpdateNoteTemplate
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly INoteTemplateRepository _repository;
+        private readonly MongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(INoteTemplateRepository repository, IPermissionGuard permissionGuard)
+        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
         {
-            _repository = repository;
+            _context = context;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var template = await _repository.GetByIdAsync(request.Id, cancellationToken);
+            var template = await _context.NoteTemplates.GetByIdAsync(request.Id, cancellationToken);
             if (template == null)
             {
                 throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
@@ -35,7 +36,7 @@ public static class UpdateNoteTemplate
 
             template.Name = request.Name;
             
-            await _repository.UpdateAsync(template, CancellationToken.None);
+            await _context.NoteTemplates.UpdateAsync(template, CancellationToken.None);
 
             return Unit.Value;
         }

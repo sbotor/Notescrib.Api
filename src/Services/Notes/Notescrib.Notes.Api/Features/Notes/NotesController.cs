@@ -22,6 +22,7 @@ public class NotesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Search([FromQuery] SearchNotesRequest request, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
     
@@ -30,6 +31,7 @@ public class NotesController : ControllerBase
         => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
     
     [HttpGet("{id}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(NoteDetails), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetNote(string id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetNoteDetails.Query(id), cancellationToken));

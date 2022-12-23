@@ -1,30 +1,66 @@
-﻿using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Templates;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Models.Configuration;
+﻿using Notescrib.Notes.Features.Folders.Repositories;
+using Notescrib.Notes.Features.Notes.Repositories;
+using Notescrib.Notes.Features.Templates.Repositories;
+using Notescrib.Notes.Features.Workspaces.Repositories;
 
 namespace Notescrib.Notes.Utils.MongoDb;
 
-public class MongoDbContext
+public class MongoDbContext : IDisposable, IAsyncDisposable
 {
-    public MongoDbContext(IOptions<MongoDbSettings> options)
+    private readonly IMongoDbProvider _provider;
+
+    private bool _disposed;
+    private readonly SessionAccessor _sessionAccessor;
+
+    public MongoDbContext(IMongoDbProvider provider)
     {
-        var settings = options.Value;
+        _provider = provider;
+        _sessionAccessor = new(_provider);
+    }
+
+    private MongoWorkspaceRepository? _workspaces;
+    public IWorkspaceRepository Workspaces => _workspaces ??= new(_provider, _sessionAccessor);
+
+    private MongoFolderRepository? _folders;
+    public IFolderRepository Folders => _folders ??= new(_provider, _sessionAccessor);
+    
+    private MongoNoteRepository? _notes;
+    public INoteRepository Notes => _notes ??= new(_provider, _sessionAccessor);
+
+    private MongoNoteTemplateRepository? _noteTemplates;
+    public INoteTemplateRepository NoteTemplates => _noteTemplates ??= new(_provider, _sessionAccessor);
+
+    public async ValueTask EnsureTransactionAsync(CancellationToken cancellationToken = default)
+        => await _sessionAccessor.EnsureTransactionAsync(cancellationToken);
+
+    public async ValueTask CommitTransactionAsync()
+        => await _sessionAccessor.CommitTransactionAsync();
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed || !disposing)
+        {
+            return;
+        }
         
-        var db = new MongoClient(settings.ConnectionUri)
-            .GetDatabase(settings.DatabaseName);
-        
-        Workspaces = db.GetCollection<Workspace>(settings.Collections.Workspaces);
-        Folders = db.GetCollection<FolderData>(settings.Collections.Folders);
-        Notes = db.GetCollection<NoteData>(settings.Collections.Notes);
-        NoteTemplates = db.GetCollection<NoteTemplate>(settings.Collections.NoteTemplates);
+        _sessionAccessor.Dispose();
+        _disposed = true;
     }
     
-    public IMongoCollection<Workspace> Workspaces { get; }
-    public IMongoCollection<FolderData> Folders { get; }
-    public IMongoCollection<NoteData> Notes { get; }
-    public IMongoCollection<NoteTemplate> NoteTemplates { get; }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+        => await _sessionAccessor.DisposeAsync();
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
+        
+        Dispose(false);
+        GC.SuppressFinalize(this);
+    }
 }
