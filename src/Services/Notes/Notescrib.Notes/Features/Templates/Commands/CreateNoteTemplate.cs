@@ -30,8 +30,7 @@ public static class CreateNoteTemplate
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var userId = _userContextProvider.UserId;
-            var workspace = await _context.Workspaces.GetByOwnerIdAsync(userId, cancellationToken);
+            var workspace = await _context.Workspaces.GetByOwnerIdAsync(cancellationToken);
             if (workspace == null)
             {
                 throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
@@ -40,7 +39,7 @@ public static class CreateNoteTemplate
             var template = new NoteTemplate
             {
                 Name = request.Name,
-                OwnerId = userId,
+                OwnerId = _userContextProvider.UserId,
                 WorkspaceId = workspace.Id,
                 Created = _dateTimeProvider.Now,
                 Content = string.Empty

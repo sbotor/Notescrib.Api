@@ -39,7 +39,10 @@ public static class GetNoteDetails
 
             _permissionGuard.GuardCanView(note.OwnerId, note.SharingInfo);
 
-            note.Related = note.Related.Where(x => _permissionGuard.CanView(x.OwnerId, x.SharingInfo)).ToArray();
+            note.Related = note.Related
+                .Where(x => _permissionGuard.CanView(x.OwnerId, x.SharingInfo))
+                .OrderBy(x => x.Name.ToLowerInvariant())
+                .ToArray();
             var details = _mapper.Map(note);
 
             return details;

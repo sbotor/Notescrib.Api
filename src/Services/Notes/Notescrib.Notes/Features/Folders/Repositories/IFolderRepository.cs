@@ -2,12 +2,13 @@
 
 public interface IFolderRepository
 {
-    Task AddAsync(Folder folder, CancellationToken cancellationToken = default);
+    Task CreateAsync(Folder folder, CancellationToken cancellationToken = default);
 
     Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default);
+
     Task UpdateAsync(Folder folder, CancellationToken cancellationToken = default);
     Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default);
-    Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null, CancellationToken cancellationToken = default);
-    Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default);
+    Task<Folder?> GetRootAsync(FolderIncludeOptions? include = null, CancellationToken cancellationToken = default);
+    Task DeleteAllAsync(CancellationToken cancellationToken = default);
 }

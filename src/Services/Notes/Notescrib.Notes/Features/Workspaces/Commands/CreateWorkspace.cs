@@ -33,20 +33,19 @@ public static class CreateWorkspace
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var userId = _userContext.UserId;
-            if (await _context.Workspaces.GetByOwnerIdAsync(userId, cancellationToken) != null)
+            if (await _context.Workspaces.GetByOwnerIdAsync(cancellationToken) != null)
             {
                 throw new DuplicationException(ErrorCodes.Workspace.WorkspaceAlreadyExists);
             }
 
             var now = _dateTimeProvider.Now;
-            var workspace = new Workspace { OwnerId = userId, Created = now };
+            var workspace = new Workspace { OwnerId = _userContext.UserId, Created = now };
 
             await _context.EnsureTransactionAsync(CancellationToken.None);
             
             await _context.Workspaces.AddAsync(workspace, cancellationToken);
 
-            await _context.Folders.AddAsync(
+            await _context.Folders.CreateAsync(
                 new()
                 {
                     Id = workspace.Id,

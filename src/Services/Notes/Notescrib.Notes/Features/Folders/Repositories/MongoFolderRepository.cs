@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Utils.MongoDb;
 
@@ -9,18 +10,24 @@ public class MongoFolderRepository : IFolderRepository
 {
     private readonly IMongoDbProvider _provider;
     private readonly SessionAccessor _sessionAccessor;
+    private readonly IUserContextProvider _userContextProvider;
 
     private static readonly AggregateUnwindOptions<Folder> UnwindOptions = new() { PreserveNullAndEmptyArrays = true };
 
-    public MongoFolderRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor)
+    public MongoFolderRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor,
+        IUserContextProvider userContextProvider)
     {
         _provider = provider;
         _sessionAccessor = sessionAccessor;
+        _userContextProvider = userContextProvider;
     }
 
-    public Task AddAsync(Folder folder, CancellationToken cancellationToken = default)
-        => _provider.Folders.SessionInsertOneAsync(_sessionAccessor.Session, folder,
+    public Task CreateAsync(Folder folder, CancellationToken cancellationToken = default)
+    {
+        var folderData = (FolderData)folder;
+        return _provider.Folders.SessionInsertOneAsync(_sessionAccessor.Session, folderData,
             cancellationToken: cancellationToken);
+    }
 
     public Task<Folder?> GetByIdAsync(string id, FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
@@ -30,8 +37,9 @@ public class MongoFolderRepository : IFolderRepository
         => _provider.Folders.SessionDeleteManyAsync(_sessionAccessor.Session, x => ids.Contains(x.Id),
             cancellationToken: cancellationToken);
 
-    public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
-        => _provider.Folders.SessionDeleteManyAsync(_sessionAccessor.Session, x => x.WorkspaceId == workspaceId,
+    public Task DeleteAllAsync(CancellationToken cancellationToken = default)
+        => _provider.Folders.SessionDeleteManyAsync(_sessionAccessor.Session,
+            x => x.OwnerId == _userContextProvider.UserId,
             cancellationToken: cancellationToken);
 
     public Task UpdateAsync(Folder folder, CancellationToken cancellationToken = default)
@@ -44,14 +52,15 @@ public class MongoFolderRepository : IFolderRepository
             cancellationToken: cancellationToken);
     }
 
-    public Task<Folder?> GetRootAsync(string ownerId, FolderIncludeOptions? include = null,
+    public Task<Folder?> GetRootAsync(FolderIncludeOptions? include = null,
         CancellationToken cancellationToken = default)
     {
         include ??= new();
 
         var aggregate = _provider.Folders
             .SessionAggregate(_sessionAccessor.Session)
-            .Match(x => x.OwnerId == ownerId && x.ParentId == null)
+            .Match(x => x.OwnerId == _userContextProvider.UserId
+                        && x.ParentId == null)
             .As<Folder>();
 
         aggregate = Include(aggregate, include);

@@ -20,7 +20,11 @@ public static class ErrorCodes
     public static class Note
     {
         public const string NoteNotFound = nameof(NoteNotFound);
+        public const string RelatedNoteNotPresent = nameof(RelatedNoteNotPresent);
         public const string NoteAlreadyExists = nameof(NoteAlreadyExists);
+        public const string MaximumRelatedNoteCountReached = nameof(MaximumRelatedNoteCountReached);
+        public const string DuplicateRelatedNoteIds = nameof(DuplicateRelatedNoteIds);
+        public const string InvalidRelatedNoteId = nameof(InvalidRelatedNoteId);
     }
 
     public static class NoteTemplate

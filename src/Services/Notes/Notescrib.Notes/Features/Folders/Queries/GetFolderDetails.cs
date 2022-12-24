@@ -40,8 +40,7 @@ public static class GetFolderDetails
             var includeOptions = new FolderIncludeOptions { ImmediateChildren = true };
 
             var folder = request.Id == null
-                ? await _context.Folders.GetRootAsync(_permissionGuard.UserContext.UserId, includeOptions,
-                    cancellationToken)
+                ? await _context.Folders.GetRootAsync(includeOptions, cancellationToken)
                 : await _context.Folders.GetByIdAsync(request.Id, includeOptions, cancellationToken);
             if (folder == null)
             {

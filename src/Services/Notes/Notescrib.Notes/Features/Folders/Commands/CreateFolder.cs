@@ -37,7 +37,7 @@ public static class CreateFolder
             var includeOptions = new FolderIncludeOptions { Children = true };
 
             var parent = request.ParentId == null
-                ? await _context.Folders.GetRootAsync(userId, includeOptions, cancellationToken)
+                ? await _context.Folders.GetRootAsync(includeOptions, cancellationToken)
                 : await _context.Folders.GetByIdAsync(request.ParentId, includeOptions, cancellationToken);
             if (parent == null)
             {
@@ -71,7 +71,7 @@ public static class CreateFolder
                 WorkspaceId = parent.WorkspaceId
             };
 
-            await _context.Folders.AddAsync(folder, cancellationToken);
+            await _context.Folders.CreateAsync(folder, cancellationToken);
 
             return Unit.Value;
         }

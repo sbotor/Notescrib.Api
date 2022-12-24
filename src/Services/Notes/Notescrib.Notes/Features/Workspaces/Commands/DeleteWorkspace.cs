@@ -18,19 +18,15 @@ public static class DeleteWorkspace
     internal class Handler : ICommandHandler<Command>
     {
         private readonly MongoDbContext _context;
-        private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(MongoDbContext context)
         {
             _context = context;
-            _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace =
-                await _context.Workspaces.GetByOwnerIdAsync(_permissionGuard.UserContext.UserId,
-                    CancellationToken.None);
+            var workspace = await _context.Workspaces.GetByOwnerIdAsync(CancellationToken.None);
             if (workspace == null)
             {
                 throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
@@ -38,9 +34,9 @@ public static class DeleteWorkspace
 
             await _context.EnsureTransactionAsync(CancellationToken.None);
             
-            await _context.NoteTemplates.DeleteAllAsync(workspace.Id, CancellationToken.None);
-            await _context.Notes.DeleteAllAsync(workspace.Id, CancellationToken.None);
-            await _context.Folders.DeleteAllAsync(workspace.Id, CancellationToken.None);
+            await _context.NoteTemplates.DeleteAllAsync(CancellationToken.None);
+            await _context.Notes.DeleteAllAsync(CancellationToken.None);
+            await _context.Folders.DeleteAllAsync(CancellationToken.None);
             await _context.Workspaces.DeleteAsync(workspace.Id, CancellationToken.None);
 
             await _context.CommitTransactionAsync();

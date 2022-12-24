@@ -25,11 +25,11 @@ public class NotesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Search([FromQuery] SearchNotesRequest request, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
-    
+
     [HttpPost]
     public async Task<IActionResult> CreateNote(CreateNoteRequest request, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
-    
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(NoteDetails), StatusCodes.Status200OK)]
@@ -46,6 +46,17 @@ public class NotesController : ControllerBase
         => Ok(await _mediator.Send(new DeleteNote.Command(id), cancellationToken));
 
     [HttpPut("{id}/content")]
-    public async Task<IActionResult> UpdateContent(string id, UpdateContentRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateContent(string id, UpdateContentRequest request,
+        CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
+
+    [HttpPost("{id}/related")]
+    public async Task<IActionResult> UpdateRelated(string id, [FromBody] IEnumerable<string> relatedIds,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new AddRelatedNotes.Command(id, relatedIds), cancellationToken));
+
+    [HttpDelete("{id}/related")]
+    public async Task<IActionResult> RemoveRelated(string id, [FromQuery] IEnumerable<string> relatedIds,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new RemoveRelatedNotes.Command(id, relatedIds), cancellationToken));
 }

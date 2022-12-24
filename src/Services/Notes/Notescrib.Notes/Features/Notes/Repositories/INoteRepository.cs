@@ -12,8 +12,8 @@ public interface INoteRepository
     Task CreateAsync(Note note, CancellationToken cancellationToken = default);
     Task UpdateAsync(Note note, CancellationToken cancellationToken = default);
     Task UpdateContentAsync(Note note, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Note note, CancellationToken cancellationToken = default);
-    Task DeleteFromFoldersAsync(string ownerId, IEnumerable<string> folderIds, CancellationToken cancellationToken = default);
+    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<Note>> GetByFolderIdAsync(string folderId, NoteIncludeOptions? include = null,
         CancellationToken cancellationToken = default);
@@ -24,5 +24,9 @@ public interface INoteRepository
     Task<IReadOnlyCollection<Note>> GetManyAsync(IEnumerable<string> ids,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default);
+    Task DeleteAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<string>> GetIdsFromFoldersAsync(IEnumerable<string> folderIds, CancellationToken cancellationToken = default);
+    Task DeleteFromRelatedAsync(IEnumerable<string> noteIds, CancellationToken cancellationToken = default);
+    Task DeleteFromRelatedAsync(string id, CancellationToken cancellationToken = default);
+    Task UpdateRelatedAsync(Note note, CancellationToken cancellationToken = default);
 }

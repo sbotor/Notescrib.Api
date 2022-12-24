@@ -29,13 +29,13 @@ public static class DeleteFolder
         {
             var folder = await _context.Folders.GetByIdAsync(
                 request.Id,
-                new() { Children = true},
+                new() { Children = true },
                 cancellationToken);
             if (folder == null)
             {
                 throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             }
-            
+
             _permissionGuard.GuardCanEdit(folder.OwnerId);
 
             if (folder.ParentId == null)
@@ -44,13 +44,16 @@ public static class DeleteFolder
             }
 
             var allFolders = folder.Children.Append(folder).ToArray();
-            
+
             var folderIds = allFolders.Select(x => x.Id).ToArray();
 
             await _context.EnsureTransactionAsync(CancellationToken.None);
-            
+
             await _context.Folders.DeleteManyAsync(folderIds, CancellationToken.None);
-            await _context.Notes.DeleteFromFoldersAsync(_permissionGuard.UserContext.UserId, folderIds, CancellationToken.None);
+
+            var noteIds = await _context.Notes.GetIdsFromFoldersAsync(folderIds, CancellationToken.None);
+            await _context.Notes.DeleteFromRelatedAsync(noteIds, CancellationToken.None);
+            await _context.Notes.DeleteManyAsync(noteIds, CancellationToken.None);
 
             await _context.CommitTransactionAsync();
 

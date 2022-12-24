@@ -39,7 +39,7 @@ public static class CreateNote
             var userId = _permissionGuard.UserContext.UserId;
             
             var folder = request.FolderId == null
-                ? await _context.Folders.GetRootAsync(userId, cancellationToken: cancellationToken)
+                ? await _context.Folders.GetRootAsync(cancellationToken: cancellationToken)
                 : await _context.Folders.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
             if (folder == null)
             {

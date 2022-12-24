@@ -19,16 +19,14 @@ public static class SearchNoteTemplates
     internal class Handler : IQueryHandler<Query, PagedList<NoteTemplateOverview>>
     {
         private readonly MongoDbContext _context;
-        private readonly IUserContextProvider _userContextProvider;
         private readonly IMapper<NoteTemplateBase, NoteTemplateOverview> _mapper;
         private readonly ISortingProvider<NoteTemplatesSorting> _sortingProvider;
 
-        public Handler(MongoDbContext context, IUserContextProvider userContextProvider,
+        public Handler(MongoDbContext context,
             IMapper<NoteTemplateBase, NoteTemplateOverview> mapper,
             ISortingProvider<NoteTemplatesSorting> sortingProvider)
         {
             _context = context;
-            _userContextProvider = userContextProvider;
             _mapper = mapper;
             _sortingProvider = sortingProvider;
         }
@@ -39,7 +37,7 @@ public static class SearchNoteTemplates
             var info = new PagingSortingInfo<NoteTemplatesSorting>(request.Paging, sorting, _sortingProvider);
 
             var templates = await _context.NoteTemplates.SearchAsync(
-                _userContextProvider.UserId, request.TextFilter,
+                request.TextFilter,
                 info,
                 cancellationToken);
 

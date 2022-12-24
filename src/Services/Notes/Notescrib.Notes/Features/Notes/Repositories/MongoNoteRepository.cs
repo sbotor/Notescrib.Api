@@ -1,12 +1,13 @@
 ﻿using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Driver;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Models.Enums;
 using Notescrib.Notes.Utils;
 using Notescrib.Notes.Utils.MongoDb;
+using Notescrib.Notes.Utils.MongoDb.Models;
 
 namespace Notescrib.Notes.Features.Notes.Repositories;
 
@@ -14,11 +15,14 @@ public class MongoNoteRepository : INoteRepository
 {
     private readonly IMongoDbProvider _provider;
     private readonly SessionAccessor _sessionAccessor;
+    private readonly IUserContextProvider _userContextProvider;
 
-    public MongoNoteRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor)
+    public MongoNoteRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor,
+        IUserContextProvider userContextProvider)
     {
         _provider = provider;
         _sessionAccessor = sessionAccessor;
+        _userContextProvider = userContextProvider;
     }
 
     public Task<Note?> GetByIdAsync(string id, NoteIncludeOptions? include = null,
@@ -38,7 +42,10 @@ public class MongoNoteRepository : INoteRepository
             .ToListAsync(cancellationToken);
 
     public Task CreateAsync(Note note, CancellationToken cancellationToken = default)
-        => _provider.Notes.SessionInsertOneAsync(_sessionAccessor.Session, note, cancellationToken);
+    {
+        var noteData = (NoteData)note;
+        return _provider.Notes.SessionInsertOneAsync(_sessionAccessor.Session, noteData, cancellationToken);
+    }
 
     public Task UpdateAsync(Note note, CancellationToken cancellationToken = default)
     {
@@ -46,8 +53,16 @@ public class MongoNoteRepository : INoteRepository
             .Set(x => x.Name, note.Name)
             .Set(x => x.Tags, note.Tags)
             .Set(x => x.SharingInfo, note.SharingInfo)
-            .Set(x => x.RelatedIds, note.RelatedIds)
             .Set(x => x.Updated, note.Updated);
+
+        return _provider.Notes.SessionUpdateOneAsync(_sessionAccessor.Session, x => x.Id == note.Id, update,
+            cancellationToken);
+    }
+    
+    public Task UpdateRelatedAsync(Note note, CancellationToken cancellationToken = default)
+    {
+        var update = Builders<NoteData>.Update
+            .Set(x => x.RelatedIds, note.RelatedIds);
 
         return _provider.Notes.SessionUpdateOneAsync(_sessionAccessor.Session, x => x.Id == note.Id, update,
             cancellationToken);
@@ -63,37 +78,55 @@ public class MongoNoteRepository : INoteRepository
             cancellationToken);
     }
 
-    public async Task DeleteAsync(Note note, CancellationToken cancellationToken = default)
-    {
-        var update = Builders<NoteData>.Update.Pull(x => x.RelatedIds, note.Id);
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+        => _provider.Notes.SessionDeleteOneAsync(_sessionAccessor.Session, x => x.Id == id, cancellationToken);
 
-        await _provider.Notes.SessionUpdateManyAsync(_sessionAccessor.Session, x => x.OwnerId == note.Id, update,
-            cancellationToken: cancellationToken);
-        await _provider.Notes.SessionDeleteManyAsync(_sessionAccessor.Session, x => x.Id == note.Id, cancellationToken);
-    }
-
-    public Task DeleteAllAsync(string workspaceId, CancellationToken cancellationToken = default)
-        => _provider.Notes.SessionDeleteManyAsync(_sessionAccessor.Session, x => x.WorkspaceId == workspaceId,
+    public Task DeleteAllAsync(CancellationToken cancellationToken = default)
+        => _provider.Notes.SessionDeleteManyAsync(
+            _sessionAccessor.Session,
+            x => x.OwnerId == _userContextProvider.UserId,
             cancellationToken);
 
-    public async Task DeleteFromFoldersAsync(string ownerId, IEnumerable<string> folderIds,
+    public Task DeleteManyAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+        => _provider.Notes.SessionDeleteManyAsync(_sessionAccessor.Session, x => ids.Contains(x.Id),
+            cancellationToken);
+
+    public async Task<IReadOnlyCollection<string>> GetIdsFromFoldersAsync(IEnumerable<string> folderIds,
         CancellationToken cancellationToken = default)
     {
-        var enumeratedFolderIds = folderIds.ToArray();
+        ProjectionDefinition<NoteData, IdProjection> project = Builders<NoteData>.Projection.Include(x => x.Id);
 
-        var noteIds = await _provider.Notes.SessionAggregate(_sessionAccessor.Session)
-            .Match(x => enumeratedFolderIds.Contains(x.FolderId))
-            .Project(Builders<NoteData>.Projection.Include(x => x.Id))
-            .As<string>()
+        var result = await _provider.Notes
+            .SessionAggregate(_sessionAccessor.Session)
+            .Match(x => folderIds.Contains(x.FolderId))
+            .Project(project)
             .ToListAsync(cancellationToken);
 
+        return result.Select(x => x.Id).ToArray();
+    }
+
+    public Task DeleteFromRelatedAsync(IEnumerable<string> noteIds, CancellationToken cancellationToken = default)
+    {
         var update = Builders<NoteData>.Update
             .PullAll(x => x.RelatedIds, noteIds);
 
-        await _provider.Notes.SessionUpdateManyAsync(_sessionAccessor.Session, x => x.OwnerId == ownerId, update,
+        return _provider.Notes.SessionUpdateManyAsync(
+            _sessionAccessor.Session,
+            x => x.OwnerId == _userContextProvider.UserId,
+            update,
             cancellationToken: cancellationToken);
-        await _provider.Notes.SessionDeleteManyAsync(_sessionAccessor.Session, x => noteIds.Contains(x.Id),
-            cancellationToken);
+    }
+
+    public Task DeleteFromRelatedAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var update = Builders<NoteData>.Update
+            .Pull(x => x.RelatedIds, id);
+
+        return _provider.Notes.SessionUpdateManyAsync(
+            _sessionAccessor.Session,
+            x => x.OwnerId == _userContextProvider.UserId,
+            update,
+            cancellationToken: cancellationToken);
     }
 
     public Task<PagedList<Note>> SearchAsync(string? ownerId, string? textFilter, bool ownOnly,
@@ -121,7 +154,7 @@ public class MongoNoteRepository : INoteRepository
         if (!string.IsNullOrEmpty(textFilter))
         {
             filters.Add(new ExpressionFilterDefinition<NoteData>(x => x.Name.Contains(textFilter)
-                                                                      || x.Tags.Any(t => t == textFilter)));
+                                                                      || x.Tags.Any(t => t.Contains(textFilter))));
         }
 
         ProjectionDefinition<NoteData, Note> projection = Builders<NoteData>.Projection
@@ -153,19 +186,15 @@ public class MongoNoteRepository : INoteRepository
 
         if (include.Related)
         {
-            var let = new BsonDocument { { "noteId", $"${nameof(NoteData.Id)}" } };
-
-            ProjectionDefinition<NoteData, NoteBase> projection = Builders<NoteData>.Projection.Exclude(x => x.Content);
-
-            var pipeline = new EmptyPipelineDefinition<NoteData>()
-                .Match(new BsonDocument { { nameof(NoteData.Id), $"$${nameof(NoteData.Id)}" } })
-                .Project(projection);
+            ProjectionDefinition<Note, Note> projection = Builders<Note>.Projection
+                .Exclude($"{nameof(Note.Related)}.{nameof(Note.Content)}");
 
             query = query.Lookup(
                 _provider.Notes,
-                let,
-                pipeline,
-                (Note x) => x.Related);
+                x => x.RelatedIds,
+                x => x.Id,
+                (Note x) => x.Related)
+                .Project(projection);
         }
 
         return query;

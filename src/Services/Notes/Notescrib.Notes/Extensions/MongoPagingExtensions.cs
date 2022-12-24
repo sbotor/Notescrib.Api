@@ -36,14 +36,11 @@ public static class MongoPagingExtensions
         CancellationToken cancellationToken)
         where TSort : struct, Enum
     {
-        var query = source.GetQuery(session, filters);
-        
         var countFacet = GetCountFacet<TIn>();
-
-        var totalQuery = query
+        var query = source.GetQuery(session, filters)
             .Facet(countFacet, dataFacet);
 
-        var result = await totalQuery
+        var result = await query
             .FirstAsync(cancellationToken);
 
         var count = result.Facets.First(x => x.Name == countFacet.Name)

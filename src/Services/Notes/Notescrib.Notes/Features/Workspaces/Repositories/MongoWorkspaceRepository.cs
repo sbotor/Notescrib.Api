@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Utils.MongoDb;
 
@@ -8,15 +9,19 @@ public class MongoWorkspaceRepository : IWorkspaceRepository
 {
     private readonly IMongoDbProvider _provider;
     private readonly SessionAccessor _sessionAccessor;
+    private readonly IUserContextProvider _userContextProvider;
 
-    public MongoWorkspaceRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor)
+    public MongoWorkspaceRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor,
+        IUserContextProvider userContextProvider)
     {
         _provider = provider;
         _sessionAccessor = sessionAccessor;
+        _userContextProvider = userContextProvider;
     }
 
-    public async Task<Workspace?> GetByOwnerIdAsync(string ownerId, CancellationToken cancellationToken = default)
-        => await _provider.Workspaces.SessionFind(_sessionAccessor.Session, x => x.OwnerId == ownerId)
+    public async Task<Workspace?> GetByOwnerIdAsync(CancellationToken cancellationToken = default)
+        => await _provider.Workspaces
+            .SessionFind(_sessionAccessor.Session, x => x.OwnerId == _userContextProvider.UserId)
             .FirstOrDefaultAsync(cancellationToken);
 
     public Task AddAsync(Workspace workspace, CancellationToken cancellationToken = default)

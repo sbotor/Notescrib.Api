@@ -8,8 +8,7 @@ public class UpdateNoteRequest
     public string Name { get; set; } = null!;
     public SharingInfo SharingInfo { get; set; } = null!;
     public IReadOnlyCollection<string> Tags { get; set; } = null!;
-    public IReadOnlyCollection<string> RelatedIds { get; set; } = null!;
 
     public UpdateNote.Command ToCommand(string id)
-        => new(id, Name, Tags, RelatedIds, SharingInfo);
+        => new(id, Name, Tags, SharingInfo);
 }

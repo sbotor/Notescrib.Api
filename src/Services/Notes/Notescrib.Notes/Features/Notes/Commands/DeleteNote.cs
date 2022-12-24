@@ -39,8 +39,10 @@ public static class DeleteNote
 
             await _context.EnsureTransactionAsync(CancellationToken.None);
             
-            await _context.Folders.UpdateAsync(note.Folder, cancellationToken);
-            await _context.Notes.DeleteAsync(note, CancellationToken.None);
+            await _context.Folders.UpdateAsync(note.Folder, CancellationToken.None);
+
+            await _context.Notes.DeleteFromRelatedAsync(note.Id, CancellationToken.None);
+            await _context.Notes.DeleteAsync(note.Id, CancellationToken.None);
 
             await _context.CommitTransactionAsync();
 
