@@ -14,6 +14,7 @@ public static class CreateNote
     public record Command(
             string Name,
             string? FolderId,
+            string? Content,
             IReadOnlyCollection<string> Tags,
             SharingInfo SharingInfo)
         : ICommand;
@@ -69,7 +70,8 @@ public static class CreateNote
                 SharingInfo = request.SharingInfo,
                 Created = now,
                 FolderId = folder.Id,
-                WorkspaceId = folder.WorkspaceId
+                WorkspaceId = folder.WorkspaceId,
+                Content = request.Content ?? string.Empty
             };
             
             folder.Updated = now;
@@ -100,6 +102,10 @@ public static class CreateNote
 
             RuleFor(x => x.SharingInfo)
                 .NotNull();
+
+            RuleFor(x => x.Content)
+                .MaximumLength(Consts.Note.MaxContentLength)
+                .When(x => !string.IsNullOrEmpty(x.Content));
         }
     }
 }

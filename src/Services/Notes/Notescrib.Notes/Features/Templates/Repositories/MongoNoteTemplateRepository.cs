@@ -64,6 +64,7 @@ public class MongoNoteTemplateRepository : INoteTemplateRepository
     {
         var filters =
             new List<ExpressionFilterDefinition<NoteTemplate>> { new(x => x.OwnerId == _userContextProvider.UserId) };
+        
         if (!string.IsNullOrEmpty(textFilter))
         {
             filters.Add(new(x => x.Name.Contains(textFilter)));

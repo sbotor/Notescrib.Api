@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Notes.Features.Templates;
 
-public class NoteTemplateBase
+public class NoteTemplate
 {
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
@@ -8,9 +8,5 @@ public class NoteTemplateBase
     public string WorkspaceId { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-}
-
-public class NoteTemplate : NoteTemplateBase
-{
     public string Content { get; set; } = null!;
 }

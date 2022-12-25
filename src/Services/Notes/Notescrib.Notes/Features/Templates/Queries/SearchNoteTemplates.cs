@@ -19,11 +19,11 @@ public static class SearchNoteTemplates
     internal class Handler : IQueryHandler<Query, PagedList<NoteTemplateOverview>>
     {
         private readonly MongoDbContext _context;
-        private readonly IMapper<NoteTemplateBase, NoteTemplateOverview> _mapper;
+        private readonly IMapper<NoteTemplate, NoteTemplateOverview> _mapper;
         private readonly ISortingProvider<NoteTemplatesSorting> _sortingProvider;
 
         public Handler(MongoDbContext context,
-            IMapper<NoteTemplateBase, NoteTemplateOverview> mapper,
+            IMapper<NoteTemplate, NoteTemplateOverview> mapper,
             ISortingProvider<NoteTemplatesSorting> sortingProvider)
         {
             _context = context;

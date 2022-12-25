@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Notescrib.Core.Api.Attributes;
 using Notescrib.Notes.Api.Features.Templates.Models;
 using Notescrib.Notes.Features.Templates.Commands;
+using Notescrib.Notes.Features.Templates.Queries;
 
 namespace Notescrib.Notes.Api.Features.Templates;
 
@@ -28,6 +29,10 @@ public class TemplatesController : ControllerBase
     public async Task<IActionResult> SearchTemplates([FromQuery] SearchTemplatesRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTemplate(string id, CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new GetNoteTemplateDetails.Query(id), cancellationToken));
     
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTemplate(string id, UpdateNoteTemplateRequest request,

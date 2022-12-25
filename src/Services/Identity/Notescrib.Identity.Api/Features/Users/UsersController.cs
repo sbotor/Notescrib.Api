@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
     
-    [HttpPost]
+    [HttpPut]
     public async Task<IActionResult> UpdateUser(CreateUserRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
 
