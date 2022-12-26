@@ -8,21 +8,19 @@ namespace Notescrib.Emails.Services;
 
 public interface IEmailSender : IDisposable
 {
-    Task SendAsync(string to, string body);
+    Task SendAsync(string to, string subject, string body);
 }
 
 public class EmailSender : IEmailSender
 {
-    private readonly ILogger<EmailSender> _logger;
     private readonly EmailSettings _settings;
 
     private readonly Lazy<SmtpClient> _client;
 
     private readonly InternetAddress _fromAddress;
 
-    public EmailSender(IOptions<EmailSettings> options, ILogger<EmailSender> logger)
+    public EmailSender(IOptions<EmailSettings> options)
     {
-        _logger = logger;
         _settings = options.Value;
 
         _fromAddress = new MailboxAddress("Notescrib", _settings.From);
@@ -30,12 +28,17 @@ public class EmailSender : IEmailSender
         _client = new(() => new SmtpClient());
     }
 
-    public async Task SendAsync(string to, string body)
+    public async Task SendAsync(string to, string subject, string body)
     {
+        if (_settings.SkipEmails)
+        {
+            return;
+        }
+        
         var message = new MimeMessage();
         message.From.Add(_fromAddress);
         message.To.Add(new MailboxAddress(to, to));
-        message.Subject = "Confirm email";
+        message.Subject = subject;
 
         message.Body = new TextPart("plain")
         {
@@ -62,5 +65,7 @@ public class EmailSender : IEmailSender
 
         _client.Value.Disconnect(true);
         _client.Value.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

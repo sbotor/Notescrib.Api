@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Identity.Data;
+using Notescrib.Identity.Extensions;
 using Notescrib.Identity.Features.Auth.Models;
 using Notescrib.Identity.Features.Auth.Providers;
 using Notescrib.Identity.Features.Users.Mappers;
@@ -33,11 +35,6 @@ public static class CreateUser
 
         public async Task<TokenResponse> Handle(Command request, CancellationToken cancellationToken)
         {
-            if (request.Password != request.PasswordConfirmation)
-            {
-                throw new AppException(ErrorCodes.User.PasswordsDoNotMatch);
-            }
-
             if (await _userManager.ExistsByEmailAsync(request.Email))
             {
                 throw new DuplicationException(ErrorCodes.User.EmailTaken);
@@ -63,7 +60,7 @@ public static class CreateUser
             }
 
             await _userManager.DeleteAsync(user);
-            throw new AppException(SerializeErrors(result));
+            throw new AppException(ErrorCodes.User.IdentityErrors, result.SerializeErrors());
         }
 
         private async Task CreateWorkspaceAndSendEmail(AppUser user, string jwt)
@@ -96,13 +93,20 @@ public static class CreateUser
                 return;
             }
             
-            throw new AppException(SerializeErrors(result));
+            throw new AppException(ErrorCodes.User.IdentityErrors, result.SerializeErrors());
+        }
+    }
+
+    internal class Validator : AbstractValidator<Command>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Password)
+                .Must(BeEqual)
+                .WithErrorCode(ErrorCodes.User.PasswordsDoNotMatch);
         }
 
-        private static string SerializeErrors(IdentityResult result)
-        {
-            var errors = result.Errors.ToDictionary(x => x.Code, x => x.Description);
-            return JsonSerializer.Serialize(errors);
-        }
+        private static bool BeEqual(Command command, string _)
+            => command.Password == command.PasswordConfirmation;
     }
 }

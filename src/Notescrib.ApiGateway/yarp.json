@@ -45,6 +45,17 @@
         { "PathPattern": "/users/{id}/confirm" }
       ]
     },
+    "update_password": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/api/identity/users/{id}/password",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "PUT" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/users/{id}/password" }
+      ]
+    },
     "workspaces": {
       "ClusterId": "notes",
       "AuthorizationPolicy": "Default",

@@ -37,11 +37,6 @@ public static class Authenticate
                 throw new NotFoundException(ErrorCodes.User.UserNotFound);
             }
 
-            if (!user.IsActive)
-            {
-                throw new AppException(ErrorCodes.User.UserInactive);
-            }
-            
             if (!user.EmailConfirmed)
             {
                 throw new AppException(ErrorCodes.User.EmailNotConfirmed);

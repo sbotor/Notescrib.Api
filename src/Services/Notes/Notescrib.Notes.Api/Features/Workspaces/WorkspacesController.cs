@@ -23,7 +23,6 @@ public class WorkspacesController : ControllerBase
         => Ok(await _mediator.Send(new CreateWorkspace.Command(), cancellationToken));
 
     [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> DeleteWorkspace(CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteWorkspace.Command(), cancellationToken));
 }

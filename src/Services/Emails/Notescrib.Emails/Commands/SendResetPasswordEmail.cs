@@ -5,7 +5,7 @@ using Notescrib.Emails.Services;
 
 namespace Notescrib.Emails.Commands;
 
-public static class SendEmailConfirmation
+public static class SendResetPasswordEmail
 {
     public record Command(string ConfirmationUri, string To) : ICommand;
 
@@ -20,8 +20,9 @@ public static class SendEmailConfirmation
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            await _sender.SendAsync(request.To, $"Confirm your email here: {request.ConfirmationUri}");
-            
+            await _sender.SendAsync(request.To, "Reset password",
+                $"Reset your password here: {request.ConfirmationUri}");
+
             return Unit.Value;
         }
     }

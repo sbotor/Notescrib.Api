@@ -16,7 +16,11 @@ public class EmailsController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> SendEmailConfirmation(SendEmailConfirmationRequest request)
+    [HttpPost("confirmation")]
+    public async Task<IActionResult> SendConfirmationEmail(SendConfirmationEmailRequest request)
+        => Ok(await _mediator.Send(request.ToCommand()));
+    
+    [HttpPost("password")]
+    public async Task<IActionResult> SendPasswordResetEmail(SendConfirmationEmailRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
 }

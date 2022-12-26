@@ -14,6 +14,7 @@ namespace Notescrib.Identity.Clients;
 public interface IEmailsApiClient
 {
     Task<bool> SendConfirmationEmailAsync(string to, string userId, string token);
+    Task<bool> SendResetPasswordEmailAsync(string to, string userId, string token);
 }
 
 public class EmailsApiClient : IEmailsApiClient
@@ -21,27 +22,45 @@ public class EmailsApiClient : IEmailsApiClient
     private static readonly AsyncRetryPolicy<HttpResponseMessage> RetryPolicy = HttpPolicyExtensions
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, x => TimeSpan.FromMilliseconds(Math.Pow(x * 10, 2)));
-    
+
     private readonly ILogger<EmailsApiClient> _logger;
     private readonly HttpClient _client;
     private readonly EmailsApiSettings _settings;
-    
-    public EmailsApiClient(IHttpClientFactory factory, IOptions<EmailsApiSettings> options, ILogger<EmailsApiClient> logger)
+
+    public EmailsApiClient(IHttpClientFactory factory, IOptions<EmailsApiSettings> options,
+        ILogger<EmailsApiClient> logger)
     {
         _logger = logger;
         _client = factory.CreateClient(nameof(EmailsApiClient));
         _settings = options.Value;
     }
-    
+
     public async Task<bool> SendConfirmationEmailAsync(string to, string userId, string token)
     {
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
         var encodedUserId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
-        var uri = string.Format(_settings.ConfirmationUriTemplate, encodedUserId, encodedToken);
-        var data = new SendConfirmationEmailsRequest(to, uri);
+
+        var uri = string.Format(_settings.CallbackUriTemplates.Confirmation, encodedUserId, encodedToken);
+        var request = new SendConfirmationEmailRequest(to, uri);
+
+        return await SendEmail(request, _settings.Paths.ConfirmationEmail);
+    }
+
+    public async Task<bool> SendResetPasswordEmailAsync(string to, string userId, string token)
+    {
+        var encodedToken = Encode(token);
+        var encodedUserId = Encode(userId);
         
-        using var response = await RetryPolicy.ExecuteAsync(() => Execute(data));
-        
+        var uri = string.Format(_settings.CallbackUriTemplates.ResetPassword, encodedUserId, encodedToken);
+        var data = new SendResetPasswordEmailRequest(to, uri);
+
+        return await SendEmail(data, _settings.Paths.ResetPasswordEmail);
+    }
+
+    private async Task<bool> SendEmail<T>(T request, string path)
+    {
+        using var response = await RetryPolicy.ExecuteAsync(() => Execute(request, path));
+
         if (response.IsSuccessStatusCode)
         {
             return true;
@@ -53,12 +72,15 @@ public class EmailsApiClient : IEmailsApiClient
         return false;
     }
 
-    private async Task<HttpResponseMessage> Execute(SendConfirmationEmailsRequest data)
+    private async Task<HttpResponseMessage> Execute<T>(T request, string path)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, _settings.EmailsPath);
-        
-        request.Content = JsonContent.Create(data);
-        
-        return await _client.SendAsync(request);
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, path);
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        return await _client.SendAsync(httpRequest);
     }
+
+    private static string Encode(string text)
+        => WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(text));
 }

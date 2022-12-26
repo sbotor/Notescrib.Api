@@ -3,6 +3,7 @@ using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Api.Middleware;
 using Notescrib.Core.Extensions;
 using Notescrib.Identity;
+using Notescrib.Identity.Api;
 using Notescrib.Identity.Api.Extensions;
 using Notescrib.Identity.Api.Features.Auth;
 using Notescrib.Identity.Api.Features.Auth.Providers;
