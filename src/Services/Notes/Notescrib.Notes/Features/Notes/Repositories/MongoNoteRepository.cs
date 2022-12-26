@@ -58,7 +58,7 @@ public class MongoNoteRepository : INoteRepository
         return _provider.Notes.SessionUpdateOneAsync(_sessionAccessor.Session, x => x.Id == note.Id, update,
             cancellationToken);
     }
-    
+
     public Task UpdateRelatedAsync(Note note, CancellationToken cancellationToken = default)
     {
         var update = Builders<NoteData>.Update
@@ -146,9 +146,9 @@ public class MongoNoteRepository : INoteRepository
         }
         else
         {
-            filters.Add(new ExpressionFilterDefinition<NoteData>(x => x.OwnerId == ownerId
-                                                                      || x.SharingInfo.Visibility ==
-                                                                      VisibilityLevel.Public));
+            filters.Add(new ExpressionFilterDefinition<NoteData>(
+                x => x.OwnerId == ownerId
+                     || x.SharingInfo.Visibility == VisibilityLevel.Public));
         }
 
         if (!string.IsNullOrEmpty(textFilter))
@@ -190,10 +190,10 @@ public class MongoNoteRepository : INoteRepository
                 .Exclude($"{nameof(Note.Related)}.{nameof(Note.Content)}");
 
             query = query.Lookup(
-                _provider.Notes,
-                x => x.RelatedIds,
-                x => x.Id,
-                (Note x) => x.Related)
+                    _provider.Notes,
+                    x => x.RelatedIds,
+                    x => x.Id,
+                    (Note x) => x.Related)
                 .Project(projection);
         }
 
