@@ -19,13 +19,16 @@ public static class DeleteUser
         private readonly IUserContextProvider _userContextProvider;
         private readonly IJwtProvider _jwtProvider;
         private readonly IMediator _mediator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(AppUserManager userManager, IUserContextProvider userContextProvider, IJwtProvider jwtProvider, IMediator mediator)
+        public Handler(AppUserManager userManager, IUserContextProvider userContextProvider, IJwtProvider jwtProvider,
+            IMediator mediator, IDateTimeProvider dateTimeProvider)
         {
             _userManager = userManager;
             _userContextProvider = userContextProvider;
             _jwtProvider = jwtProvider;
             _mediator = mediator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -35,15 +38,18 @@ public static class DeleteUser
             {
                 throw new NotFoundException(ErrorCodes.User.UserNotFound);
             }
-            
+
             var jwt = _jwtProvider.GenerateToken(_userContextProvider.UserId);
 
             await _mediator.Publish(new DeleteWorkspace.Notification(jwt), CancellationToken.None);
-
+            
+            var deletedDateTime = _dateTimeProvider.Now.ToString("yyyy-MM-ddThh-mm-ss");
+            
             user.IsActive = false;
-            
+            user.UserName = $"{user.Email}-{deletedDateTime}";
+
             await _userManager.UpdateAsync(user);
-            
+
             return Unit.Value;
         }
     }

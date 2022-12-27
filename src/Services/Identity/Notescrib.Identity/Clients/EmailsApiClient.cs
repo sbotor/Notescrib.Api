@@ -13,7 +13,7 @@ namespace Notescrib.Identity.Clients;
 
 public interface IEmailsApiClient
 {
-    Task<bool> SendConfirmationEmailAsync(string to, string userId, string token);
+    Task<bool> SendActivationEmailAsync(string to, string userId, string token);
     Task<bool> SendResetPasswordEmailAsync(string to, string userId, string token);
 }
 
@@ -35,24 +35,24 @@ public class EmailsApiClient : IEmailsApiClient
         _settings = options.Value;
     }
 
-    public async Task<bool> SendConfirmationEmailAsync(string to, string userId, string token)
+    public async Task<bool> SendActivationEmailAsync(string to, string userId, string token)
     {
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
         var encodedUserId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
 
-        var uri = string.Format(_settings.CallbackUriTemplates.Confirmation, encodedUserId, encodedToken);
-        var request = new SendConfirmationEmailRequest(to, uri);
+        var uri = string.Format(_settings.CallbackUriTemplates.ActivateAccount, encodedUserId, encodedToken);
+        var request = new SendCallbackEmailRequest(to, uri);
 
-        return await SendEmail(request, _settings.Paths.ConfirmationEmail);
+        return await SendEmail(request, _settings.Paths.ActivationEmail);
     }
 
     public async Task<bool> SendResetPasswordEmailAsync(string to, string userId, string token)
     {
         var encodedToken = Encode(token);
         var encodedUserId = Encode(userId);
-        
+
         var uri = string.Format(_settings.CallbackUriTemplates.ResetPassword, encodedUserId, encodedToken);
-        var data = new SendResetPasswordEmailRequest(to, uri);
+        var data = new SendCallbackEmailRequest(to, uri);
 
         return await SendEmail(data, _settings.Paths.ResetPasswordEmail);
     }

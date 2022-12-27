@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
@@ -10,7 +11,7 @@ namespace Notescrib.Identity.Features.Users.Commands;
 
 public static class InitiatePasswordReset
 {
-    public record Command : ICommand;
+    public record Command(string? Email) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
@@ -27,10 +28,13 @@ public static class InitiatePasswordReset
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(_userContextProvider.UserId);
+            var user = string.IsNullOrEmpty(request.Email)
+                ? await _userManager.FindByIdAsync(_userContextProvider.UserId)
+                : await _userManager.FindByEmailAsync(request.Email);
+            
             if (user == null)
             {
-                throw new NotFoundException(ErrorCodes.User.UserNotFound);
+                return Unit.Value;
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -38,6 +42,16 @@ public static class InitiatePasswordReset
             await _client.SendResetPasswordEmailAsync(user.Email!, user.Id, token);
 
             return Unit.Value;
+        }
+    }
+
+    internal class Validator : AbstractValidator<Command>
+    {
+        public Validator(IUserContextProvider userContextProvider)
+        {
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .When(_ => userContextProvider.IsAnonymous);
         }
     }
 }

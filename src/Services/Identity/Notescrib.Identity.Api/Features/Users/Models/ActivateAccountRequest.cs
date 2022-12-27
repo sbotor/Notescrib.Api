@@ -2,10 +2,10 @@
 
 namespace Notescrib.Identity.Api.Features.Users.Models;
 
-public class ConfirmEmailRequest
+public class ActivateAccountRequest
 {
     public string Token { get; set; } = null!;
 
-    public ConfirmEmail.Command ToCommand(string id)
+    public ActivateAccount.Command ToCommand(string id)
         => new(id, Token);
 }

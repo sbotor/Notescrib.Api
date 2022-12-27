@@ -8,7 +8,7 @@ using Notescrib.Identity.Utils;
 
 namespace Notescrib.Identity.Features.Users.Commands;
 
-public static class ConfirmEmail
+public static class ActivateAccount
 {
     public record Command(string UserId, string Token) : ICommand;
 

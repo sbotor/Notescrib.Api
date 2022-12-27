@@ -2,6 +2,7 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Core.Services;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;

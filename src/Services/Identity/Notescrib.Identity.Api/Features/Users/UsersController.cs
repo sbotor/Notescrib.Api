@@ -22,10 +22,6 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
-    
-    [HttpPut]
-    public async Task<IActionResult> UpdateUser(UpdateUserRequest request)
-        => Ok(await _mediator.Send(request.ToCommand()));
 
     [HttpGet]
     public async Task<IActionResult> GetCurrentUserDetails(CancellationToken cancellationToken)
@@ -35,15 +31,15 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUser()
         => Ok(await _mediator.Send(new DeleteUser.Command()));
     
-    [HttpPost("{id}/confirm")]
+    [HttpPost("{id}/activate")]
     [AllowAnonymous]
-    public async Task<IActionResult> ConfirmEmail(string id, ConfirmEmailRequest request)
+    public async Task<IActionResult> ActivateAccount(string id, ActivateAccountRequest request)
         => Ok(await _mediator.Send(request.ToCommand(id)));
     
     [HttpPost("password")]
     [AllowAnonymous]
-    public async Task<IActionResult> InitiatePasswordReset()
-        => Ok(await _mediator.Send(new InitiatePasswordReset.Command()));
+    public async Task<IActionResult> InitiatePasswordReset(InitiatePasswordResetRequest request)
+        => Ok(await _mediator.Send(request.ToCommand()));
     
     [HttpPut("{id}/password")]
     [AllowAnonymous]

@@ -26,7 +26,7 @@ public static class SendConfirmationEmail
             var user = notification.User;
         
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var result = await _client.SendConfirmationEmailAsync(user.Email!, user.Id, token);
+            var result = await _client.SendActivationEmailAsync(user.Email!, user.Id, token);
             if (!result)
             {
                 throw new ServerErrorException(ErrorCodes.Emails.EmailsError);

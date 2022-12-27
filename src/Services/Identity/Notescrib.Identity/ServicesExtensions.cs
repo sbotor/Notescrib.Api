@@ -22,6 +22,8 @@ public static class ServicesExtensions
     
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
+        services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+        
         services.AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddPipelineBehavior(typeof(ValidationBehavior<,>));
         services.AddMediatrWithValidation(ThisAssembly);

@@ -34,18 +34,29 @@
         { "PathSet": "/users" }
       ]
     },
-    "confirm_email": {
+    "activate_account": {
       "ClusterId": "identity",
       "Match": {
-        "Path": "/api/identity/users/{id}/confirm",
+        "Path": "/api/identity/users/{id}/activate",
         "Hosts": [ "localhost" ],
         "Methods": [ "POST" ]
       },
       "Transforms": [
-        { "PathPattern": "/users/{id}/confirm" }
+        { "PathPattern": "/users/{id}/activate" }
       ]
     },
-    "update_password": {
+    "init_password_reset": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/api/identity/users/password",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "POST" ]
+      },
+      "Transforms": [
+        { "PathPattern": "/users/password" }
+      ]
+    },
+    "reset_password": {
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/users/{id}/password",

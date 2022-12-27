@@ -2,10 +2,10 @@
 
 namespace Notescrib.Identity.Api.Features.Users.Models;
 
-public class UpdateUserRequest
+public class InitiatePasswordResetRequest
 {
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
 
-    public UpdateUser.Command ToCommand()
+    public InitiatePasswordReset.Command ToCommand()
         => new(Email);
 }

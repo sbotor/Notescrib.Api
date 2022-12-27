@@ -9,13 +9,13 @@ public class EmailsApiSettings
 
     public class PathSettings
     {
-        public string ConfirmationEmail { get; set; } = null!;
+        public string ActivationEmail { get; set; } = null!;
         public string ResetPasswordEmail { get; set; } = null!;
     }
 
     public class CallbackUriTemplateSettings
     {
-        public string Confirmation { get; set; } = null!;
+        public string ActivateAccount { get; set; } = null!;
         public string ResetPassword { get; set; } = null!;
     }
 }

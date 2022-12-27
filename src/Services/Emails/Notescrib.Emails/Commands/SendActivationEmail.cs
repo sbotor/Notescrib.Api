@@ -5,7 +5,7 @@ using Notescrib.Emails.Services;
 
 namespace Notescrib.Emails.Commands;
 
-public static class SendConfirmationEmail
+public static class SendActivationEmail
 {
     public record Command(string ConfirmationUri, string To) : ICommand;
 
@@ -20,7 +20,7 @@ public static class SendConfirmationEmail
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            await _sender.SendAsync(request.To, "Confirm email", $"Confirm your email here: {request.ConfirmationUri}");
+            await _sender.SendAsync(request.To, "Activate account", $"Confirm your email here: {request.ConfirmationUri}");
 
             return Unit.Value;
         }

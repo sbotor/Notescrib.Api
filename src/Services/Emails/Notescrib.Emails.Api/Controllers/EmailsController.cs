@@ -16,11 +16,11 @@ public class EmailsController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("confirmation")]
-    public async Task<IActionResult> SendConfirmationEmail(SendConfirmationEmailRequest request)
+    [HttpPost("activation")]
+    public async Task<IActionResult> SendActivationEmail(SendActivationEmailRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
     
     [HttpPost("password")]
-    public async Task<IActionResult> SendPasswordResetEmail(SendConfirmationEmailRequest request)
+    public async Task<IActionResult> SendPasswordResetEmail(SendResetPasswordEmailRequest request)
         => Ok(await _mediator.Send(request.ToCommand()));
 }

@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Services;
+﻿namespace Notescrib.Core.Services;
 
 public interface IDateTimeProvider
 {
