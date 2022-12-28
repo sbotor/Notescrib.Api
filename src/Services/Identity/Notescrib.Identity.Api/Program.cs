@@ -33,9 +33,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    app.UseDeveloperExceptionPage();
 }
+
+app.UseHealthChecks("/health");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
         

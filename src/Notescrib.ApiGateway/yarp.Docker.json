@@ -1,0 +1,25 @@
+﻿{
+  "Clusters": {
+    "identity": {
+      "Destinations": {
+        "identity_api": {
+          "Address": "http://identity-api:80"
+        }
+      }
+    },
+    "notes": {
+      "Destinations": {
+        "notes_api": {
+          "Address": "http://notes-api:80"
+        }
+      }
+    },
+    "emails": {
+      "Destinations": {
+        "emails_api": {
+          "Address": "http://emails-api:80"
+        }
+      }
+    }
+  }
+}

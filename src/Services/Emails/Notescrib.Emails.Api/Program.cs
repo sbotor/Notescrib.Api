@@ -28,9 +28,9 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
 app.UseHealthChecks("/health");
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseMiddleware<ApiKeyAuthMiddleware>();
 

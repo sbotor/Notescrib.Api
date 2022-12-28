@@ -1,24 +1,59 @@
 version: '3.5'
 
 services:
+  psql:
+    image: postgres
+    ports:
+      - 6543:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  mongodb:
+    image: mongo
+    command: mongod --replSet rs0
+    ports:
+      - 37017:27017
   
   identity-api:
-    image: identity.api
+    image: identity-api
     build:
       context: src
       dockerfile: Services/Identity/Notescrib.Identity.Api/Dockerfile
+    ports:
+      - 50001:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on:
+      - psql
 
   notes-api:
     image: notes-api
     build:
       context: src
       dockerfile: Services/Notes/Notescrib.Notes.Api/Dockerfile
+    ports:
+      - 50002:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on:
+      - mongodb
+
+  emails-api:
+    image: emails-api
+    build:
+      context: src
+      dockerfile: Services/Emails/Notescrib.Emails.Api/Dockerfile
+    ports:
+      - 50003:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
 
   api-gateway:
     image: api-gateway
     build:
       context: src
       dockerfile: Notescrib.ApiGateway/Dockerfile
-    depends_on:
-      - identity-api
-      - notes-api
+    ports:
+      - 50000:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker

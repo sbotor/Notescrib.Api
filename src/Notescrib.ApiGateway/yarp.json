@@ -8,7 +8,7 @@
         "Methods": [ "POST" ]
       },
       "Transforms": [
-        { "PathSet": "/auth" }
+        { "PathSet": "/api/auth" }
       ]
     },
     "users": {
@@ -20,7 +20,7 @@
         "Methods": [ "GET", "POST", "DELETE" ]
       },
       "Transforms": [
-        { "PathPattern": "/users/{**rest}" }
+        { "PathPattern": "/api/users/{**rest}" }
       ]
     },
     "create_user": {
@@ -31,7 +31,7 @@
         "Methods": [ "POST" ]
       },
       "Transforms": [
-        { "PathSet": "/users" }
+        { "PathSet": "/api/users" }
       ]
     },
     "activate_account": {
@@ -42,7 +42,7 @@
         "Methods": [ "POST" ]
       },
       "Transforms": [
-        { "PathPattern": "/users/{id}/activate" }
+        { "PathPattern": "/api/users/{id}/activate" }
       ]
     },
     "init_password_reset": {
@@ -53,7 +53,7 @@
         "Methods": [ "POST" ]
       },
       "Transforms": [
-        { "PathPattern": "/users/password" }
+        { "PathPattern": "/api/users/password" }
       ]
     },
     "reset_password": {
@@ -64,7 +64,18 @@
         "Methods": [ "PUT" ]
       },
       "Transforms": [
-        { "PathPattern": "/users/{id}/password" }
+        { "PathPattern": "/api/users/{id}/password" }
+      ]
+    },
+    "identity_health_check": {
+      "ClusterId": "identity",
+      "Match": {
+        "Path": "/health/identity",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET" ]
+      },
+      "Transforms": [
+        { "PathSet": "/health" }
       ]
     },
     "workspaces": {
@@ -74,10 +85,7 @@
         "Path": "/api/workspaces/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
-      },
-      "Transforms": [
-        { "PathPattern": "/workspaces/{**rest}" }
-      ]
+      }
     },
     "folders": {
       "ClusterId": "notes",
@@ -86,10 +94,7 @@
         "Path": "/api/folders/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
-      },
-      "Transforms": [
-        { "PathPattern": "/folders/{**rest}" }
-      ]
+      }
     },
     "notes": {
       "ClusterId": "notes",
@@ -98,32 +103,23 @@
         "Path": "/api/notes/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
-      },
-      "Transforms": [
-        { "PathPattern": "/notes/{**rest}" }
-      ]
+      }
     },
-    "searchNotes": {
+    "search_notes": {
       "ClusterId": "notes",
       "Match": {
         "Path": "/api/notes",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
-      },
-      "Transforms": [
-        { "PathPattern": "/notes" }
-      ]
+      }
     },
-    "getNoteDetails": {
+    "get_note_details": {
       "ClusterId": "notes",
       "Match": {
         "Path": "/api/notes/{id}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
-      },
-      "Transforms": [
-        { "PathPattern": "/notes/{id}" }
-      ]
+      }
     },
     "templates": {
       "ClusterId": "notes",
@@ -132,9 +128,28 @@
         "Path": "/api/templates/{**rest}",
         "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+      }
+    },
+    "notes_health_check": {
+      "ClusterId": "notes",
+      "Match": {
+        "Path": "/health/notes",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET" ]
       },
       "Transforms": [
-        { "PathPattern": "/templates/{**rest}" }
+        { "PathSet": "/health" }
+      ]
+    },
+    "emails_health_check": {
+      "ClusterId": "emails",
+      "Match": {
+        "Path": "/health/emails",
+        "Hosts": [ "localhost" ],
+        "Methods": [ "GET" ]
+      },
+      "Transforms": [
+        { "PathSet": "/health" }
       ]
     }
   },
@@ -142,21 +157,21 @@
     "identity": {
       "Destinations": {
         "identity_api": {
-          "Address": "https://localhost:5001/api"
+          "Address": "https://localhost:5001"
         }
       }
     },
     "notes": {
       "Destinations": {
         "notes_api": {
-          "Address": "https://localhost:5002/api"
+          "Address": "https://localhost:5002"
         }
       }
     },
     "emails": {
       "Destinations": {
         "emails_api": {
-          "Address": "https://localhost:5003/api"
+          "Address": "https://localhost:5003"
         }
       }
     }
