@@ -14,8 +14,8 @@ services:
     ports:
       - 37017:27017
   
-  identity-api:
-    image: identity-api
+  identity:
+    image: notescribapi-identity
     build:
       context: src
       dockerfile: Services/Identity/Notescrib.Identity.Api/Dockerfile
@@ -26,8 +26,8 @@ services:
     depends_on:
       - psql
 
-  notes-api:
-    image: notes-api
+  notes:
+    image: notescribapi-notes
     build:
       context: src
       dockerfile: Services/Notes/Notescrib.Notes.Api/Dockerfile
@@ -38,8 +38,8 @@ services:
     depends_on:
       - mongodb
 
-  emails-api:
-    image: emails-api
+  emails:
+    image: notescribapi-emails
     build:
       context: src
       dockerfile: Services/Emails/Notescrib.Emails.Api/Dockerfile
@@ -48,8 +48,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
 
-  api-gateway:
-    image: api-gateway
+  apigateway:
+    image: notescribapi-apigateway
     build:
       context: src
       dockerfile: Notescrib.ApiGateway/Dockerfile
@@ -57,3 +57,8 @@ services:
       - 50000:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
+
+networks:
+  default:
+    name: notescrib_network
+    driver: bridge

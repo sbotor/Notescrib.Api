@@ -4,7 +4,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/auth",
-        "Hosts": [ "localhost" ],
         "Methods": [ "POST" ]
       },
       "Transforms": [
@@ -16,7 +15,6 @@
       "AuthorizationPolicy": "Default",
       "Match": {
         "Path": "/api/identity/users/{**rest}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "DELETE" ]
       },
       "Transforms": [
@@ -27,7 +25,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/users",
-        "Hosts": [ "localhost" ],
         "Methods": [ "POST" ]
       },
       "Transforms": [
@@ -38,7 +35,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/users/{id}/activate",
-        "Hosts": [ "localhost" ],
         "Methods": [ "POST" ]
       },
       "Transforms": [
@@ -49,7 +45,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/users/password",
-        "Hosts": [ "localhost" ],
         "Methods": [ "POST" ]
       },
       "Transforms": [
@@ -60,7 +55,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/api/identity/users/{id}/password",
-        "Hosts": [ "localhost" ],
         "Methods": [ "PUT" ]
       },
       "Transforms": [
@@ -71,7 +65,6 @@
       "ClusterId": "identity",
       "Match": {
         "Path": "/health/identity",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
       },
       "Transforms": [
@@ -83,7 +76,6 @@
       "AuthorizationPolicy": "Default",
       "Match": {
         "Path": "/api/workspaces/{**rest}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
       }
     },
@@ -92,7 +84,6 @@
       "AuthorizationPolicy": "Default",
       "Match": {
         "Path": "/api/folders/{**rest}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
       }
     },
@@ -101,7 +92,6 @@
       "AuthorizationPolicy": "Default",
       "Match": {
         "Path": "/api/notes/{**rest}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
       }
     },
@@ -109,7 +99,6 @@
       "ClusterId": "notes",
       "Match": {
         "Path": "/api/notes",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
       }
     },
@@ -117,7 +106,6 @@
       "ClusterId": "notes",
       "Match": {
         "Path": "/api/notes/{id}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
       }
     },
@@ -126,7 +114,6 @@
       "AuthorizationPolicy": "Default",
       "Match": {
         "Path": "/api/templates/{**rest}",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET", "POST", "PUT", "DELETE" ]
       }
     },
@@ -134,7 +121,6 @@
       "ClusterId": "notes",
       "Match": {
         "Path": "/health/notes",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
       },
       "Transforms": [
@@ -145,7 +131,6 @@
       "ClusterId": "emails",
       "Match": {
         "Path": "/health/emails",
-        "Hosts": [ "localhost" ],
         "Methods": [ "GET" ]
       },
       "Transforms": [

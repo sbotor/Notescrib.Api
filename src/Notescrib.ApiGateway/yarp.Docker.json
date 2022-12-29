@@ -3,21 +3,21 @@
     "identity": {
       "Destinations": {
         "identity_api": {
-          "Address": "http://identity-api:80"
+          "Address": "http://identity"
         }
       }
     },
     "notes": {
       "Destinations": {
         "notes_api": {
-          "Address": "http://notes-api:80"
+          "Address": "http://notes"
         }
       }
     },
     "emails": {
       "Destinations": {
         "emails_api": {
-          "Address": "http://emails-api:80"
+          "Address": "http://emails"
         }
       }
     }
