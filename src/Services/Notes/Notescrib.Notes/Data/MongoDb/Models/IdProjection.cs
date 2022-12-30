@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Utils.MongoDb.Models;
+﻿namespace Notescrib.Notes.Data.MongoDb.Models;
 
 public class IdProjection
 {

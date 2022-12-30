@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
 using Notescrib.Core.Services;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Extensions;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Repositories;
 

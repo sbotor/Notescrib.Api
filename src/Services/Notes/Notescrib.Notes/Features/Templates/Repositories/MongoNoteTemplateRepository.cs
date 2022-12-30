@@ -1,10 +1,10 @@
 ﻿using MongoDB.Driver;
 using Notescrib.Core.Services;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Templates.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Repositories;
 

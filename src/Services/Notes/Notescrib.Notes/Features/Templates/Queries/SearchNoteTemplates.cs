@@ -2,13 +2,13 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Services;
 using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Templates.Models;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Features.Templates.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Queries;
 
@@ -18,11 +18,11 @@ public static class SearchNoteTemplates
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteTemplateOverview>>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IMapper<NoteTemplate, NoteTemplateOverview> _mapper;
         private readonly ISortingProvider<NoteTemplatesSorting> _sortingProvider;
 
-        public Handler(MongoDbContext context,
+        public Handler(IMongoDbContext context,
             IMapper<NoteTemplate, NoteTemplateOverview> mapper,
             ISortingProvider<NoteTemplatesSorting> sortingProvider)
         {

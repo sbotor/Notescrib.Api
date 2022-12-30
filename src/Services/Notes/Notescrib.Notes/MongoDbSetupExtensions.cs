@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Models.Configuration;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes;
 
@@ -15,7 +15,7 @@ public static class MongoDbSetupExtensions
 
         services.AddSingleton<IMongoDbProvider, MongoDbProvider>();
 
-        services.AddScoped<MongoDbContext>();
+        services.AddScoped<IMongoDbContext, MongoDbContext>();
 
         return services;
     }

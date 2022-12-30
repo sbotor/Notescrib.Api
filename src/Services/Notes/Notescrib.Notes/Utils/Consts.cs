@@ -16,7 +16,7 @@ public static class Consts
 
     public static class Folder
     {
-        public const int MaxNestingLevel = 4;
+        public const int MaxNestingLevel = 8;
         public const int MaxChildrenCount = 10;
         public const int MaxNoteCount = 32;
     }

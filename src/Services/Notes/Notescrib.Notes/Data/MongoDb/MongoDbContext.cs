@@ -4,9 +4,9 @@ using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 
-namespace Notescrib.Notes.Utils.MongoDb;
+namespace Notescrib.Notes.Data.MongoDb;
 
-public class MongoDbContext : IDisposable, IAsyncDisposable
+public class MongoDbContext : IMongoDbContext
 {
     private readonly IMongoDbProvider _provider;
     private readonly IUserContextProvider _userContextProvider;

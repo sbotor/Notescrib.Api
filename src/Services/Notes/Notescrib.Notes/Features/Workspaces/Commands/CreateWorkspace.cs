@@ -2,12 +2,12 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Folders;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
@@ -17,12 +17,12 @@ public static class CreateWorkspace
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IUserContextProvider _userContext;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public Handler(
-            MongoDbContext context,
+            IMongoDbContext context,
             IUserContextProvider userContext,
             IDateTimeProvider dateTimeProvider)
         {
@@ -50,7 +50,7 @@ public static class CreateWorkspace
                 {
                     Id = workspace.Id,
                     OwnerId = workspace.OwnerId,
-                    Name = "*root",
+                    Name = Folder.RootName,
                     Created = workspace.Created,
                     WorkspaceId = workspace.Id
                 },

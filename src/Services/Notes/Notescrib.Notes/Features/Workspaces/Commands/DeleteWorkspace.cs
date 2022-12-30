@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Features.Workspaces.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Workspaces.Commands;
 
@@ -17,9 +17,9 @@ public static class DeleteWorkspace
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
 
-        public Handler(MongoDbContext context)
+        public Handler(IMongoDbContext context)
         {
             _context = context;
         }

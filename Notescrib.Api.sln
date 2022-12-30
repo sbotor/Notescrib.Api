@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Emails", "src\Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Emails.Api", "src\Services\Emails\Notescrib.Emails.Api\Notescrib.Emails.Api.csproj", "{1FDFC48F-8A51-49D1-8D48-9A9E4C2F67FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Notes.Tests", "src\Services\Notes\Notescrib.Notes.Tests\Notescrib.Notes.Tests.csproj", "{ACEBCC09-E35F-44A9-B804-1508FD36159E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{1FDFC48F-8A51-49D1-8D48-9A9E4C2F67FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FDFC48F-8A51-49D1-8D48-9A9E4C2F67FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FDFC48F-8A51-49D1-8D48-9A9E4C2F67FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACEBCC09-E35F-44A9-B804-1508FD36159E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACEBCC09-E35F-44A9-B804-1508FD36159E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACEBCC09-E35F-44A9-B804-1508FD36159E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACEBCC09-E35F-44A9-B804-1508FD36159E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C9E3ECEC-8A83-4E82-A581-0A1096A83C17} = {0AD78AAF-D6EA-4DCA-A496-9D3224CF573C}
@@ -78,5 +84,6 @@ Global
 		{CFB0264F-D3A0-42A6-846A-FCE44E0F142E} = {ABC1BDE2-E992-4D84-ACE1-AA595DBA6C43}
 		{ABCE310C-8F4D-466D-BE10-ECE84D4B4E2C} = {76D43E5C-8E83-48D0-8202-BB64C9CD54EC}
 		{1FDFC48F-8A51-49D1-8D48-9A9E4C2F67FE} = {76D43E5C-8E83-48D0-8202-BB64C9CD54EC}
+		{ACEBCC09-E35F-44A9-B804-1508FD36159E} = {ABC1BDE2-E992-4D84-ACE1-AA595DBA6C43}
 	EndGlobalSection
 EndGlobal

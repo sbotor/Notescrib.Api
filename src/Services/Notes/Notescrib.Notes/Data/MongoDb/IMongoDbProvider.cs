@@ -4,7 +4,7 @@ using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Templates;
 using Notescrib.Notes.Features.Workspaces;
 
-namespace Notescrib.Notes.Utils.MongoDb;
+namespace Notescrib.Notes.Data.MongoDb;
 
 public interface IMongoDbProvider
 {

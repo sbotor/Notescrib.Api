@@ -1,13 +1,13 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
 using Notescrib.Core.Services;
+using Notescrib.Notes.Data.MongoDb;
+using Notescrib.Notes.Data.MongoDb.Models;
 using Notescrib.Notes.Extensions;
 using Notescrib.Notes.Features.Notes.Utils;
 using Notescrib.Notes.Models;
 using Notescrib.Notes.Models.Enums;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
-using Notescrib.Notes.Utils.MongoDb.Models;
 
 namespace Notescrib.Notes.Features.Notes.Repositories;
 

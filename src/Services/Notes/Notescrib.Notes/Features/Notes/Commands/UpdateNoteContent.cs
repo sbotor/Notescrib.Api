@@ -3,11 +3,11 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Commands;
 
@@ -17,11 +17,11 @@ public static class UpdateNoteContent
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public Handler(MongoDbContext context, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _permissionGuard = permissionGuard;

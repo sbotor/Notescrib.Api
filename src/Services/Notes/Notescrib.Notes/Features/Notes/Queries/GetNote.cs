@@ -2,11 +2,11 @@
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Notes.Contracts;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Notes.Models;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Notes.Queries;
 
@@ -16,11 +16,11 @@ public static class GetNoteDetails
 
     internal class Handler : IQueryHandler<Query, NoteDetails>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Note, NoteDetails> _mapper;
 
-        public Handler(MongoDbContext context, IPermissionGuard permissionGuard,
+        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard,
             IMapper<Note, NoteDetails> mapper)
         {
             _context = context;

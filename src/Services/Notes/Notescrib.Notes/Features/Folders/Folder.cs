@@ -18,8 +18,10 @@ public class FolderData
 
 public class Folder : FolderData
 {
+    internal const string RootName = "*root";
+    
     public Workspace Workspace { get; set; } = null!;
-    public IReadOnlyCollection<FolderData> ImmediateChildren { get; set; } = null!;
-    public IReadOnlyCollection<FolderData> Children { get; set; } = null!;
-    public Folder? Parent { get; set; } = null!;
+    public ICollection<Folder> ImmediateChildren { get; set; } = new List<Folder>();
+    public ICollection<Folder> Children { get; set; } = new List<Folder>();
+    public Folder? Parent { get; set; }
 }

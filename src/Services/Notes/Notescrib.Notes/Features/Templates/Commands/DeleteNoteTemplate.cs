@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Templates.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Templates.Commands;
 
@@ -14,10 +14,10 @@ public static class DeleteNoteTemplate
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
         {
             _context = context;
             _permissionGuard = permissionGuard;

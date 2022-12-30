@@ -2,11 +2,11 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
+using Notescrib.Notes.Data.MongoDb;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
-using Notescrib.Notes.Utils.MongoDb;
 
 namespace Notescrib.Notes.Features.Folders.Commands;
 
@@ -16,10 +16,10 @@ public static class DeleteFolder
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly MongoDbContext _context;
+        private readonly IMongoDbContext _context;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(MongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
         {
             _context = context;
             _permissionGuard = permissionGuard;
@@ -43,15 +43,13 @@ public static class DeleteFolder
                 throw new AppException("Cannot delete root folder.");
             }
 
-            var allFolders = folder.Children.Append(folder).ToArray();
-
-            var folderIds = allFolders.Select(x => x.Id).ToArray();
+            var allFolderIds = folder.Children.Append(folder).Select(x => x.Id).ToArray();
 
             await _context.EnsureTransactionAsync(CancellationToken.None);
 
-            await _context.Folders.DeleteManyAsync(folderIds, CancellationToken.None);
+            await _context.Folders.DeleteManyAsync(allFolderIds, CancellationToken.None);
 
-            var noteIds = await _context.Notes.GetIdsFromFoldersAsync(folderIds, CancellationToken.None);
+            var noteIds = await _context.Notes.GetIdsFromFoldersAsync(allFolderIds, CancellationToken.None);
             await _context.Notes.DeleteFromRelatedAsync(noteIds, CancellationToken.None);
             await _context.Notes.DeleteManyAsync(noteIds, CancellationToken.None);
 
