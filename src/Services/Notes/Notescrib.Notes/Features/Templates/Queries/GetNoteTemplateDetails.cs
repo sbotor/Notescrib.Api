@@ -33,7 +33,7 @@ public static class GetNoteTemplateDetails
                 throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
             }
             
-            _permissionGuard.GuardCanView(template.Id);
+            _permissionGuard.GuardCanView(template.OwnerId);
 
             return _mapper.Map(template);
         }
