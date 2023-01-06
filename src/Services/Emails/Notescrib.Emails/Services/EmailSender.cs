@@ -30,7 +30,8 @@ public class EmailSender : IEmailSender
 
     public async Task SendAsync(string to, string subject, string body)
     {
-        if (_settings.SkipEmails)
+        if (_settings.SkipEmails
+            || string.IsNullOrEmpty(_settings.From))
         {
             return;
         }

@@ -6,7 +6,6 @@ using Notescrib.Notes.Features.Folders.Models;
 using Notescrib.Notes.Features.Folders.Repositories;
 using Notescrib.Notes.Features.Notes;
 using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
 

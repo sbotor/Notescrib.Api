@@ -4,8 +4,6 @@ using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
 using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
 using Notescrib.Notes.Services;
 using Notescrib.Notes.Utils;
 
