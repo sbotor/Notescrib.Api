@@ -49,8 +49,8 @@ services:
       - 50003:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
-      - EmailSettings__From=''
-      - EmailSettings__Password=''
+      - EmailSettings__From=
+      - EmailSettings__Password=
 
   apigateway:
     image: notescribapi-apigateway

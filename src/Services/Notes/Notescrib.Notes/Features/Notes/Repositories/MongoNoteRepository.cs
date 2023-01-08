@@ -17,6 +17,8 @@ public class MongoNoteRepository : INoteRepository
     private readonly SessionAccessor _sessionAccessor;
     private readonly IUserContextProvider _userContextProvider;
 
+    private static readonly AggregateUnwindOptions<Note> UnwindOptions = new() { PreserveNullAndEmptyArrays = true };
+
     public MongoNoteRepository(IMongoDbProvider provider, SessionAccessor sessionAccessor,
         IUserContextProvider userContextProvider)
     {
@@ -172,7 +174,8 @@ public class MongoNoteRepository : INoteRepository
                     _provider.Folders,
                     x => x.FolderId,
                     x => x.Id,
-                    (Note x) => x.Folder);
+                    (Note x) => x.Folder)
+                .Unwind(x => x.Folder, UnwindOptions);
         }
 
         if (!include.Content)
