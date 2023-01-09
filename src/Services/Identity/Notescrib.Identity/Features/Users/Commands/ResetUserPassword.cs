@@ -32,7 +32,7 @@ public static class ResetUserPassword
             var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
             if (!result.Succeeded)
             {
-                throw new AppException(ErrorCodes.User.IdentityErrors, result.SerializeErrors());
+                throw new AppException(result.ToErrorModels());
             }
             
             return Unit.Value;

@@ -60,7 +60,7 @@ public static class CreateUser
             }
 
             await _userManager.DeleteAsync(user);
-            throw new AppException(ErrorCodes.User.IdentityErrors, result.SerializeErrors());
+            throw new AppException(result.ToErrorModels());
         }
 
         private async Task CreateWorkspaceAndSendEmail(AppUser user, string jwt)
@@ -93,7 +93,7 @@ public static class CreateUser
                 return;
             }
             
-            throw new AppException(ErrorCodes.User.IdentityErrors, result.SerializeErrors());
+            throw new AppException(result.ToErrorModels());
         }
     }
 
