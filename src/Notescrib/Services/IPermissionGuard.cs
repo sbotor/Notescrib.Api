@@ -1,7 +1,7 @@
 ﻿using Notescrib.Core.Services;
-using Notescrib.Notes.Models;
+using Notescrib.Models;
 
-namespace Notescrib.Notes.Services;
+namespace Notescrib.Services;
 
 public interface IPermissionGuard
 {

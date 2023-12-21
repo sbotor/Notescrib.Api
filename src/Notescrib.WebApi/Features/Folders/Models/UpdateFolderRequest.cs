@@ -1,8 +1,6 @@
-﻿using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Folders.Commands;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Features.Folders.Commands;
 
-namespace Notescrib.Notes.Api.Features.Folders.Models;
+namespace Notescrib.WebApi.Features.Folders.Models;
 
 public class UpdateFolderRequest
 {

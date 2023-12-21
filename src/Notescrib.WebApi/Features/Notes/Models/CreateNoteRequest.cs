@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Features.Notes.Commands;
-using Notescrib.Notes.Models;
+﻿using Notescrib.Features.Notes.Commands;
+using Notescrib.Models;
 
-namespace Notescrib.Notes.Api.Features.Notes.Models;
+namespace Notescrib.WebApi.Features.Notes.Models;
 
 public class CreateNoteRequest
 {

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Notescrib.Notes.Models.Validators;
+namespace Notescrib.Models.Validators;
 
 internal class PagingValidator : AbstractValidator<Paging>
 {

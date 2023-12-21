@@ -1,7 +1,7 @@
 ﻿using Moq;
-using Notescrib.Notes.Features.Notes.Repositories;
+using Notescrib.Features.Notes.Repositories;
 
-namespace Notescrib.Notes.Tests.Infrastructure.Extensions;
+namespace Notescrib.Tests.Infrastructure.Extensions;
 
 public static class NoteRepositoryMockExtensions
 {

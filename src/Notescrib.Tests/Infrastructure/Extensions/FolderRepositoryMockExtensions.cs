@@ -1,8 +1,8 @@
 ﻿using Moq;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Folders.Repositories;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Folders.Repositories;
 
-namespace Notescrib.Notes.Tests.Infrastructure.Extensions;
+namespace Notescrib.Tests.Infrastructure.Extensions;
 
 public static class FolderRepositoryMockExtensions
 {

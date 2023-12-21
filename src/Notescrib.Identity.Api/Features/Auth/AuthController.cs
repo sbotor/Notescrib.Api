@@ -1,13 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Core.Api.Attributes;
 using Notescrib.Identity.Api.Features.Auth.Models;
 using Notescrib.Identity.Features.Auth.Models;
 
 namespace Notescrib.Identity.Api.Features.Auth;
 
 [ApiController]
-[ApiRoute]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -1,12 +1,12 @@
 ﻿using MongoDB.Driver;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Extensions;
-using Notescrib.Notes.Features.Templates.Utils;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Extensions;
+using Notescrib.Features.Templates.Utils;
+using Notescrib.Models;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Templates.Repositories;
+namespace Notescrib.Features.Templates.Repositories;
 
 public class MongoNoteTemplateRepository : INoteTemplateRepository
 {

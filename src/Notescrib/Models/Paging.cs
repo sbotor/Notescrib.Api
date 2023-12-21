@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Notescrib.Notes.Models;
+namespace Notescrib.Models;
 
 public readonly struct Paging
 {

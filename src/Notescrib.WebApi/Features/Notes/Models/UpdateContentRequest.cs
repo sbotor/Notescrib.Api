@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Features.Notes.Commands;
+﻿using Notescrib.Features.Notes.Commands;
 
-namespace Notescrib.Notes.Api.Features.Notes.Models;
+namespace Notescrib.WebApi.Features.Notes.Models;
 
 public class UpdateContentRequest
 {

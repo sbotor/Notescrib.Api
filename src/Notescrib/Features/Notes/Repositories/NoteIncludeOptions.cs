@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Notes.Repositories;
+﻿namespace Notescrib.Features.Notes.Repositories;
 
 public class NoteIncludeOptions
 {

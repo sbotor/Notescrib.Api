@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Api.Contracts;
+﻿namespace Notescrib.WebApi.Contracts;
 
 public interface IPagingRequest
 {

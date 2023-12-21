@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Emails;
+﻿namespace Notescrib.Identity.Features.Emails;
 
 public class EmailSettings
 {

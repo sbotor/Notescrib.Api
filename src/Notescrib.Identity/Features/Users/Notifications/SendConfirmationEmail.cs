@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Emails.Services;
 using Notescrib.Identity.Clients;
 using Notescrib.Identity.Data;
+using Notescrib.Identity.Features.Emails.Services;
 using Notescrib.Identity.Utils;
 
 namespace Notescrib.Identity.Features.Users.Notifications;

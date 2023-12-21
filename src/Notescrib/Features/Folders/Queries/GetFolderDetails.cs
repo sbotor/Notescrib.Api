@@ -1,15 +1,15 @@
-﻿using Notescrib.Core.Cqrs;
+﻿using Notescrib.Contracts;
+using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Folders.Models;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Features.Folders.Models;
+using Notescrib.Features.Folders.Repositories;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Notes.Models;
+using Notescrib.Services;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Folders.Queries;
+namespace Notescrib.Features.Folders.Queries;
 
 public static class GetFolderDetails
 {

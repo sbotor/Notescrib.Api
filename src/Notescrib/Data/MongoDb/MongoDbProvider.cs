@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Templates;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Models.Configuration;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Templates;
+using Notescrib.Features.Workspaces;
+using Notescrib.Models.Configuration;
 
-namespace Notescrib.Notes.Data.MongoDb;
+namespace Notescrib.Data.MongoDb;
 
 public class MongoDbProvider : IMongoDbProvider
 {

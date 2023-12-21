@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Features.Folders.Commands;
+﻿using Notescrib.Features.Folders.Commands;
 
-namespace Notescrib.Notes.Api.Features.Folders.Models;
+namespace Notescrib.WebApi.Features.Folders.Models;
 
 public class CreateFolderRequest
 {

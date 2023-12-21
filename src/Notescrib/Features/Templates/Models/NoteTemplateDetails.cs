@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Templates.Models;
+﻿namespace Notescrib.Features.Templates.Models;
 
 public class NoteTemplateDetails : NoteTemplateOverview
 {

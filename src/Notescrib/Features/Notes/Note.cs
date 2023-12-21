@@ -1,8 +1,8 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Models;
+﻿using Notescrib.Contracts;
+using Notescrib.Features.Folders;
+using Notescrib.Models;
 
-namespace Notescrib.Notes.Features.Notes;
+namespace Notescrib.Features.Notes;
 
 public class NoteBase : IShareable
 {

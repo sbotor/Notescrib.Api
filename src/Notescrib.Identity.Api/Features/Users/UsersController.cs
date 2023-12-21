@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Core.Api.Attributes;
 using Notescrib.Identity.Api.Features.Users.Models;
 using Notescrib.Identity.Features.Users.Commands;
 using Notescrib.Identity.Features.Users.Queries;
@@ -9,7 +8,7 @@ using Notescrib.Identity.Features.Users.Queries;
 namespace Notescrib.Identity.Api.Features.Users;
 
 [ApiController]
-[ApiRoute]
+[Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly IMediator _mediator;

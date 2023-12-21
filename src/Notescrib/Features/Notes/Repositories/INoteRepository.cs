@@ -1,8 +1,8 @@
-﻿using Notescrib.Notes.Features.Notes.Utils;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Utils;
+﻿using Notescrib.Features.Notes.Utils;
+using Notescrib.Models;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Notes.Repositories;
+namespace Notescrib.Features.Notes.Repositories;
 
 public interface INoteRepository
 {

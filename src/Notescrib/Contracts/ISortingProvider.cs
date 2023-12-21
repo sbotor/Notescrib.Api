@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Contracts;
+﻿namespace Notescrib.Contracts;
 
 public interface ISortingProvider<in TSort> where TSort : struct, Enum
 {

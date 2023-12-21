@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Models;
+using Notescrib.Contracts;
+using Notescrib.Models;
 
-namespace Notescrib.Notes.Utils.Mediatr;
+namespace Notescrib.Utils.Mediatr;
 
 internal class PagingValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, PagedList<TResponse>>
     where TRequest : IPagingQuery<TResponse>

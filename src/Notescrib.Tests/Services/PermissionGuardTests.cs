@@ -1,11 +1,11 @@
 ﻿using Moq;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Models.Enums;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Tests.Infrastructure.Extensions;
+using Notescrib.Models.Enums;
+using Notescrib.Services;
+using Notescrib.Tests.Infrastructure.Extensions;
 
-namespace Notescrib.Notes.Tests.Services;
+namespace Notescrib.Tests.Services;
 
 public class PermissionGuardTests
 {

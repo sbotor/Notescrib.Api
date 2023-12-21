@@ -1,8 +1,8 @@
-﻿using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Utils;
+﻿using Notescrib.Contracts;
+using Notescrib.Core.Models.Exceptions;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Notes.Utils;
+namespace Notescrib.Features.Notes.Utils;
 
 public enum NotesSorting
 {

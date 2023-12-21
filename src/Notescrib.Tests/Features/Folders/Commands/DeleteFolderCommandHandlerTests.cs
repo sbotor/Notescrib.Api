@@ -1,15 +1,16 @@
 ﻿using Moq;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Tests.Infrastructure;
-using Notescrib.Notes.Tests.Infrastructure.Extensions;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Folders.Commands;
+using Notescrib.Features.Notes;
+using Notescrib.Services;
+using Notescrib.Tests.Infrastructure;
+using Notescrib.Tests.Infrastructure.Extensions;
 
-namespace Notescrib.Notes.Tests.Features.Folders.Commands;
+namespace Notescrib.Tests.Features.Folders.Commands;
 
-using static Notescrib.Notes.Features.Folders.Commands.DeleteFolder;
+using static DeleteFolder;
 
 public class DeleteFolderCommandHandlerTests
 {

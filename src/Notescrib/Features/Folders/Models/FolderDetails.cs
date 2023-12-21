@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Features.Notes.Models;
+﻿using Notescrib.Features.Notes.Models;
 
-namespace Notescrib.Notes.Features.Folders.Models;
+namespace Notescrib.Features.Folders.Models;
 
 public class FolderDetails : FolderOverview
 {

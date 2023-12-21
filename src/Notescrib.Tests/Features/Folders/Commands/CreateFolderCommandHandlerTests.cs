@@ -1,14 +1,14 @@
 ﻿using Moq;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Tests.Infrastructure;
-using Notescrib.Notes.Tests.Infrastructure.Extensions;
-using Notescrib.Notes.Utils;
-using static Notescrib.Notes.Features.Folders.Commands.CreateFolder;
+using Notescrib.Features.Folders;
+using Notescrib.Services;
+using Notescrib.Tests.Infrastructure;
+using Notescrib.Tests.Infrastructure.Extensions;
+using Notescrib.Utils;
+using static Notescrib.Features.Folders.Commands.CreateFolder;
 
-namespace Notescrib.Notes.Tests.Features.Folders.Commands;
+namespace Notescrib.Tests.Features.Folders.Commands;
 
 public class CreateFolderCommandHandlerTests
 {

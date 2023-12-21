@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
 
-namespace Notescrib.Notes.Extensions;
+namespace Notescrib.Extensions;
 
 public static class MongoSessionExtensions
 {

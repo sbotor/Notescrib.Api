@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Folders.Models;
+﻿namespace Notescrib.Features.Folders.Models;
 
 public class FolderOverview
 {

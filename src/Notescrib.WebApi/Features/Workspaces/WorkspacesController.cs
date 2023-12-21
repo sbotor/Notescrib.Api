@@ -1,13 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Core.Api.Attributes;
-using Notescrib.Notes.Features.Workspaces.Commands;
+using Notescrib.Features.Workspaces.Commands;
 
-namespace Notescrib.Notes.Api.Features.Workspaces;
+namespace Notescrib.WebApi.Features.Workspaces;
 
 [ApiController]
-[ApiRoute]
+[Route("api/[controller]")]
 [Authorize]
 public class WorkspacesController : ControllerBase
 {

@@ -3,12 +3,12 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Models;
+using Notescrib.Services;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Notes.Commands;
+namespace Notescrib.Features.Notes.Commands;
 
 public static class CreateNote
 {

@@ -2,11 +2,10 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Notescrib.Emails.Services;
+namespace Notescrib.Identity.Features.Emails.Services;
 
 public interface IEmailSender
 {

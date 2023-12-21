@@ -1,15 +1,15 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Data.MongoDb.Models;
-using Notescrib.Notes.Extensions;
-using Notescrib.Notes.Features.Notes.Utils;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Models.Enums;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Data.MongoDb.Models;
+using Notescrib.Extensions;
+using Notescrib.Features.Notes.Utils;
+using Notescrib.Models;
+using Notescrib.Models.Enums;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Notes.Repositories;
+namespace Notescrib.Features.Notes.Repositories;
 
 public class MongoNoteRepository : INoteRepository
 {

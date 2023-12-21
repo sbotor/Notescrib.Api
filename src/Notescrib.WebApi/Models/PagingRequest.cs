@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Api.Contracts;
-using Notescrib.Notes.Models;
+﻿using Notescrib.Models;
+using Notescrib.WebApi.Contracts;
 
-namespace Notescrib.Notes.Api.Models;
+namespace Notescrib.WebApi.Models;
 
 public class PagingRequest : IPagingRequest
 {

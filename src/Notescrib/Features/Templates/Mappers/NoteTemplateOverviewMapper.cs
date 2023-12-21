@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Templates.Models;
+﻿using Notescrib.Contracts;
+using Notescrib.Features.Templates.Models;
 
-namespace Notescrib.Notes.Features.Templates.Mappers;
+namespace Notescrib.Features.Templates.Mappers;
 
 public class NoteTemplateOverviewMapper : IMapper<NoteTemplate, NoteTemplateOverview>
 {

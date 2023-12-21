@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Contracts;
+﻿namespace Notescrib.Contracts;
 
 public interface IMapper<in TSource, out TDest>
 {

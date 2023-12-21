@@ -1,11 +1,11 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Templates;
-using Notescrib.Notes.Features.Workspaces;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Templates;
+using Notescrib.Features.Workspaces;
 
-namespace Notescrib.Notes.Data.MongoDb;
+namespace Notescrib.Data.MongoDb;
 
 public static class MongoDbConfig
 {

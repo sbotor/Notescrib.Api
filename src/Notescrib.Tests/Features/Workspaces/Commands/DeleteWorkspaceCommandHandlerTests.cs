@@ -1,15 +1,15 @@
 ﻿using Moq;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Templates;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Tests.Infrastructure;
-using Notescrib.Notes.Tests.Infrastructure.Extensions;
-using static Notescrib.Notes.Features.Workspaces.Commands.DeleteWorkspace;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Templates;
+using Notescrib.Features.Workspaces;
+using Notescrib.Tests.Infrastructure;
+using Notescrib.Tests.Infrastructure.Extensions;
+using static Notescrib.Features.Workspaces.Commands.DeleteWorkspace;
 
-namespace Notescrib.Notes.Tests.Features.Workspaces.Commands;
+namespace Notescrib.Tests.Features.Workspaces.Commands;
 
 public class DeleteWorkspaceCommandHandlerTests
 {

@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
+using Notescrib.Contracts;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Features.Notes.Utils;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Features.Notes.Models;
+using Notescrib.Features.Notes.Utils;
+using Notescrib.Models;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Notes.Queries;
+namespace Notescrib.Features.Notes.Queries;
 
 public static class SearchNotes
 {

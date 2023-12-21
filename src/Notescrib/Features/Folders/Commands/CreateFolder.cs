@@ -3,12 +3,12 @@ using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Features.Folders.Repositories;
+using Notescrib.Services;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Folders.Commands;
+namespace Notescrib.Features.Folders.Commands;
 
 public static class CreateFolder
 {

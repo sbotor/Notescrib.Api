@@ -1,16 +1,13 @@
 ﻿using Moq;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Folders;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Workspaces;
-using Notescrib.Notes.Features.Workspaces.Repositories;
-using Notescrib.Notes.Tests.Infrastructure;
-using Notescrib.Notes.Tests.Infrastructure.Extensions;
-using static Notescrib.Notes.Features.Workspaces.Commands.CreateWorkspace;
+using Notescrib.Features.Folders;
+using Notescrib.Features.Workspaces;
+using Notescrib.Tests.Infrastructure;
+using Notescrib.Tests.Infrastructure.Extensions;
+using static Notescrib.Features.Workspaces.Commands.CreateWorkspace;
 
-namespace Notescrib.Notes.Tests.Features.Workspaces.Commands;
+namespace Notescrib.Tests.Features.Workspaces.Commands;
 
 public class CreateWorkspaceCommandHandlerTests
 {

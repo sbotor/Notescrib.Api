@@ -1,10 +1,10 @@
 ﻿using System.Linq.Expressions;
 using MongoDB.Driver;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Extensions;
+using Notescrib.Data.MongoDb;
+using Notescrib.Extensions;
 
-namespace Notescrib.Notes.Features.Folders.Repositories;
+namespace Notescrib.Features.Folders.Repositories;
 
 public class MongoFolderRepository : IFolderRepository
 {

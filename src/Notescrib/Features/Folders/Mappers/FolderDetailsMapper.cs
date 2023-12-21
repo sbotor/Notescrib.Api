@@ -1,10 +1,9 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders.Models;
-using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Contracts;
+using Notescrib.Features.Folders.Models;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Notes.Models;
 
-namespace Notescrib.Notes.Features.Folders.Mappers;
+namespace Notescrib.Features.Folders.Mappers;
 
 public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
 {

@@ -1,7 +1,6 @@
-﻿using Notescrib.Notes.Features.Notes;
-using Notescrib.Notes.Features.Workspaces;
+﻿using Notescrib.Features.Workspaces;
 
-namespace Notescrib.Notes.Features.Folders;
+namespace Notescrib.Features.Folders;
 
 public class FolderData
 {

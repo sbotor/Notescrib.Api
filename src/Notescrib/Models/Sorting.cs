@@ -1,7 +1,6 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Models.Enums;
+﻿using Notescrib.Models.Enums;
 
-namespace Notescrib.Notes.Models;
+namespace Notescrib.Models;
 
 public class Sorting<TSort> where TSort : struct, Enum
 {

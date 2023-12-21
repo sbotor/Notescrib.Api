@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Models.Configuration;
+using Notescrib.Data.MongoDb;
+using Notescrib.Models.Configuration;
 
-namespace Notescrib.Notes;
+namespace Notescrib;
 
 public static class MongoDbSetupExtensions
 {

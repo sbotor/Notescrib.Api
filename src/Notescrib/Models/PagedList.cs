@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Utils;
+﻿using Notescrib.Utils;
 
-namespace Notescrib.Notes.Models;
+namespace Notescrib.Models;
 
 public class PagedList<T>
 {

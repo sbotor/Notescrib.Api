@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Models;
+﻿using Notescrib.Models;
 
-namespace Notescrib.Notes.Features.Notes.Models;
+namespace Notescrib.Features.Notes.Models;
 
 public class NoteOverview
 {

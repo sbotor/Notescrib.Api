@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Features.Templates.Commands;
+﻿using Notescrib.Features.Templates.Commands;
 
-namespace Notescrib.Notes.Api.Features.Templates.Models;
+namespace Notescrib.WebApi.Features.Templates.Models;
 
 public class CreateTemplateRequest
 {

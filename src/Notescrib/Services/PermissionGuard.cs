@@ -1,11 +1,9 @@
-﻿using System.Linq.Expressions;
-using Notescrib.Core.Models.Exceptions;
+﻿using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Models.Enums;
+using Notescrib.Models;
+using Notescrib.Models.Enums;
 
-namespace Notescrib.Notes.Services;
+namespace Notescrib.Services;
 
 internal class PermissionGuard : IPermissionGuard
 {

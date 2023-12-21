@@ -2,16 +2,16 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notescrib.Contracts;
 using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils.Mediatr;
+using Notescrib.Services;
+using Notescrib.Utils.Mediatr;
 
 [assembly: InternalsVisibleTo("Notescrib.Tests")]
 
-namespace Notescrib.Notes;
+namespace Notescrib;
 
 public static class ServicesExtensions
 {

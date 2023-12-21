@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Features.Templates.Repositories;
-using Notescrib.Notes.Services;
-using Notescrib.Notes.Utils;
+using Notescrib.Data.MongoDb;
+using Notescrib.Services;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Features.Templates.Commands;
+namespace Notescrib.Features.Templates.Commands;
 
 public static class DeleteNoteTemplate
 {

@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Folders.Repositories;
+﻿namespace Notescrib.Features.Folders.Repositories;
 
 public class FolderIncludeOptions
 {

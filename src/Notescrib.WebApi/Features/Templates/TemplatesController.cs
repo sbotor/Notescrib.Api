@@ -1,15 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Core.Api.Attributes;
-using Notescrib.Notes.Api.Features.Templates.Models;
-using Notescrib.Notes.Features.Templates.Commands;
-using Notescrib.Notes.Features.Templates.Queries;
+using Notescrib.Features.Templates.Commands;
+using Notescrib.Features.Templates.Queries;
+using Notescrib.WebApi.Features.Templates.Models;
 
-namespace Notescrib.Notes.Api.Features.Templates;
+namespace Notescrib.WebApi.Features.Templates;
 
 [ApiController]
-[ApiRoute]
+[Route("api/[controller]")]
 [Authorize]
 public class TemplatesController : ControllerBase
 {

@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Workspaces;
+﻿namespace Notescrib.Features.Workspaces;
 
 public class Workspace
 {

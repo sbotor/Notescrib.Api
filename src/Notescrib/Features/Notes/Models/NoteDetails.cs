@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Notes.Models;
+﻿namespace Notescrib.Features.Notes.Models;
 
 public class NoteDetails : NoteOverview
 {

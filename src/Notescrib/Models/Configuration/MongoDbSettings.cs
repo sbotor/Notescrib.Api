@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Models.Configuration;
+﻿namespace Notescrib.Models.Configuration;
 
 public class MongoDbSettings
 {

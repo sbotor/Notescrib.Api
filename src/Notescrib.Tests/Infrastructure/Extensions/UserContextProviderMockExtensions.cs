@@ -1,7 +1,7 @@
 ﻿using Moq;
 using Notescrib.Core.Services;
 
-namespace Notescrib.Notes.Tests.Infrastructure.Extensions;
+namespace Notescrib.Tests.Infrastructure.Extensions;
 
 public static class UserContextProviderExtensions
 {

@@ -2,8 +2,8 @@
 using MediatR;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Services;
-using Notescrib.Emails.Services;
 using Notescrib.Identity.Data;
+using Notescrib.Identity.Features.Emails.Services;
 
 namespace Notescrib.Identity.Features.Users.Commands;
 

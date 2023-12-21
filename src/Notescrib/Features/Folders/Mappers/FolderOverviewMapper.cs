@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Folders.Models;
+﻿using Notescrib.Contracts;
+using Notescrib.Features.Folders.Models;
 
-namespace Notescrib.Notes.Features.Folders.Mappers;
+namespace Notescrib.Features.Folders.Mappers;
 
 public class FolderOverviewMapper : IMapper<FolderData, FolderOverview>, IMapper<Folder, FolderOverview>
 {

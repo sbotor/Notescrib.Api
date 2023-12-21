@@ -1,8 +1,8 @@
-﻿using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Services;
+﻿using Notescrib.Contracts;
+using Notescrib.Features.Notes.Models;
+using Notescrib.Services;
 
-namespace Notescrib.Notes.Features.Notes.Mappers;
+namespace Notescrib.Features.Notes.Mappers;
 
 public class NoteDetailsMapper : IMapper<Note, NoteDetails>
 {

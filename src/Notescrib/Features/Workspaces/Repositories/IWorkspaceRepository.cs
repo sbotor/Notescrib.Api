@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Features.Workspaces.Repositories;
+﻿namespace Notescrib.Features.Workspaces.Repositories;
 
 public interface IWorkspaceRepository
 {

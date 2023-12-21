@@ -1,10 +1,10 @@
 ﻿using MongoDB.Driver;
-using Notescrib.Notes.Contracts;
-using Notescrib.Notes.Models;
-using Notescrib.Notes.Models.Enums;
-using Notescrib.Notes.Utils;
+using Notescrib.Contracts;
+using Notescrib.Models;
+using Notescrib.Models.Enums;
+using Notescrib.Utils;
 
-namespace Notescrib.Notes.Extensions;
+namespace Notescrib.Extensions;
 
 public static class MongoPagingExtensions
 {

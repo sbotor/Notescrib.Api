@@ -1,16 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Core.Api.Attributes;
-using Notescrib.Notes.Api.Features.Notes.Models;
-using Notescrib.Notes.Features.Notes.Commands;
-using Notescrib.Notes.Features.Notes.Models;
-using Notescrib.Notes.Features.Notes.Queries;
+using Notescrib.Features.Notes.Commands;
+using Notescrib.Features.Notes.Models;
+using Notescrib.Features.Notes.Queries;
+using Notescrib.WebApi.Features.Notes.Models;
 
-namespace Notescrib.Notes.Api.Features.Notes;
+namespace Notescrib.WebApi.Features.Notes;
 
 [ApiController]
-[ApiRoute]
+[Route("api/[controller]")]
 [Authorize]
 public class NotesController : ControllerBase
 {

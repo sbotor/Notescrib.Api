@@ -1,10 +1,10 @@
 ﻿using Notescrib.Core.Services;
-using Notescrib.Notes.Features.Folders.Repositories;
-using Notescrib.Notes.Features.Notes.Repositories;
-using Notescrib.Notes.Features.Templates.Repositories;
-using Notescrib.Notes.Features.Workspaces.Repositories;
+using Notescrib.Features.Folders.Repositories;
+using Notescrib.Features.Notes.Repositories;
+using Notescrib.Features.Templates.Repositories;
+using Notescrib.Features.Workspaces.Repositories;
 
-namespace Notescrib.Notes.Data.MongoDb;
+namespace Notescrib.Data.MongoDb;
 
 public class MongoDbContext : IMongoDbContext
 {

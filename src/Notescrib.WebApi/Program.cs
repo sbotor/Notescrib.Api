@@ -1,8 +1,8 @@
+using Notescrib;
 using Notescrib.Core.Api.Configuration;
 using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Api.Middleware;
 using Notescrib.Core.Extensions;
-using Notescrib.Notes;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notescrib.Notes.Api.Features.Folders.Models;
-using Notescrib.Notes.Features.Folders.Commands;
-using Notescrib.Notes.Features.Folders.Models;
-using Notescrib.Notes.Features.Folders.Queries;
+using Notescrib.Features.Folders.Commands;
+using Notescrib.Features.Folders.Models;
+using Notescrib.Features.Folders.Queries;
+using Notescrib.WebApi.Features.Folders.Models;
 
-namespace Notescrib.Notes.Api.Features.Folders;
+namespace Notescrib.WebApi.Features.Folders;
 
 [ApiController]
 [Route("api/[controller]")]

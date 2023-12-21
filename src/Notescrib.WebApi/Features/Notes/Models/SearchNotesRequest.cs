@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Api.Models;
-using Notescrib.Notes.Features.Notes.Queries;
+﻿using Notescrib.Features.Notes.Queries;
+using Notescrib.WebApi.Models;
 
-namespace Notescrib.Notes.Api.Features.Notes.Models;
+namespace Notescrib.WebApi.Features.Notes.Models;
 
 public class SearchNotesRequest : PagingRequest
 {

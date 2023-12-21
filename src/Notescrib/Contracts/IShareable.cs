@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Models;
+﻿using Notescrib.Models;
 
-namespace Notescrib.Notes.Contracts;
+namespace Notescrib.Contracts;
 
 public interface IShareable
 {

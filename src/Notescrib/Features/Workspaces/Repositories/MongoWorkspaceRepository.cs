@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using Notescrib.Core.Services;
-using Notescrib.Notes.Data.MongoDb;
-using Notescrib.Notes.Extensions;
+using Notescrib.Data.MongoDb;
+using Notescrib.Extensions;
 
-namespace Notescrib.Notes.Features.Workspaces.Repositories;
+namespace Notescrib.Features.Workspaces.Repositories;
 
 public class MongoWorkspaceRepository : IWorkspaceRepository
 {

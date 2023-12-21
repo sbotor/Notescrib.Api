@@ -1,4 +1,4 @@
-﻿namespace Notescrib.Notes.Models.Enums;
+﻿namespace Notescrib.Models.Enums;
 
 public enum VisibilityLevel
 {

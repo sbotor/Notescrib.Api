@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace Notescrib.Notes.Data.MongoDb;
+namespace Notescrib.Data.MongoDb;
 
 public class SessionAccessor : IDisposable, IAsyncDisposable
 {

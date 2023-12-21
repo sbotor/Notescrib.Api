@@ -1,7 +1,7 @@
-﻿using Notescrib.Notes.Api.Models;
-using Notescrib.Notes.Features.Templates.Queries;
+﻿using Notescrib.Features.Templates.Queries;
+using Notescrib.WebApi.Models;
 
-namespace Notescrib.Notes.Api.Features.Templates.Models;
+namespace Notescrib.WebApi.Features.Templates.Models;
 
 public class SearchTemplatesRequest : PagingRequest
 {

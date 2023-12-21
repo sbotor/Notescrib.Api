@@ -1,6 +1,6 @@
-﻿using Notescrib.Notes.Models.Enums;
+﻿using Notescrib.Models.Enums;
 
-namespace Notescrib.Notes.Api.Contracts;
+namespace Notescrib.WebApi.Contracts;
 
 public interface ISortingRequest<TSort> where TSort : struct, Enum
 {
