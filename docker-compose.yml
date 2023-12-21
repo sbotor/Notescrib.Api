@@ -17,50 +17,30 @@ services:
       - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
   
   identity:
-    image: notescribapi-identity
+    image: notescrib-identity
     build:
       context: src
-      dockerfile: Services/Identity/Notescrib.Identity.Api/Dockerfile
+      dockerfile: Notescrib.Identity.Api/Dockerfile
     ports:
       - 50001:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
+      - EmailSettings__From=
+      - EmailSettings__Password=
     depends_on:
       - psql
 
   notes:
-    image: notescribapi-notes
+    image: notescrib-notes
     build:
       context: src
-      dockerfile: Services/Notes/Notescrib.Notes.Api/Dockerfile
-    ports:
-      - 50002:80
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-    depends_on:
-      - mongodb
-
-  emails:
-    image: notescribapi-emails
-    build:
-      context: src
-      dockerfile: Services/Emails/Notescrib.Emails.Api/Dockerfile
-    ports:
-      - 50003:80
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-      - EmailSettings__From=
-      - EmailSettings__Password=
-
-  apigateway:
-    image: notescribapi-apigateway
-    build:
-      context: src
-      dockerfile: Notescrib.ApiGateway/Dockerfile
+      dockerfile: Notescrib.WebApi/Dockerfile
     ports:
       - 50000:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on:
+      - mongodb
 
 networks:
   default:

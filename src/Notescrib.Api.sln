@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core", "Notescrib.Core\Notescrib.Core.csproj", "{A019F739-3036-45CC-9F01-045C5778EB72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib", "Notescrib\Notescrib.csproj", "{68F37A0A-3EB7-4673-8F37-B1076CAFFDF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Core.Api", "Notescrib.Core.Api\Notescrib.Core.Api.csproj", "{16CAE72D-45ED-4FF4-970A-0DE0C1AA3A13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "Notescrib.Identity\Notescrib.Identity.csproj", "{E9672EB9-0C07-45C5-BC26-1E96D81EE5FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity.Api", "Notescrib.Identity.Api\Notescrib.Identity.Api.csproj", "{066E9D04-E464-430C-8256-4CD2B98EFDC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Tests", "Notescrib.Tests\Notescrib.Tests.csproj", "{7568DA5F-74B6-4F25-9802-3C05792DD015}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.WebApi", "Notescrib.WebApi\Notescrib.WebApi.csproj", "{3717A6BE-A306-4F04-9451-1D7FD36ECADD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A019F739-3036-45CC-9F01-045C5778EB72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A019F739-3036-45CC-9F01-045C5778EB72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A019F739-3036-45CC-9F01-045C5778EB72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A019F739-3036-45CC-9F01-045C5778EB72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68F37A0A-3EB7-4673-8F37-B1076CAFFDF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68F37A0A-3EB7-4673-8F37-B1076CAFFDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68F37A0A-3EB7-4673-8F37-B1076CAFFDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68F37A0A-3EB7-4673-8F37-B1076CAFFDF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16CAE72D-45ED-4FF4-970A-0DE0C1AA3A13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16CAE72D-45ED-4FF4-970A-0DE0C1AA3A13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16CAE72D-45ED-4FF4-970A-0DE0C1AA3A13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16CAE72D-45ED-4FF4-970A-0DE0C1AA3A13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9672EB9-0C07-45C5-BC26-1E96D81EE5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9672EB9-0C07-45C5-BC26-1E96D81EE5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9672EB9-0C07-45C5-BC26-1E96D81EE5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9672EB9-0C07-45C5-BC26-1E96D81EE5FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
