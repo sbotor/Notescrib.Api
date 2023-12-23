@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Notescrib.Core.Api.Configuration;
@@ -23,4 +24,27 @@ public static class SecurityExtensions
                 ValidateLifetime = true,
             };
         });
+
+    public static bool TryAddCors(this IServiceCollection services, IConfiguration config)
+    {
+        var allowedOrigins = config.GetSection("AllowedOrigins")
+            .Get<string[]>();
+
+        if (allowedOrigins is null)
+        {
+            return false;
+        }
+
+        services.AddCors(x =>
+        {
+            x.AddDefaultPolicy(y =>
+            {
+                y.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins(allowedOrigins);
+            });
+        });
+
+        return true;
+    }
 }

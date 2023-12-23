@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -12,10 +13,10 @@ public static class AddRelatedNotes
 {
     public class Command : ICommand
     {
-        public string Id { get; }
-        public IReadOnlyCollection<string> RelatedIds { get; }
+        public Guid Id { get; }
+        public IReadOnlyCollection<Guid> RelatedIds { get; }
 
-        public Command(string id, IEnumerable<string> relatedIds)
+        public Command(Guid id, IEnumerable<Guid> relatedIds)
         {
             Id = id;
             RelatedIds = relatedIds.ToArray();
@@ -24,51 +25,56 @@ public static class AddRelatedNotes
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _context.Notes.GetByIdAsync(request.Id, new() { Related = true }, CancellationToken.None);
-            if (note == null)
-            {
-                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
-            }
+            var note = await _dbContext.Notes.Include(x => x.RelatedNotes)
+                .Where(x => x.Id == request.Id)
+                .FirstOrDefaultAsync(CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
 
-            if (note.Related.Count >= Consts.Note.MaxRelatedCount)
+            if (note.RelatedNotes.Count >= Consts.Note.MaxRelatedCount)
             {
                 throw new AppException(ErrorCodes.Note.MaximumRelatedNoteCountReached);
             }
 
-            var foundNotes = await _context.Notes.GetManyAsync(request.RelatedIds, CancellationToken.None);
+            var relatedOwnerIds = await _dbContext.Notes.AsNoTracking()
+                .Where(x => request.RelatedIds.Contains(x.Id))
+                .Select(x => x.OwnerId)
+                .ToArrayAsync(CancellationToken.None);
 
-            if (foundNotes.Any(x => !_permissionGuard.CanEdit(x.OwnerId)))
+            foreach (var relatedOwnerId in relatedOwnerIds)
             {
-                throw new ForbiddenException();
+                if (!await _permissionGuard.CanEdit(relatedOwnerId))
+                {
+                    throw new ForbiddenException();
+                }
             }
 
-            if (foundNotes.Count != request.RelatedIds.Count)
+            if (relatedOwnerIds.Length < request.RelatedIds.Count)
             {
                 throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             }
 
             foreach (var id in request.RelatedIds)
             {
-                if (note.Related.Any(x => x.Id == id))
+                if (note.RelatedNotes.Any(x => x.RelatedId == id))
                 {
                     throw new AppException(ErrorCodes.Note.DuplicateRelatedNoteIds);
                 }
 
-                note.RelatedIds.Add(id);
+                note.RelatedNotes.Add(new() { RelatedId = id, NoteId = note.Id });
             }
 
-            await _context.Notes.UpdateRelatedAsync(note, CancellationToken.None);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }
@@ -89,10 +95,10 @@ public static class AddRelatedNotes
                 .WithErrorCode(ErrorCodes.Note.InvalidRelatedNoteId);
         }
 
-        private static bool BeDistinct(IReadOnlyCollection<string> ids)
+        private static bool BeDistinct(IReadOnlyCollection<Guid> ids)
             => ids.Distinct().Count() == ids.Count;
 
-        private static bool NotIncludeParent(Command command, IEnumerable<string> ids)
+        private static bool NotIncludeParent(Command command, IEnumerable<Guid> ids)
             => ids.All(x => x != command.Id);
     }
 }

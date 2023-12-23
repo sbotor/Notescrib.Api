@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -11,41 +12,33 @@ namespace Notescrib.Features.Notes.Commands;
 
 public static class DeleteNote
 {
-    public record Command(string Id) : ICommand;
+    public record Command(Guid Id) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard, IClock clock)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _context.Notes.GetByIdAsync(request.Id, new() { Folder = true }, cancellationToken);
-            if (note == null)
-            {
-                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
-            }
+            var note = await _dbContext.Notes.Include(x => x.Folder)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
 
-            _permissionGuard.GuardCanEdit(note.OwnerId);
+            await _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            note.Folder.Updated = _dateTimeProvider.Now;
+            note.Folder.Updated = _clock.Now;
 
-            await _context.EnsureTransactionAsync(CancellationToken.None);
-            
-            await _context.Folders.UpdateAsync(note.Folder, CancellationToken.None);
-
-            await _context.Notes.DeleteFromRelatedAsync(note.Id, CancellationToken.None);
-            await _context.Notes.DeleteAsync(note.Id, CancellationToken.None);
-
-            await _context.CommitTransactionAsync();
+            _dbContext.Remove(note);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

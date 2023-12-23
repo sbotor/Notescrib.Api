@@ -16,18 +16,20 @@ public static class GetUserDetails
     {
         private readonly AppUserManager _userManager;
         private readonly IUserMapper _mapper;
-        private readonly IUserContextProvider _userContextProvider;
+        private readonly IUserContext _userContext;
 
-        public Handler(AppUserManager userManager, IUserMapper mapper, IUserContextProvider userContextProvider)
+        public Handler(AppUserManager userManager, IUserMapper mapper, IUserContext userContext)
         {
             _userManager = userManager;
             _mapper = mapper;
-            _userContextProvider = userContextProvider;
+            _userContext = userContext;
         }
 
         public async Task<UserDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var found = await _userManager.FindByIdAsync(_userContextProvider.UserId);
+            var userInfo = await _userContext.GetUserInfo(CancellationToken.None);
+            
+            var found = await _userManager.FindByIdAsync(userInfo.UserId);
             if (found == null)
             {
                 throw new NotFoundException(ErrorCodes.User.UserNotFound);

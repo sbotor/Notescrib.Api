@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Contracts;
 using Notescrib.Core.Cqrs;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
+using Notescrib.Extensions;
 using Notescrib.Features.Templates.Models;
-using Notescrib.Features.Templates.Utils;
 using Notescrib.Models;
 using Notescrib.Utils;
 
@@ -15,30 +16,22 @@ public static class SearchNoteTemplates
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteTemplateOverview>>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IMapper<NoteTemplate, NoteTemplateOverview> _mapper;
-        private readonly ISortingProvider<NoteTemplatesSorting> _sortingProvider;
 
-        public Handler(IMongoDbContext context,
-            IMapper<NoteTemplate, NoteTemplateOverview> mapper,
-            ISortingProvider<NoteTemplatesSorting> sortingProvider)
+        public Handler(NotescribDbContext dbContext,
+            IMapper<NoteTemplate, NoteTemplateOverview> mapper)
         {
-            _context = context;
+            _dbContext = dbContext;
             _mapper = mapper;
-            _sortingProvider = sortingProvider;
         }
 
-        public async Task<PagedList<NoteTemplateOverview>> Handle(Query request, CancellationToken cancellationToken)
+        public Task<PagedList<NoteTemplateOverview>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var sorting = new Sorting<NoteTemplatesSorting>();
-            var info = new PagingSortingInfo<NoteTemplatesSorting>(request.Paging, sorting, _sortingProvider);
+            var query = _dbContext.NoteTemplates.AsNoTracking()
+                .Where(x => x.Name == request.TextFilter, !string.IsNullOrEmpty(request.TextFilter));
 
-            var templates = await _context.NoteTemplates.SearchAsync(
-                request.TextFilter,
-                info,
-                cancellationToken);
-
-            return templates.Map(_mapper.Map);
+            return query.Paginate(request.Paging, _mapper.Map, cancellationToken);
         }
     }
 

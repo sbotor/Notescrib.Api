@@ -4,33 +4,24 @@ using Notescrib.Services;
 
 namespace Notescrib.Features.Notes.Mappers;
 
-public class NoteOverviewMapper : IMapper<NoteData, NoteOverview>, IMapper<Note, NoteOverview>,
-    IMapper<NoteBase, NoteOverview>
+public interface INoteOverviewMapper
 {
-    private readonly IPermissionGuard _permissionGuard;
+    NoteOverview Map(Note item, bool isReadonly);
+}
 
-    public NoteOverviewMapper(IPermissionGuard permissionGuard)
-    {
-        _permissionGuard = permissionGuard;
-    }
-    
-    public NoteOverview Map(NoteData item)
-        => Map((NoteBase)item);
-
-    public NoteOverview Map(Note item)
-        => Map((NoteBase)item);
-
-    public NoteOverview Map(NoteBase item)
+public class NoteOverviewMapper : INoteOverviewMapper
+{
+    public NoteOverview Map(Note item, bool isReadonly)
         => new()
         {
             Id = item.Id,
             Name = item.Name,
             FolderId = item.FolderId,
             OwnerId = item.OwnerId,
-            SharingInfo = item.SharingInfo,
+            SharingInfo = new() { Visibility = item.Visibility },
             Updated = item.Updated,
             Created = item.Created,
-            Tags = item.Tags.ToArray(),
-            IsReadonly = !_permissionGuard.CanEdit(item.OwnerId)
+            Tags = item.Tags.Select(x => x.Value).ToArray(),
+            IsReadonly = isReadonly
         };
 }

@@ -24,7 +24,7 @@ public static class ServicesExtensions
     
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+        services.AddSingleton<IClock, UtcClock>();
         
         services.AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddPipelineBehavior(typeof(ValidationBehavior<,>));
@@ -32,7 +32,7 @@ public static class ServicesExtensions
 
         services.AddTransient<IUserMapper, UserMapper>();
 
-        services.AddScoped<IUserContextProvider, UserContextProvider>();
+        services.AddScoped<IUserContext, UserContext>();
         services.AddHttpContextAccessor();
         
         services.AddIdentityServices(config);

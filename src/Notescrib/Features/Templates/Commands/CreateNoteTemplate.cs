@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Utils;
 
 namespace Notescrib.Features.Templates.Commands;
@@ -14,36 +15,34 @@ public static class CreateNoteTemplate
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
-        private readonly IUserContextProvider _userContextProvider;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly NotescribDbContext _dbContext;
+        private readonly IUserContext _userContext;
+        private readonly IClock _clock;
 
-        public Handler(IMongoDbContext context, IUserContextProvider userContextProvider, IDateTimeProvider dateTimeProvider)
+        public Handler(NotescribDbContext dbContext, IUserContext userContext, IClock clock)
         {
-            _context = context;
-            _userContextProvider = userContextProvider;
-            _dateTimeProvider = dateTimeProvider;
+            _dbContext = dbContext;
+            _userContext = userContext;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _context.Workspaces.GetByOwnerIdAsync(cancellationToken);
-            if (workspace == null)
-            {
-                throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
-            }
+            var userId = await _userContext.GetUserId(CancellationToken.None);
+            var workspace = await _dbContext.Workspaces.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.OwnerId == userId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
 
-            var template = new NoteTemplate
+            _dbContext.Add(new NoteTemplate
             {
                 Name = request.Name,
-                OwnerId = _userContextProvider.UserId,
+                OwnerId = userId,
                 WorkspaceId = workspace.Id,
-                Created = _dateTimeProvider.Now,
-                Content = string.Empty
-            };
-
-            await _context.NoteTemplates.CreateAsync(template, cancellationToken);
-
+                Created = _clock.Now,
+                Content = new()
+            });
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
+            
             return Unit.Value;
         }
     }

@@ -1,19 +1,16 @@
 ﻿using Notescrib.Contracts;
 using Notescrib.Features.Folders.Models;
-using Notescrib.Features.Notes;
-using Notescrib.Features.Notes.Models;
 
 namespace Notescrib.Features.Folders.Mappers;
 
 public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
 {
-    private readonly IMapper<FolderData, FolderOverview> _baseMapper;
-    private readonly IMapper<NoteData, NoteOverview> _noteMapper;
+    private readonly IMapper<Folder, FolderOverview> _overviewMapper;
 
-    public FolderDetailsMapper(IMapper<FolderData, FolderOverview> baseMapper, IMapper<NoteData, NoteOverview> noteMapper)
+    public FolderDetailsMapper(
+        IMapper<Folder, FolderOverview> overviewMapper)
     {
-        _baseMapper = baseMapper;
-        _noteMapper = noteMapper;
+        _overviewMapper = overviewMapper;
     }
     
     public FolderDetails Map(Folder item)
@@ -21,7 +18,7 @@ public class FolderDetailsMapper : IMapper<Folder, FolderDetails>
         {
             Id = item.Id,
             Name = item.Name,
-            Children = item.ImmediateChildren.Select(_baseMapper.Map).ToArray(),
+            Children = item.Children.Select(_overviewMapper.Map).ToArray(),
             Created = item.Created,
             Updated = item.Updated
         };

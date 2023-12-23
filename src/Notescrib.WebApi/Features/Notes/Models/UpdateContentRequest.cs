@@ -6,6 +6,6 @@ public class UpdateContentRequest
 {
     public string Content { get; set; } = null!;
 
-    public UpdateNoteContent.Command ToCommand(string id)
+    public UpdateNoteContent.Command ToCommand(Guid id)
         => new(id, Content);
 }

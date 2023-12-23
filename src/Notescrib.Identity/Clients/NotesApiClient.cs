@@ -10,7 +10,6 @@ namespace Notescrib.Identity.Clients;
 
 public interface INotesApiClient
 {
-    Task<bool> CreateWorkspaceAsync(string jwt);
     Task<bool> DeleteWorkspaceAsync(string jwt);
 }
 
@@ -31,9 +30,6 @@ public class NotesApiClient : INotesApiClient
         _logger = logger;
         _settings = options.Value;
     }
-
-    public Task<bool> CreateWorkspaceAsync(string jwt)
-        => SendWithMethod(jwt, HttpMethod.Post);
 
     public Task<bool> DeleteWorkspaceAsync(string jwt)
         => SendWithMethod(jwt, HttpMethod.Delete);

@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -12,10 +13,10 @@ public static class RemoveRelatedNotes
 {
     public class Command : ICommand
     {
-        public string Id { get; }
-        public IReadOnlyCollection<string> RelatedIds { get; }
+        public Guid Id { get; }
+        public IReadOnlyCollection<Guid> RelatedIds { get; }
 
-        public Command(string id, IEnumerable<string> relatedIds)
+        public Command(Guid id, IEnumerable<Guid> relatedIds)
         {
             Id = id;
             RelatedIds = relatedIds.ToArray();
@@ -24,29 +25,36 @@ public static class RemoveRelatedNotes
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _context.Notes.GetByIdAsync(request.Id, new() { Related = true }, CancellationToken.None);
-            if (note == null)
-            {
-                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
-            }
+            var note = await _dbContext.Notes.Include(x => x.RelatedNotes)
+                .Where(x => x.Id == request.Id)
+                .FirstOrDefaultAsync(CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
+            
+            await _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            if (request.RelatedIds.Select(id => note.RelatedIds.Remove(id)).Any(removed => !removed))
+            foreach (var id in request.RelatedIds)
             {
-                throw new AppException(ErrorCodes.Note.RelatedNoteNotPresent);
-            }
+                var found = note.RelatedNotes.FirstOrDefault(x => x.RelatedId == id);
+                if (found is null)
+                {
+                    throw new AppException(ErrorCodes.Note.RelatedNoteNotPresent);
+                }
 
-            await _context.Notes.UpdateRelatedAsync(note, CancellationToken.None);
+                note.RelatedNotes.Remove(found);
+            }
+            
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }
@@ -65,7 +73,7 @@ public static class RemoveRelatedNotes
                 .WithErrorCode(ErrorCodes.Note.DuplicateRelatedNoteIds);
         }
 
-        private static bool BeDistinct(IReadOnlyCollection<string> ids)
+        private static bool BeDistinct(IReadOnlyCollection<Guid> ids)
             => ids.Distinct().Count() == ids.Count;
     }
 }

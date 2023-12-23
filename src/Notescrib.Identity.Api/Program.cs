@@ -27,6 +27,8 @@ builder.Services.ConfigureJwtAuth(jwtSettings);
 builder.Services.AddRequiredServices(builder.Configuration);
 builder.Services.AddTransient<IJwtProvider, JwtProvider>();
 
+var corsConfigured = builder.Services.TryAddCors(builder.Configuration);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -38,12 +40,17 @@ if (app.Environment.IsDevelopment())
 app.UseHealthChecks("/health");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-        
+
 app.UseHttpsRedirection();
-        
+
+if (corsConfigured)
+{
+    app.UseCors();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
-        
+
 app.MapControllers();
 
 app.MigrateDatabase();

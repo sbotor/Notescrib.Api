@@ -5,34 +5,49 @@ using Notescrib.Models.Enums;
 
 namespace Notescrib.Services;
 
+public interface IPermissionGuard
+{
+    IUserContext UserContext { get; }
+    
+    ValueTask GuardCanEdit(string ownerId);
+    ValueTask GuardCanView(string ownerId, SharingInfo? sharingInfo = null);
+    
+    ValueTask<bool> CanEdit(string ownerId);
+    ValueTask<bool> CanView(string ownerId, SharingInfo? sharingInfo = null);
+}
+
 internal class PermissionGuard : IPermissionGuard
 {
-    public PermissionGuard(IUserContextProvider userContext)
+    public PermissionGuard(IUserContext userContext)
     {
         UserContext = userContext;
     }
 
-    public IUserContextProvider UserContext { get; }
+    public IUserContext UserContext { get; }
 
-    public bool CanEdit(string ownerId) => UserContext.UserIdOrDefault == ownerId;
+    public async ValueTask<bool> CanEdit(string ownerId)
+        => await GetUserId() == ownerId;
 
-    public void GuardCanEdit(string ownerId)
+    public async ValueTask GuardCanEdit(string ownerId)
     {
-        if (!CanEdit(ownerId))
+        if (!await CanEdit(ownerId))
         {
             throw new ForbiddenException();
         }
     }
 
-    public bool CanView(string ownerId, SharingInfo? sharingInfo = null)
+    public async ValueTask<bool> CanView(string ownerId, SharingInfo? sharingInfo = null)
         => (sharingInfo != null && sharingInfo.Visibility != VisibilityLevel.Private)
-           || ownerId == UserContext.UserIdOrDefault;
+           || ownerId == await GetUserId();
 
-    public void GuardCanView(string ownerId, SharingInfo? sharingInfo = null)
+    public async ValueTask GuardCanView(string ownerId, SharingInfo? sharingInfo = null)
     {
-        if (!CanView(ownerId, sharingInfo))
+        if (!await CanView(ownerId, sharingInfo))
         {
             throw new ForbiddenException();
         }
     }
+
+    private async ValueTask<string> GetUserId()
+        => (await UserContext.GetUserInfo()).UserId;
 }

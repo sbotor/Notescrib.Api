@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity", "Notes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Identity.Api", "Notescrib.Identity.Api\Notescrib.Identity.Api.csproj", "{066E9D04-E464-430C-8256-4CD2B98EFDC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.Tests", "Notescrib.Tests\Notescrib.Tests.csproj", "{7568DA5F-74B6-4F25-9802-3C05792DD015}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notescrib.WebApi", "Notescrib.WebApi\Notescrib.WebApi.csproj", "{3717A6BE-A306-4F04-9451-1D7FD36ECADD}"
 EndProject
 Global
@@ -40,10 +38,6 @@ Global
 		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{066E9D04-E464-430C-8256-4CD2B98EFDC0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7568DA5F-74B6-4F25-9802-3C05792DD015}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3717A6BE-A306-4F04-9451-1D7FD36ECADD}.Release|Any CPU.ActiveCfg = Release|Any CPU

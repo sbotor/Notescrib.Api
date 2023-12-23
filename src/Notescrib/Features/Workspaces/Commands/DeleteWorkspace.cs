@@ -1,7 +1,9 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Core.Services;
+using Notescrib.Data;
 using Notescrib.Utils;
 
 namespace Notescrib.Features.Workspaces.Commands;
@@ -12,30 +14,25 @@ public static class DeleteWorkspace
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
+        private readonly IUserContext _userContext;
 
-        public Handler(IMongoDbContext context)
+        public Handler(NotescribDbContext dbContext, IUserContext userContext)
         {
-            _context = context;
+            _dbContext = dbContext;
+            _userContext = userContext;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var workspace = await _context.Workspaces.GetByOwnerIdAsync(CancellationToken.None);
-            if (workspace == null)
-            {
-                throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
-            }
+            var userId = await _userContext.GetUserId(CancellationToken.None);
+            var workspace = await _dbContext.Workspaces
+                .FirstOrDefaultAsync(x => x.OwnerId == userId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Workspace.WorkspaceNotFound);
 
-            await _context.EnsureTransactionAsync(CancellationToken.None);
+            _dbContext.Remove(workspace);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
             
-            await _context.NoteTemplates.DeleteAllAsync(CancellationToken.None);
-            await _context.Notes.DeleteAllAsync(CancellationToken.None);
-            await _context.Folders.DeleteAllAsync(CancellationToken.None);
-            await _context.Workspaces.DeleteAsync(workspace.Id, CancellationToken.None);
-
-            await _context.CommitTransactionAsync();
-
             return Unit.Value;
         }
     }

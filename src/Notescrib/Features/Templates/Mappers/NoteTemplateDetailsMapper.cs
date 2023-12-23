@@ -13,6 +13,6 @@ public class NoteTemplateDetailsMapper : IMapper<NoteTemplate, NoteTemplateDetai
             OwnerId = item.OwnerId,
             Created = item.Created,
             Updated = item.Updated,
-            Content = item.Content
+            Content = item.Content.Content
         };
 }

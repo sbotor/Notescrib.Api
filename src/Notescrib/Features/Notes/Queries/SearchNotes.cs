@@ -1,11 +1,13 @@
 ﻿using FluentValidation;
-using Notescrib.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
+using Notescrib.Extensions;
+using Notescrib.Features.Notes.Mappers;
 using Notescrib.Features.Notes.Models;
-using Notescrib.Features.Notes.Utils;
 using Notescrib.Models;
+using Notescrib.Services;
 using Notescrib.Utils;
 
 namespace Notescrib.Features.Notes.Queries;
@@ -16,32 +18,42 @@ public static class SearchNotes
 
     internal class Handler : IQueryHandler<Query, PagedList<NoteOverview>>
     {
-        private readonly IMongoDbContext _context;
-        private readonly IMapper<NoteBase, NoteOverview> _mapper;
-        private readonly IUserContextProvider _userContextProvider;
-        private readonly ISortingProvider<NotesSorting> _sortingProvider;
+        private readonly NotescribDbContext _dbContext;
+        private readonly INoteOverviewMapper _mapper;
+        private readonly IUserContext _userContext;
+        private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoDbContext context, IMapper<NoteBase, NoteOverview> mapper,
-            IUserContextProvider userContextProvider, ISortingProvider<NotesSorting> sortingProvider)
+        public Handler(
+            NotescribDbContext dbContext,
+            INoteOverviewMapper mapper,
+            IUserContext userContext,
+            IPermissionGuard permissionGuard)
         {
-            _context = context;
+            _dbContext = dbContext;
             _mapper = mapper;
-            _userContextProvider = userContextProvider;
-            _sortingProvider = sortingProvider;
+            _userContext = userContext;
+            _permissionGuard = permissionGuard;
         }
 
         public async Task<PagedList<NoteOverview>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var info = new PagingSortingInfo<NotesSorting>(request.Paging, new(), _sortingProvider);
+            var userId = await _userContext.GetUserId(CancellationToken.None);
 
-            var result = await _context.Notes.SearchAsync(
-                _userContextProvider.UserIdOrDefault,
-                request.TextFilter,
-                request.OwnOnly,
-                info,
-                cancellationToken);
+            var query = _dbContext.Notes.AsNoTracking()
+                .Include(x => x.Tags)
+                .Where(x => x.OwnerId == userId, request.OwnOnly);
 
-            return result.Map(_mapper.Map);
+            var (data, count) = await query.PaginateRaw(request.Paging, cancellationToken);
+
+            var mapped = new List<NoteOverview>(data.Length);
+            
+            foreach (var item in data)
+            {
+                var isReadonly = !await _permissionGuard.CanEdit(item.OwnerId);
+                mapped.Add(_mapper.Map(item, isReadonly));
+            }
+
+            return new(mapped, request.Paging.Page, request.Paging.PageSize, count);
         }
     }
 

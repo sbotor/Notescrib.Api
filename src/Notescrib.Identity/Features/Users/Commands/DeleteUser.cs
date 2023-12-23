@@ -16,34 +16,36 @@ public static class DeleteUser
     internal class Handler : ICommandHandler<Command>
     {
         private readonly AppUserManager _userManager;
-        private readonly IUserContextProvider _userContextProvider;
+        private readonly IUserContext _userContext;
         private readonly IJwtProvider _jwtProvider;
         private readonly IMediator _mediator;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
-        public Handler(AppUserManager userManager, IUserContextProvider userContextProvider, IJwtProvider jwtProvider,
-            IMediator mediator, IDateTimeProvider dateTimeProvider)
+        public Handler(AppUserManager userManager, IUserContext userContext, IJwtProvider jwtProvider,
+            IMediator mediator, IClock clock)
         {
             _userManager = userManager;
-            _userContextProvider = userContextProvider;
+            _userContext = userContext;
             _jwtProvider = jwtProvider;
             _mediator = mediator;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(_userContextProvider.UserId);
+            var userInfo = await _userContext.GetUserInfo(CancellationToken.None);
+            
+            var user = await _userManager.FindByIdAsync(userInfo.UserId);
             if (user == null)
             {
                 throw new NotFoundException(ErrorCodes.User.UserNotFound);
             }
 
-            var jwt = _jwtProvider.GenerateToken(_userContextProvider.UserId);
+            var jwt = _jwtProvider.GenerateToken(userInfo.UserId);
 
             await _mediator.Publish(new DeleteWorkspace.Notification(jwt), CancellationToken.None);
             
-            var deletedDateTime = _dateTimeProvider.Now.ToString("yyyy-MM-ddThh-mm-ss");
+            var deletedDateTime = _clock.Now.ToString("yyyy-MM-ddThh-mm-ss");
             
             user.IsActive = false;
             user.UserName = $"{user.Email}-{deletedDateTime}";

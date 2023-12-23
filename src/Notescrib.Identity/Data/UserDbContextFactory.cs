@@ -5,7 +5,7 @@ namespace Notescrib.Identity.Data;
 
 internal class UserDbContextFactory : IDesignTimeDbContextFactory<UserDbContext>
 {
-    private const string DefaultConnection = @"User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=NotescribUserDb;";
+    private const string DefaultConnection = @"User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=Notescrib;";
 
     public UserDbContext CreateDbContext(string[] args)
     {

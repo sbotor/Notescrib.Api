@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -10,48 +11,58 @@ namespace Notescrib.Features.Folders.Commands;
 
 public static class DeleteFolder
 {
-    public record Command(string Id) : ICommand;
+    public record Command(Guid Id) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _context.Folders.GetByIdAsync(
-                request.Id,
-                new() { Children = true },
-                cancellationToken);
-            if (folder == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
-            }
+            var folder = await _dbContext.Folders.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
 
-            _permissionGuard.GuardCanEdit(folder.OwnerId);
+            await _permissionGuard.GuardCanEdit(folder.OwnerId);
 
             if (folder.ParentId == null)
             {
                 throw new AppException("Cannot delete root folder.");
             }
 
-            var allFolderIds = folder.Children.Append(folder).Select(x => x.Id).ToArray();
+            var queue = new Queue<Guid>();
+            queue.Enqueue(folder.Id);
 
-            await _context.EnsureTransactionAsync(CancellationToken.None);
+            var folderIds = new List<Guid>();
 
-            await _context.Folders.DeleteManyAsync(allFolderIds, CancellationToken.None);
+            while (queue.Count > 0)
+            {
+                var id = queue.Dequeue();
+                folderIds.Add(id);
 
-            var noteIds = await _context.Notes.GetIdsFromFoldersAsync(allFolderIds, CancellationToken.None);
-            await _context.Notes.DeleteFromRelatedAsync(noteIds, CancellationToken.None);
-            await _context.Notes.DeleteManyAsync(noteIds, CancellationToken.None);
+                var childrenEnumerable = _dbContext.Folders.AsNoTracking()
+                    .Where(x => x.ParentId == id)
+                    .Select(x => x.Id)
+                    .AsAsyncEnumerable();
 
-            await _context.CommitTransactionAsync();
+                await foreach (var childId in childrenEnumerable)
+                {
+                    queue.Enqueue(childId);
+                }
+            }
+
+            await _dbContext.Folders.Where(x => folderIds.Contains(x.Id))
+                .ExecuteDeleteAsync(CancellationToken.None);
+
+            // TODO: maybe this will just work without removing the related notes?
+            //await _context.Notes.DeleteFromRelatedAsync(noteIds, CancellationToken.None);
 
             return Unit.Value;
         }

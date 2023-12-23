@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
+using Notescrib.Features.Folders.Extensions;
 using Notescrib.Models;
 using Notescrib.Services;
 using Notescrib.Utils;
@@ -14,7 +16,7 @@ public static class CreateNote
 {
     public record Command(
             string Name,
-            string? FolderId,
+            Guid? FolderId,
             string? Content,
             IReadOnlyCollection<string> Tags,
             SharingInfo SharingInfo)
@@ -22,67 +24,58 @@ public static class CreateNote
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
         public Handler(
-            IMongoDbContext context,
+            NotescribDbContext dbContext,
             IPermissionGuard permissionGuard,
-            IDateTimeProvider dateTimeProvider)
+            IClock clock)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var userId = _permissionGuard.UserContext.UserId;
+            var userId = await _permissionGuard.UserContext.GetUserId(CancellationToken.None);
             
-            var folder = request.FolderId == null
-                ? await _context.Folders.GetRootAsync(cancellationToken: cancellationToken)
-                : await _context.Folders.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
-            if (folder == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
-            }
+            var folder = await _dbContext.Folders.Include(x => x.Notes)
+                .GetFolderOrRootAsync(userId, request.FolderId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             
-            _permissionGuard.GuardCanEdit(folder.OwnerId);
-
-            var notes = await _context.Notes.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
+            await _permissionGuard.GuardCanEdit(folder.OwnerId);
             
-            if (notes.Count >= Consts.Folder.MaxNoteCount)
+            if (folder.Notes.Count >= Consts.Folder.MaxNoteCount)
             {
                 throw new AppException(ErrorCodes.Folder.MaximumNoteCountReached);
             }
             
-            if (notes.Any(x => x.Name == request.Name))
+            if (folder.Notes.Any(x => x.Name == request.Name))
             {
                 throw new AppException(ErrorCodes.Note.NoteAlreadyExists);
             }
 
-            var now = _dateTimeProvider.Now;
+            var now = _clock.Now;
             var note = new Note
             {
                 Name = request.Name,
-                Tags = request.Tags.ToArray(),
                 OwnerId = userId,
-                SharingInfo = request.SharingInfo,
+                Visibility = request.SharingInfo.Visibility,
                 Created = now,
-                FolderId = folder.Id,
                 WorkspaceId = folder.WorkspaceId,
-                Content = request.Content ?? string.Empty
+                FolderId = folder.Id,
+                Content = new NoteContent { Content = request.Content ?? string.Empty },
+                Tags = request.Tags.Select(x => new NoteTag { Value = x }).ToArray()
             };
+
+            _dbContext.Add(note);
             
             folder.Updated = now;
 
-            await _context.EnsureTransactionAsync(CancellationToken.None);
-            
-            await _context.Notes.CreateAsync(note, cancellationToken);
-            await _context.Folders.UpdateAsync(folder, CancellationToken.None);
-
-            await _context.CommitTransactionAsync();
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
             
             return Unit.Value;
         }
@@ -97,7 +90,7 @@ public static class CreateNote
                 .MaximumLength(Consts.Name.MaxLength);
 
             RuleFor(x => x.Tags.Count)
-                .LessThanOrEqualTo(Consts.Note.MaxLabelCount);
+                .LessThanOrEqualTo(Consts.Note.MaxTagCount);
             RuleForEach(x => x.Tags)
                 .NotEmpty();
 

@@ -29,33 +29,33 @@ public class NotesController : ControllerBase
     public async Task<IActionResult> CreateNote(CreateNoteRequest request, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(NoteDetails), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetNote(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetNote(Guid id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetNoteDetails.Query(id), cancellationToken));
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateNote(string id, UpdateNoteRequest request,
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateNote(Guid id, UpdateNoteRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteNote(string id, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteNote(Guid id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteNote.Command(id), cancellationToken));
 
-    [HttpPut("{id}/content")]
-    public async Task<IActionResult> UpdateContent(string id, UpdateContentRequest request,
+    [HttpPut("{id:guid}/content")]
+    public async Task<IActionResult> UpdateContent(Guid id, UpdateContentRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
 
-    [HttpPost("{id}/related")]
-    public async Task<IActionResult> UpdateRelated(string id, [FromBody] IEnumerable<string> relatedIds,
+    [HttpPost("{id:guid}/related")]
+    public async Task<IActionResult> UpdateRelated(Guid id, [FromBody] IEnumerable<Guid> relatedIds,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new AddRelatedNotes.Command(id, relatedIds), cancellationToken));
 
-    [HttpDelete("{id}/related")]
-    public async Task<IActionResult> RemoveRelated(string id, [FromQuery] IEnumerable<string> relatedIds,
+    [HttpDelete("{id:guid}/related")]
+    public async Task<IActionResult> RemoveRelated(Guid id, [FromQuery] IEnumerable<Guid> relatedIds,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new RemoveRelatedNotes.Command(id, relatedIds), cancellationToken));
 }

@@ -14,20 +14,22 @@ public static class InitiatePasswordReset
     internal class Handler : ICommandHandler<Command>
     {
         private readonly AppUserManager _userManager;
-        private readonly IUserContextProvider _userContextProvider;
+        private readonly IUserContext _userContext;
         private readonly IEmailSender _emailSender;
 
-        public Handler(AppUserManager userManager, IUserContextProvider userContextProvider, IEmailSender emailSender)
+        public Handler(AppUserManager userManager, IUserContext userContext, IEmailSender emailSender)
         {
             _userManager = userManager;
-            _userContextProvider = userContextProvider;
+            _userContext = userContext;
             _emailSender = emailSender;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
+            var userInfo = await _userContext.GetUserInfo(CancellationToken.None);
+            
             var user = string.IsNullOrEmpty(request.Email)
-                ? await _userManager.FindByIdAsync(_userContextProvider.UserId)
+                ? await _userManager.FindByIdAsync(userInfo.UserId)
                 : await _userManager.FindByEmailAsync(request.Email);
             
             if (user == null)
@@ -45,11 +47,15 @@ public static class InitiatePasswordReset
 
     internal class Validator : AbstractValidator<Command>
     {
-        public Validator(IUserContextProvider userContextProvider)
+        public Validator(IUserContext userContext)
         {
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .When(_ => userContextProvider.IsAnonymous);
+                .WhenAsync(async (_, _) =>
+                {
+                    var user = await userContext.GetUserInfo(CancellationToken.None);
+                    return user.IsAnonymous;
+                });
         }
     }
 }

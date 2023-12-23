@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -10,32 +11,30 @@ namespace Notescrib.Features.Templates.Commands;
 
 public static class UpdateNoteTemplate
 {
-    public record Command(string Id, string Name) : ICommand;
+    public record Command(Guid Id, string Name) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var template = await _context.NoteTemplates.GetByIdAsync(request.Id, cancellationToken);
-            if (template == null)
-            {
-                throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
-            }
+            var template = await _dbContext.NoteTemplates
+                .FirstOrDefaultAsync(x => x.Id == request.Id, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
             
-            _permissionGuard.GuardCanEdit(template.OwnerId);
+            await _permissionGuard.GuardCanEdit(template.OwnerId);
 
             template.Name = request.Name;
-            
-            await _context.NoteTemplates.UpdateAsync(template, CancellationToken.None);
+
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

@@ -67,17 +67,7 @@ public static class CreateUser
         {
             try
             {
-                await _mediator.Publish(new CreateWorkspace.Notification(jwt), CancellationToken.None);
-                
-                try
-                {
-                    await _mediator.Publish(new SendConfirmationEmail.Notification(user), CancellationToken.None);
-                }
-                catch
-                {
-                    await _mediator.Publish(new DeleteWorkspace.Notification(jwt));
-                    throw;
-                }
+                await _mediator.Publish(new SendConfirmationEmail.Notification(user), CancellationToken.None);
             }
             catch
             {

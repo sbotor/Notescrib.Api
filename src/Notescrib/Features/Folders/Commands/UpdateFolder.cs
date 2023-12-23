@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -11,59 +12,51 @@ namespace Notescrib.Features.Folders.Commands;
 
 public static class UpdateFolder
 {
-    public record Command(string FolderId, string Name) : ICommand;
+    public record Command(Guid FolderId, string Name) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly NotescribDbContext _dbContext;
+        private readonly IClock _clock;
         private readonly IPermissionGuard _permissionGuard;
 
         public Handler(
-            IMongoDbContext context,
-            IDateTimeProvider dateTimeProvider,
+            NotescribDbContext dbContext,
+            IClock clock,
             IPermissionGuard permissionGuard)
         {
-            _context = context;
-            _dateTimeProvider = dateTimeProvider;
+            _dbContext = dbContext;
+            _clock = clock;
             _permissionGuard = permissionGuard;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var folder = await _context.Folders.GetByIdAsync(request.FolderId, cancellationToken: cancellationToken);
-            if (folder == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
-            }
+            var folder = await _dbContext.Folders
+                .FirstOrDefaultAsync(x => x.Id == request.FolderId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
             
-            _permissionGuard.GuardCanEdit(folder.OwnerId);
+            await _permissionGuard.GuardCanEdit(folder.OwnerId);
 
             if (folder.ParentId == null)
             {
                 throw new AppException("Cannot update root folder.");
             }
+            
+            var children = await _dbContext.Folders.AsNoTracking()
+                .Where(x => x.ParentId == folder.ParentId)
+                .ToArrayAsync(CancellationToken.None);
 
-            // TODO: optimize this later.
-            var parent = await _context.Folders.GetByIdAsync(
-                    folder.ParentId,
-                    new() { Children = true },
-                    cancellationToken);
-            if (parent == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound, "Parent folder does not exist.");
-            }
-
-            if (parent.Children.Any(x => x.Name == request.Name))
+            if (children.Any(x => x.Name == request.Name))
             {
                 throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
 
-            var now = _dateTimeProvider.Now;
+            var now = _clock.Now;
             folder.Updated = now;
             folder.Name = request.Name;
 
-            await _context.Folders.UpdateAsync(folder, cancellationToken);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

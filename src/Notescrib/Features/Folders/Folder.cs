@@ -1,26 +1,46 @@
-﻿using Notescrib.Features.Workspaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Notescrib.Features.Notes;
+using Notescrib.Features.Workspaces;
+using Notescrib.Utils;
 
 namespace Notescrib.Features.Folders;
 
-public class FolderData
+public class Folder
 {
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; } = Guid.NewGuid();
+    
     public string OwnerId { get; set; } = null!;
     public string Name { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
+    public int NestingLevel { get; set; }
 
-    public ICollection<string> AncestorIds { get; set; } = new List<string>();
-    public string? ParentId { get; set; }
-    public string WorkspaceId { get; set; } = null!;
+    public ICollection<Note> Notes { get; set; } = null!;
+    
+    public Guid? ParentId { get; set; }
+    public ICollection<Folder> Children { get; set; } = null!;
+    
+    public Guid WorkspaceId { get; set; }
 }
 
-public class Folder : FolderData
+internal class FolderEntityConfig : IEntityTypeConfiguration<Folder>
 {
-    internal const string RootName = "*root";
-    
-    public Workspace Workspace { get; set; } = null!;
-    public ICollection<Folder> ImmediateChildren { get; set; } = new List<Folder>();
-    public ICollection<Folder> Children { get; set; } = new List<Folder>();
-    public Folder? Parent { get; set; }
+    public void Configure(EntityTypeBuilder<Folder> builder)
+    {
+        builder.HasKey(x => x.Id);
+        
+        builder.Property(x => x.OwnerId).HasMaxLength(Consts.OwnerId.MaxLength);
+        builder.Property(x => x.Name).HasMaxLength(Consts.Name.MaxLength);
+
+        builder.HasOne<Folder>()
+            .WithMany(x => x.Children)
+            .HasForeignKey(x => x.ParentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Workspace>()
+            .WithMany()
+            .HasForeignKey(x => x.WorkspaceId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }

@@ -5,7 +5,7 @@ namespace Notescrib.WebApi.Features.Folders.Models;
 public class CreateFolderRequest
 {
     public string Name { get; set; } = null!;
-    public string? ParentId { get; set; } = null!;
+    public Guid? ParentId { get; set; } = null!;
 
     public CreateFolder.Command ToCommand()
         => new(Name, ParentId);

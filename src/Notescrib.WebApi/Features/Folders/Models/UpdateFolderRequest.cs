@@ -6,6 +6,6 @@ public class UpdateFolderRequest
 {
     public string Name { get; set; } = null!;
 
-    public UpdateFolder.Command ToCommand(string id)
+    public UpdateFolder.Command ToCommand(Guid id)
         => new(id, Name);
 }

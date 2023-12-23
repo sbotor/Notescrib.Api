@@ -3,6 +3,7 @@ using Notescrib.Core.Api.Configuration;
 using Notescrib.Core.Api.Extensions;
 using Notescrib.Core.Api.Middleware;
 using Notescrib.Core.Extensions;
+using Notescrib.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Services.ConfigureJwtAuth(jwtSettings);
         
 builder.Services.AddRequiredServices(builder.Configuration);
 
+var corsConfigured = builder.Services.TryAddCors(builder.Configuration);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -33,9 +36,16 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
         
+if (corsConfigured)
+{
+    app.UseCors();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
         
 app.MapControllers();
+
+app.MigrateDatabase();
 
 app.Run();

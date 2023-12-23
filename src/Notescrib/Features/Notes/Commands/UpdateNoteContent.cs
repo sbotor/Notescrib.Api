@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -11,35 +12,33 @@ namespace Notescrib.Features.Notes.Commands;
 
 public static class UpdateNoteContent
 {
-    public record Command(string NoteId, string Content) : ICommand;
+    public record Command(Guid NoteId, string Content) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard, IClock clock)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var note = await _context.Notes.GetByIdAsync(request.NoteId, cancellationToken: cancellationToken);
-            if (note == null)
-            {
-                throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
-            }
+            var note = await _dbContext.Notes
+                .FirstOrDefaultAsync(x => x.Id == request.NoteId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Note.NoteNotFound);
             
-            _permissionGuard.GuardCanEdit(note.OwnerId);
+            await _permissionGuard.GuardCanEdit(note.OwnerId);
 
-            note.Content = request.Content;
-            note.Updated = _dateTimeProvider.Now;
-            
-            await _context.Notes.UpdateContentAsync(note, CancellationToken.None);
+            note.Content = new() { Content = request.Content };
+            note.Updated = _clock.Now;
+
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

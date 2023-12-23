@@ -1,6 +1,6 @@
 ﻿namespace Notescrib.Models.Enums;
 
-public enum VisibilityLevel
+public enum VisibilityLevel : byte
 {
     Private,
     Hidden,

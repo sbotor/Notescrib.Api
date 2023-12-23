@@ -6,6 +6,6 @@ public class UpdateNoteTemplateRequest
 {
     public string Name { get; set; } = null!;
 
-    public UpdateNoteTemplate.Command ToCommand(string id)
+    public UpdateNoteTemplate.Command ToCommand(Guid id)
         => new(id, Name);
 }

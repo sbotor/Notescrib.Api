@@ -7,14 +7,6 @@ services:
       - 6543:5432
     environment:
       POSTGRES_PASSWORD: postgres
-
-  mongodb:
-    image: mongo
-    command: mongod --replSet rs0
-    ports:
-      - 37017:27017
-    volumes:
-      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
   
   identity:
     image: notescrib-identity

@@ -1,11 +1,14 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notescrib.Contracts;
 using Notescrib.Core.Cqrs.Behaviors;
 using Notescrib.Core.Extensions;
 using Notescrib.Core.Services;
+using Notescrib.Data;
+using Notescrib.Features.Notes.Mappers;
 using Notescrib.Services;
 using Notescrib.Utils.Mediatr;
 
@@ -19,20 +22,22 @@ public static class ServicesExtensions
     
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddMongoDb(config);
-
         services.AddMediatR();
+
+        var connectionStr = config.GetConnectionString("Default")
+            ?? throw new InvalidOperationException("No DB connection string.");
+        services.AddDbContext<NotescribDbContext>(x => x.UseNpgsql(connectionStr));
         
         services
             .AddHttpContextAccessor()
             .AddScoped<IPermissionGuard, PermissionGuard>()
-            .AddScoped<IUserContextProvider, UserContextProvider>();
+            .AddScoped<IUserContext, NotesUserContext>();
 
-        services
-            .AddMappers()
-            .AddAll(typeof(ISortingProvider<>));
+        services.AddAll(typeof(IMapper<,>));
+        services.AddScoped<INoteDetailsMapper, NoteDetailsMapper>()
+            .AddScoped<INoteOverviewMapper, NoteOverviewMapper>();
 
-        services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+        services.AddSingleton<IClock, UtcClock>();
         
         return services;
     }
@@ -45,9 +50,6 @@ public static class ServicesExtensions
 
         return services;
     }
-
-    private static IServiceCollection AddMappers(this IServiceCollection services)
-        => services.AddAll(typeof(IMapper<,>));
 
     private static IServiceCollection AddAll(this IServiceCollection services,
         Type parentType,

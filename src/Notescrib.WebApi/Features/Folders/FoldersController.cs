@@ -25,21 +25,21 @@ public class FoldersController : ControllerBase
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateFolder(
-        string id,
+        Guid id,
         UpdateFolderRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
     
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteFolder(
-        string id,
+        Guid id,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteFolder.Command(id), cancellationToken));
 
-    [HttpGet("{id?}")]
+    [HttpGet("{id:guid?}")]
     [ProducesResponseType(typeof(FolderDetails), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFolderDetails(string? id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFolderDetails(Guid? id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetFolderDetails.Query(id), cancellationToken));
 }

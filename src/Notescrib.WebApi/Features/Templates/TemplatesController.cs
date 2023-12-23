@@ -29,22 +29,22 @@ public class TemplatesController : ControllerBase
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToQuery(), cancellationToken));
     
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetTemplate(string id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetTemplate(Guid id, CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetNoteTemplateDetails.Query(id), cancellationToken));
     
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTemplate(string id, UpdateNoteTemplateRequest request,
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateTemplate(Guid id, UpdateNoteTemplateRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
     
-    [HttpPut("{id}/content")]
-    public async Task<IActionResult> UpdateTemplateContent(string id, UpdateNoteTemplateContentRequest request,
+    [HttpPut("{id:guid}/content")]
+    public async Task<IActionResult> UpdateTemplateContent(Guid id, UpdateNoteTemplateContentRequest request,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
     
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTemplate(string id,
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteTemplate(Guid id,
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new DeleteNoteTemplate.Command(id), cancellationToken));
 }

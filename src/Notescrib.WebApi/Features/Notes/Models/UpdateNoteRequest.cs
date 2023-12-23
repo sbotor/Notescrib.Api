@@ -9,6 +9,6 @@ public class UpdateNoteRequest
     public SharingInfo SharingInfo { get; set; } = null!;
     public IReadOnlyCollection<string> Tags { get; set; } = null!;
 
-    public UpdateNote.Command ToCommand(string id)
+    public UpdateNote.Command ToCommand(Guid id)
         => new(id, Name, Tags, SharingInfo);
 }

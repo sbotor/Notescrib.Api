@@ -1,10 +1,11 @@
-﻿using Notescrib.Contracts;
+﻿using Microsoft.EntityFrameworkCore;
+using Notescrib.Contracts;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
+using Notescrib.Features.Folders.Extensions;
 using Notescrib.Features.Folders.Models;
-using Notescrib.Features.Folders.Repositories;
-using Notescrib.Features.Notes;
+using Notescrib.Features.Notes.Mappers;
 using Notescrib.Features.Notes.Models;
 using Notescrib.Services;
 using Notescrib.Utils;
@@ -13,22 +14,22 @@ namespace Notescrib.Features.Folders.Queries;
 
 public static class GetFolderDetails
 {
-    public record Query(string? Id) : IQuery<FolderDetails>;
+    public record Query(Guid? Id) : IQuery<FolderDetails>;
 
     internal class Handler : IQueryHandler<Query, FolderDetails>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
         private readonly IMapper<Folder, FolderDetails> _folderMapper;
-        private readonly IMapper<Note, NoteOverview> _noteMapper;
+        private readonly INoteOverviewMapper _noteMapper;
 
         public Handler(
-            IMongoDbContext context,
+            NotescribDbContext dbContext,
             IPermissionGuard permissionGuard,
             IMapper<Folder, FolderDetails> folderMapper,
-            IMapper<Note, NoteOverview> noteMapper)
+            INoteOverviewMapper noteMapper)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
             _folderMapper = folderMapper;
             _noteMapper = noteMapper;
@@ -36,26 +37,27 @@ public static class GetFolderDetails
 
         public async Task<FolderDetails> Handle(Query request, CancellationToken cancellationToken)
         {
-            var includeOptions = new FolderIncludeOptions { ImmediateChildren = true };
+            var userId = await _permissionGuard.UserContext.GetUserId(CancellationToken.None);
 
-            var folder = request.Id == null
-                ? await _context.Folders.GetRootAsync(includeOptions, cancellationToken)
-                : await _context.Folders.GetByIdAsync(request.Id, includeOptions, cancellationToken);
-            if (folder == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
-            }
+            var folder = await _dbContext.Folders.AsNoTracking()
+                .Include(x => x.Notes.OrderBy(y => y.Name)).ThenInclude(x => x.Tags)
+                .Include(x => x.Children.OrderBy(y => y.Name))
+                .GetFolderOrRootAsync(userId, request.Id, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
 
-            _permissionGuard.GuardCanView(folder.OwnerId);
-
-            var notes = await _context.Notes.GetByFolderIdAsync(folder.Id, cancellationToken: cancellationToken);
+            await _permissionGuard.GuardCanView(folder.OwnerId);
 
             var mapped = _folderMapper.Map(folder);
-            
-            // TODO: Maybe do this on the DB server in the future.
-            mapped.Children = mapped.Children.OrderBy(x => x.Name).ToArray();
-            mapped.Notes = notes.OrderBy(x => x.Name).Select(_noteMapper.Map).ToArray();
 
+            var mappedNotes = new List<NoteOverview>(folder.Notes.Count);
+            mapped.Notes = mappedNotes;
+
+            foreach (var note in folder.Notes)
+            {
+                var isReadonly = !await _permissionGuard.CanEdit(note.OwnerId);
+                mappedNotes.Add(_noteMapper.Map(note, isReadonly));
+            }
+            
             return mapped;
         }
     }

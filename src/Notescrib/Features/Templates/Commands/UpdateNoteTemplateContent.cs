@@ -1,45 +1,44 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
+using Notescrib.Data;
 using Notescrib.Services;
 using Notescrib.Utils;
 
 namespace Notescrib.Features.Templates.Commands;
 
-public class UpdateNoteTemplateContent
+public static class UpdateNoteTemplateContent
 {
-    public record Command(string Id, string Content) : ICommand;
+    public record Command(Guid Id, string Content) : ICommand;
     
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
-        public Handler(IMongoDbContext context, IPermissionGuard permissionGuard, IDateTimeProvider dateTimeProvider)
+        public Handler(NotescribDbContext dbContext, IPermissionGuard permissionGuard, IClock clock)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var template = await _context.NoteTemplates.GetByIdAsync(request.Id, cancellationToken);
-            if (template == null)
-            {
-                throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
-            }
+            var template = await _dbContext.NoteTemplates
+                .FirstOrDefaultAsync(x => x.Id == request.Id, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.NoteTemplate.NoteTemplateNotFound);
             
-            _permissionGuard.GuardCanEdit(template.OwnerId);
+            await _permissionGuard.GuardCanEdit(template.OwnerId);
 
-            template.Content = request.Content;
-            template.Updated = _dateTimeProvider.Now;
-            
-            await _context.NoteTemplates.UpdateContentAsync(template, CancellationToken.None);
+            template.Content = new() { Content = request.Content };
+            template.Updated = _clock.Now;
+
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

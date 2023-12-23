@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notescrib.Core.Cqrs;
 using Notescrib.Core.Models.Exceptions;
 using Notescrib.Core.Services;
-using Notescrib.Data.MongoDb;
-using Notescrib.Features.Folders.Repositories;
+using Notescrib.Data;
+using Notescrib.Features.Folders.Extensions;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -12,52 +13,50 @@ namespace Notescrib.Features.Folders.Commands;
 
 public static class CreateFolder
 {
-    public record Command(string Name, string? ParentId) : ICommand;
+    public record Command(string Name, Guid? ParentId) : ICommand;
 
     internal class Handler : ICommandHandler<Command>
     {
-        private readonly IMongoDbContext _context;
+        private readonly NotescribDbContext _dbContext;
         private readonly IPermissionGuard _permissionGuard;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IClock _clock;
 
         public Handler(
-            IMongoDbContext context,
+            NotescribDbContext dbContext,
             IPermissionGuard permissionGuard,
-            IDateTimeProvider dateTimeProvider)
+            IClock clock)
         {
-            _context = context;
+            _dbContext = dbContext;
             _permissionGuard = permissionGuard;
-            _dateTimeProvider = dateTimeProvider;
+            _clock = clock;
         }
 
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var userId = _permissionGuard.UserContext.UserId;
-            var now = _dateTimeProvider.Now;
-
-            var includeOptions = new FolderIncludeOptions { Children = true };
-
-            var parent = request.ParentId == null
-                ? await _context.Folders.GetRootAsync(includeOptions, cancellationToken)
-                : await _context.Folders.GetByIdAsync(request.ParentId, includeOptions, cancellationToken);
-            if (parent == null)
-            {
-                throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
-            }
-
-            _permissionGuard.GuardCanEdit(parent.OwnerId);
+            var userId = await _permissionGuard.UserContext.GetUserId(CancellationToken.None);
+            var now = _clock.Now;
             
-            if (parent.Children.Count >= Consts.Folder.MaxChildrenCount)
-            {
-                throw new AppException(ErrorCodes.Folder.MaximumFolderCountReached);
-            }
+            var parent = await _dbContext.Folders.AsNoTracking()
+                .GetFolderOrRootAsync(userId, request.ParentId, CancellationToken.None)
+                ?? throw new NotFoundException(ErrorCodes.Folder.FolderNotFound);
 
-            if (parent.AncestorIds.Count >= Consts.Folder.MaxNestingLevel)
+            await _permissionGuard.GuardCanEdit(parent.OwnerId);
+            
+            if (parent.NestingLevel >= Consts.Folder.MaxNestingLevel)
             {
                 throw new AppException(ErrorCodes.Folder.CannotNestMoreChildren);
             }
 
-            if (parent.Children.Any(x => x.Name == request.Name))
+            var children = await _dbContext.Folders.AsNoTracking()
+                .Where(x => x.ParentId == parent.Id)
+                .ToArrayAsync(CancellationToken.None);
+            
+            if (children.Length >= Consts.Folder.MaxChildrenCount)
+            {
+                throw new AppException(ErrorCodes.Folder.MaximumFolderCountReached);
+            }
+
+            if (children.Any(x => x.Name == request.Name))
             {
                 throw new DuplicationException(ErrorCodes.Folder.FolderAlreadyExists);
             }
@@ -67,12 +66,13 @@ public static class CreateFolder
                 Name = request.Name,
                 Created = now,
                 OwnerId = userId,
-                AncestorIds = parent.AncestorIds.Append(parent.Id).ToArray(),
                 ParentId = parent.Id,
-                WorkspaceId = parent.WorkspaceId
+                WorkspaceId = parent.WorkspaceId,
+                NestingLevel = parent.NestingLevel + 1
             };
 
-            await _context.Folders.CreateAsync(folder, cancellationToken);
+            _dbContext.Add(folder);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             return Unit.Value;
         }

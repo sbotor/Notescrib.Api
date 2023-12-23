@@ -1,6 +1,11 @@
 ﻿namespace Notescrib.Core.Services;
 
-public class UtcDateTimeProvider : IDateTimeProvider
+public interface IClock
+{
+    DateTime Now { get; }
+}
+
+public class UtcClock : IClock
 {
     public DateTime Now => DateTime.UtcNow;
 }
