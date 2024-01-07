@@ -7,6 +7,7 @@ using Notescrib.Extensions;
 using Notescrib.Features.Notes.Mappers;
 using Notescrib.Features.Notes.Models;
 using Notescrib.Models;
+using Notescrib.Models.Enums;
 using Notescrib.Services;
 using Notescrib.Utils;
 
@@ -37,16 +38,36 @@ public static class SearchNotes
 
         public async Task<PagedList<NoteOverview>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var userId = await _userContext.GetUserId(CancellationToken.None);
+            var user = await _userContext.GetUserInfo(CancellationToken.None);
 
-            var query = _dbContext.Notes.AsNoTracking()
-                .Include(x => x.Tags)
-                .Where(x => x.OwnerId == userId, request.OwnOnly);
+            IQueryable<Note> query = _dbContext.Notes.AsNoTracking()
+                .Include(x => x.Tags);
+            
+            if (user.IsAnonymous)
+            {
+                query = query.Where(x => x.Visibility == VisibilityLevel.Public);
+            }
+            else
+            {
+                var userId = user.UserId;
+                
+                if (request.OwnOnly)
+                {
+                    query = query.Where(x => x.OwnerId == userId);
+                }
+                else
+                {
+                    query = query.Where(x => x.Visibility == VisibilityLevel.Public
+                        || (x.OwnerId == userId
+                            && (x.Visibility == VisibilityLevel.Hidden
+                                || x.Visibility == VisibilityLevel.Private)));
+                }
+            }
 
             var (data, count) = await query.PaginateRaw(request.Paging, cancellationToken);
 
             var mapped = new List<NoteOverview>(data.Length);
-            
+
             foreach (var item in data)
             {
                 var isReadonly = !await _permissionGuard.CanEdit(item.OwnerId);

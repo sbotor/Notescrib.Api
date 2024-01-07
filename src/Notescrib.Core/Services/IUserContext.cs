@@ -66,12 +66,7 @@ public class UserContext : IUserContext
         return new(userId);
     }
 
-    public string UserId => UserIdOrDefault
-        ?? throw new InvalidOperationException("No user ID found.");
-
     public string? UserIdOrDefault => GetClaim(ClaimTypes.NameIdentifier);
-
-    public bool IsAnonymous => !CheckIsAuthenticated();
 
     private string? GetClaim(string claimType)
         => _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;

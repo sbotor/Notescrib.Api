@@ -12,8 +12,6 @@ using Notescrib.Features.Notes.Mappers;
 using Notescrib.Services;
 using Notescrib.Utils.Mediatr;
 
-[assembly: InternalsVisibleTo("Notescrib.Tests")]
-
 namespace Notescrib;
 
 public static class ServicesExtensions

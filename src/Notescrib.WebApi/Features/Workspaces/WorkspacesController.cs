@@ -18,6 +18,6 @@ public class WorkspacesController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<IActionResult> DeleteWorkspace(CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new DeleteWorkspace.Command(), cancellationToken));
+    public Task DeleteWorkspace(CancellationToken cancellationToken)
+        => _mediator.Send(new DeleteWorkspace.Command(), cancellationToken);
 }

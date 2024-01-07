@@ -21,25 +21,25 @@ public class FoldersController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateFolder(CreateFolderRequest request,
+    public Task CreateFolder(CreateFolderRequest request,
         CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToCommand(), cancellationToken));
+        => _mediator.Send(request.ToCommand(), cancellationToken);
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateFolder(
+    public Task UpdateFolder(
         Guid id,
         UpdateFolderRequest request,
         CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(request.ToCommand(id), cancellationToken));
+        =>  _mediator.Send(request.ToCommand(id), cancellationToken);
     
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteFolder(
+    public Task DeleteFolder(
         Guid id,
         CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new DeleteFolder.Command(id), cancellationToken));
+        => _mediator.Send(new DeleteFolder.Command(id), cancellationToken);
 
     [HttpGet("{id:guid?}")]
     [ProducesResponseType(typeof(FolderDetails), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFolderDetails(Guid? id, CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new GetFolderDetails.Query(id), cancellationToken));
+    public Task<FolderDetails> GetFolderDetails(Guid? id, CancellationToken cancellationToken)
+        => _mediator.Send(new GetFolderDetails.Query(id), cancellationToken);
 }
