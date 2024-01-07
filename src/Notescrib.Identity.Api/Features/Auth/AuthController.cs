@@ -18,6 +18,6 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Authenticate(AuthRequest request)
-        => Ok(await _mediator.Send(request.ToQuery()));
+    public Task<TokenResponse> Authenticate(AuthRequest request)
+        => _mediator.Send(request.ToQuery());
 }

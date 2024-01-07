@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notescrib.Identity.Api.Features.Users.Models;
+using Notescrib.Identity.Features.Auth.Models;
 using Notescrib.Identity.Features.Users.Commands;
+using Notescrib.Identity.Features.Users.Models;
 using Notescrib.Identity.Features.Users.Queries;
 
 namespace Notescrib.Identity.Api.Features.Users;
@@ -19,29 +21,29 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateUser(CreateUserRequest request)
-        => Ok(await _mediator.Send(request.ToCommand()));
+    public Task<TokenResponse> CreateUser(CreateUserRequest request)
+        => _mediator.Send(request.ToCommand());
 
     [HttpGet]
-    public async Task<IActionResult> GetCurrentUserDetails(CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new GetUserDetails.Query(), cancellationToken));
+    public Task<UserDetails> GetCurrentUserDetails(CancellationToken cancellationToken)
+        => _mediator.Send(new GetUserDetails.Query(), cancellationToken);
     
     [HttpDelete]
-    public async Task<IActionResult> DeleteUser()
-        => Ok(await _mediator.Send(new DeleteUser.Command()));
+    public Task DeleteUser()
+        => _mediator.Send(new DeleteUser.Command());
     
     [HttpPost("{id}/activate")]
     [AllowAnonymous]
-    public async Task<IActionResult> ActivateAccount(string id, ActivateAccountRequest request)
-        => Ok(await _mediator.Send(request.ToCommand(id)));
+    public Task ActivateAccount(string id, ActivateAccountRequest request)
+        => _mediator.Send(request.ToCommand(id));
     
     [HttpPost("password")]
     [AllowAnonymous]
-    public async Task<IActionResult> InitiatePasswordReset(InitiatePasswordResetRequest request)
-        => Ok(await _mediator.Send(request.ToCommand()));
+    public Task InitiatePasswordReset(InitiatePasswordResetRequest request)
+        => _mediator.Send(request.ToCommand());
     
     [HttpPut("{id}/password")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResetPassword(string id, ResetUserPasswordRequest request)
-        => Ok(await _mediator.Send(request.ToCommand(id)));
+    public Task ResetPassword(string id, ResetUserPasswordRequest request)
+        => _mediator.Send(request.ToCommand(id));
 }
