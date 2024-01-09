@@ -64,6 +64,8 @@ public static class SearchNotes
                 }
             }
 
+            query = query.Where(x => x.Name.Contains(request.TextFilter!), !string.IsNullOrEmpty(request.TextFilter));
+
             var (data, count) = await query.PaginateRaw(request.Paging, cancellationToken);
 
             var mapped = new List<NoteOverview>(data.Length);
