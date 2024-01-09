@@ -29,6 +29,7 @@ public static class SearchNoteTemplates
         public Task<PagedList<NoteTemplateOverview>> Handle(Query request, CancellationToken cancellationToken)
         {
             var query = _dbContext.NoteTemplates.AsNoTracking()
+                .OrderBy(x => x.Name)
                 .Where(x => x.Name == request.TextFilter, !string.IsNullOrEmpty(request.TextFilter));
 
             return query.Paginate(request.Paging, _mapper.Map, cancellationToken);

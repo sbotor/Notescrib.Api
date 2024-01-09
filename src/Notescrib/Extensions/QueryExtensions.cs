@@ -20,10 +20,11 @@ public static class QueryExtensions
         Paging paging,
         CancellationToken cancellationToken = default)
     {
+        var count = await query.CountAsync(cancellationToken);
+        
         var skipCount = (paging.Page - 1) * paging.PageSize;
         query = query.Skip(skipCount).Take(paging.PageSize);
 
-        var count = await query.CountAsync(cancellationToken);
         var data = await query.ToArrayAsync(cancellationToken);
 
         return (data, count);

@@ -64,7 +64,8 @@ public static class SearchNotes
                 }
             }
 
-            query = query.Where(x => x.Name.Contains(request.TextFilter!), !string.IsNullOrEmpty(request.TextFilter));
+            query = query.Where(x => x.Name.Contains(request.TextFilter!), !string.IsNullOrEmpty(request.TextFilter))
+                .OrderBy(x => x.Name);
 
             var (data, count) = await query.PaginateRaw(request.Paging, cancellationToken);
 
